@@ -9,37 +9,39 @@ project(
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
-add_library(aowis-server-model INTERFACE)
+add_library(aowis-server-model STATIC
+    src/model.cpp
+
+    include/aowis/model/gis.h
+    include/aowis/model/project.h
+    include/aowis/model/revision.h
+
+    include/aowis/model/hydraulic/network.h
+    include/aowis/model/hydraulic/epanet_status.h
+    include/aowis/model/hydraulic/simulation_result.h
+)
+
 add_library(AOWIS::ServerModel ALIAS aowis-server-model)
 add_library(AOWIS::Model ALIAS aowis-server-model)
 
-target_sources(
-    aowis-server-model
-    PRIVATE
-        include/aowis/model/gis.h
-        include/aowis/model/project.h
-        include/aowis/model/revision.h
-        include/aowis/model/hydraulic/network.h
-        include/aowis/model/hydraulic/epanet_status.h
-        #include/aowis/model/hydraulic/simulation_request.h
-        include/aowis/model/hydraulic/simulation_result.h
+set_target_properties(aowis-server-model PROPERTIES
+    AUTOMOC ON
+    EXPORT_NAME ServerModel
+    POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(
-    aowis-server-model
-    INTERFACE
+target_link_libraries(aowis-server-model
+    PUBLIC
         Qt6::Core
 )
 
-target_compile_features(
-    aowis-server-model
-    INTERFACE
+target_compile_features(aowis-server-model
+    PUBLIC
         cxx_std_20
 )
 
-target_include_directories(
-    aowis-server-model
-    INTERFACE
+target_include_directories(aowis-server-model
+    PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
@@ -49,6 +51,9 @@ include(GNUInstallDirs)
 install(
     TARGETS aowis-server-model
     EXPORT AOWISServerModelTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(
