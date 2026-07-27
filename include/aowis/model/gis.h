@@ -1,10 +1,13 @@
 #ifndef GIS_STRUCTS_H
 #define GIS_STRUCTS_H
 
+#include <optional>
+
 struct CoordinateWGS84
 {
     double lon = 0.0;
     double lat = 0.0;
+
     // GPS altitude, if available.
     // Not necessarily suitable as hydraulic EPANET elevation.
     std::optional<double> altitude_m;
@@ -20,27 +23,26 @@ struct CoordinateUTM
 {
     double easting = 0.0;
     double northing = 0.0;
-    
+
     int zone = 0;
     bool hemisphere_northern = true;
-    
+
     bool isUPS() const
     {
-        return zone == 0;
+        return this->zone == 0;
     }
-    
+
     bool isUTM() const
     {
-        return zone >= 1 && zone <= 60;
+        return this->zone >= 1 && this->zone <= 60;
     }
 };
 
-// this is UTM coordinates but relative to a user set project origin in CoordinateUTM
-// this helps to keep the numbers small for EPANET export
+// UTM coordinates relative to a user-defined project origin.
 struct CoordinateLocal
 {
-    double x = 0.0; // meters east from project origin
-    double y = 0.0; // meters north from project origin
+    double x = 0.0;
+    double y = 0.0;
 };
 
 #endif // GIS_STRUCTS_H
