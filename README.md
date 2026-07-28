@@ -1,6 +1,6 @@
 # AOWIS Server Model
 
-Shared C++ domain model for AOWIS applications, services, and infrastructure components.
+Shared C++ domain model for [AOWIS](https://aowis.org) applications, services, and infrastructure components.
 
 This repository provides common data structures and enums for representing AOWIS domain data. It currently covers projects, revisions, GIS coordinates, hydraulic networks, EPANET-related configuration, and hydraulic simulation results. Electrical model structures are planned under the existing `electric` directory.
 
