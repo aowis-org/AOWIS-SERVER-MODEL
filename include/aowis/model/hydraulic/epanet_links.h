@@ -63,7 +63,7 @@ struct Pump
     QString efficiency_curve_id;
 
     PumpEnergyPriceInputType energy_price_input_type = PumpEnergyPriceInputType::Global;
-    double energy_price_per_kwh = 0.0;
+    double energy_price_per_kw_h = 0.0;
     QString price_pattern_id;
 
     EpanetObjectMetadata metadata;

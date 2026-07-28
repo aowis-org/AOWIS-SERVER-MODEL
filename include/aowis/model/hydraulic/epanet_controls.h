@@ -20,7 +20,7 @@ struct EpanetSimpleControl
     double setting = 0.0;
 
     QString trigger_node_id;
-    double trigger_level_or_pressure_m = 0.0;
+    double trigger_level_or_pressure_head_m = 0.0;
     long trigger_time_s = 0;
 
     bool enabled = true;

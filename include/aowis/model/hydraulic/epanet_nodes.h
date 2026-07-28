@@ -11,7 +11,7 @@
 struct JunctionDemand
 {
     QString category_name;
-    double base_demand_m3h = 0.0;
+    double base_demand_m3_per_h = 0.0;
     QString pattern_id;
 
     DemandSourceMethod source_method = DemandSourceMethod::ManualEstimation;

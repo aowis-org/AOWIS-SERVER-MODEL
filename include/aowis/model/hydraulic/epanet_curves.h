@@ -29,7 +29,7 @@ struct TankVolumeCurve
 
 struct PumpCurvePoint
 {
-    double flow_m3h = 0.0;
+    double flow_m3_per_h = 0.0;
     double head_m = 0.0;
 };
 
@@ -46,7 +46,7 @@ using PumpHeadCurve = PumpCurve;
 
 struct PumpEfficiencyCurvePoint
 {
-    double flow_m3h = 0.0;
+    double flow_m3_per_h = 0.0;
     double efficiency_percent = 0.0;
 };
 
@@ -60,8 +60,8 @@ struct PumpEfficiencyCurve
 
 struct ValveHeadlossCurvePoint
 {
-    double flow_m3h = 0.0;
-    double headloss_m = 0.0;
+    double flow_m3_per_h = 0.0;
+    double head_loss_m = 0.0;
 };
 
 struct ValveHeadlossCurve

@@ -15,8 +15,8 @@ struct EpanetHydraulicOptions
     EpanetHeadlossFormula headloss_formula = EpanetHeadlossFormula::HazenWilliams;
     EpanetDemandModel demand_model = EpanetDemandModel::DemandDriven;
 
-    double minimum_pressure_m = 0.0;
-    double required_pressure_m = 0.0;
+    double minimum_pressure_head_m = 0.0;
+    double required_pressure_head_m = 0.0;
     double pressure_exponent = 0.5;
 
     int maximum_trials = 200;
@@ -27,7 +27,7 @@ struct EpanetHydraulicOptions
     int maximum_check = 10;
     double damping_limit = 0.0;
     double maximum_head_error_m = 0.0;
-    double maximum_flow_change_m3h = 0.0;
+    double maximum_flow_change_m3_per_h = 0.0;
 
     double demand_multiplier = 1.0;
     QString default_demand_pattern_id;
@@ -67,7 +67,7 @@ struct EpanetReactionOptions
 struct EpanetEnergyOptions
 {
     double global_pump_efficiency_percent = 75.0;
-    double global_energy_price_per_kwh = 0.0;
+    double global_energy_price_per_kw_h = 0.0;
     QString global_energy_price_pattern_id;
     double demand_charge_per_kw = 0.0;
 };

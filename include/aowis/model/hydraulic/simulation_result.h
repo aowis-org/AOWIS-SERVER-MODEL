@@ -13,15 +13,15 @@ struct JunctionResult
 {
     QString id;
 
-    double demand_requested_m3h = 0.0;
-    double demand_delivered_m3h = 0.0;
-    double demand_deficit_m3h = 0.0;
+    double demand_requested_m3_per_h = 0.0;
+    double demand_delivered_m3_per_h = 0.0;
+    double demand_deficit_m3_per_h = 0.0;
 
-    double emitter_flow_m3h = 0.0;
-    double leakage_flow_m3h = 0.0;
+    double emitter_flow_m3_per_h = 0.0;
+    double leakage_flow_m3_per_h = 0.0;
 
     double head_m = 0.0;
-    double pressure_m = 0.0;
+    double pressure_head_m = 0.0;
 
     double quality = 0.0;
     double source_mass_per_minute = 0.0;
@@ -33,9 +33,9 @@ struct ReservoirResult
 {
     QString id;
 
-    double net_demand_m3h = 0.0;
+    double net_demand_m3_per_h = 0.0;
     double head_m = 0.0;
-    double pressure_m = 0.0;
+    double pressure_head_m = 0.0;
 
     double quality = 0.0;
     double source_mass_per_minute = 0.0;
@@ -47,10 +47,10 @@ struct TankResult
 {
     QString id;
 
-    double net_demand_m3h = 0.0;
+    double net_demand_m3_per_h = 0.0;
 
     double head_m = 0.0;
-    double pressure_m = 0.0;
+    double pressure_head_m = 0.0;
     double level_m = 0.0;
     double volume_m3 = 0.0;
     double mixing_zone_volume_m3 = 0.0;
@@ -65,11 +65,10 @@ struct PipeResult
 {
     QString id;
 
-    double flow_lps = 0.0;
-    double flow_m3h = 0.0;
-    double leakage_flow_m3h = 0.0;
+    double flow_m3_per_h = 0.0;
+    double leakage_flow_m3_per_h = 0.0;
 
-    double velocity_mps = 0.0;
+    double velocity_m_per_s = 0.0;
     double headloss = 0.0;
 
     bool open = true;
@@ -84,9 +83,8 @@ struct PumpResult
 {
     QString id;
 
-    double flow_lps = 0.0;
-    double flow_m3h = 0.0;
-    double velocity_mps = 0.0;
+    double flow_m3_per_h = 0.0;
+    double velocity_m_per_s = 0.0;
     double headloss = 0.0;
 
     bool open = true;
@@ -105,9 +103,8 @@ struct ValveResult
 {
     QString id;
 
-    double flow_lps = 0.0;
-    double flow_m3h = 0.0;
-    double velocity_mps = 0.0;
+    double flow_m3_per_h = 0.0;
+    double velocity_m_per_s = 0.0;
     double headloss = 0.0;
 
     bool open = true;
@@ -136,7 +133,7 @@ struct EpanetAnalysisStatistics
     double hydraulic_iterations = 0.0;
     double relative_error = 0.0;
     double maximum_head_error_m = 0.0;
-    double maximum_flow_change_m3h = 0.0;
+    double maximum_flow_change_m3_per_h = 0.0;
 
     double quality_mass_balance_ratio = 0.0;
 
