@@ -23,8 +23,8 @@ struct Junction
     QString id;
     QUuid uuid;
 
-    double latitude = 0.0;
-    double longitude = 0.0;
+    double latitude_deg = 0.0;
+    double longitude_deg = 0.0;
     std::optional<EpanetMapPoint> epanet_position;
 
     ElevationInputType elevation_input_type = ElevationInputType::TotalElevation;
@@ -47,8 +47,8 @@ struct Reservoir
     QString id;
     QUuid uuid;
 
-    double latitude = 0.0;
-    double longitude = 0.0;
+    double latitude_deg = 0.0;
+    double longitude_deg = 0.0;
     std::optional<EpanetMapPoint> epanet_position;
 
     ElevationInputType head_input_type = ElevationInputType::TotalHead;
@@ -68,8 +68,8 @@ struct Tank
     QString id;
     QUuid uuid;
 
-    double latitude = 0.0;
-    double longitude = 0.0;
+    double latitude_deg = 0.0;
+    double longitude_deg = 0.0;
     std::optional<EpanetMapPoint> epanet_position;
 
     ElevationInputType elevation_input_type = ElevationInputType::BottomElevation;

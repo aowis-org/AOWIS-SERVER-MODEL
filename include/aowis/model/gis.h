@@ -5,8 +5,8 @@
 
 struct CoordinateWGS84
 {
-    double lon = 0.0;
-    double lat = 0.0;
+    double longitude_deg = 0.0;
+    double latitude_deg = 0.0;
 
     // GPS altitude, if available.
     // Not necessarily suitable as hydraulic EPANET elevation.
@@ -21,8 +21,8 @@ struct CoordinateWGS84Rect
 
 struct CoordinateUTM
 {
-    double easting = 0.0;
-    double northing = 0.0;
+    double easting_m = 0.0;
+    double northing_m = 0.0;
 
     int zone = 0;
     bool hemisphere_northern = true;
@@ -41,8 +41,8 @@ struct CoordinateUTM
 // UTM coordinates relative to a user-defined project origin.
 struct CoordinateLocal
 {
-    double x = 0.0;
-    double y = 0.0;
+    double x_m = 0.0;
+    double y_m = 0.0;
 };
 
 #endif // GIS_STRUCTS_H
