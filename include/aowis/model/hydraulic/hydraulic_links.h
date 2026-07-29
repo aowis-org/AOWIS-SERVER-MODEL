@@ -14,8 +14,8 @@ struct HydraulicLinkPipe
     QString id;
     QUuid uuid;
 
-    QString node_id_from;
-    QString node_id_to;
+    QUuid node_uuid_from;
+    QUuid node_uuid_to;
     QList<HydraulicLinkVertex> vertices;
 
     double length_calculated_m = 0.0;
@@ -45,8 +45,8 @@ struct HydraulicLinkPump
     QString id;
     QUuid uuid;
 
-    QString node_id_from;
-    QString node_id_to;
+    QUuid node_uuid_from;
+    QUuid node_uuid_to;
     QList<HydraulicLinkVertex> vertices;
 
     HydraulicLinkPumpDefinitionType definition_type = HydraulicLinkPumpDefinitionType::ConstantPower;
@@ -75,8 +75,8 @@ struct HydraulicLinkValve
     QString id;
     QUuid uuid;
 
-    QString node_id_from;
-    QString node_id_to;
+    QUuid node_uuid_from;
+    QUuid node_uuid_to;
     QList<HydraulicLinkVertex> vertices;
 
     HydraulicLinkValveType type = HydraulicLinkValveType::PRV;

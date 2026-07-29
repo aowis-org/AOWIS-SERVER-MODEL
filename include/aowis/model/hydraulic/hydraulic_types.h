@@ -5,6 +5,8 @@
 
 #include <QString>
 
+#include "../gis.h"
+
 enum class HydraulicNodeElevationInputType
 {
     AbsoluteElevation = 0,
@@ -298,8 +300,7 @@ struct HydraulicMapPosition
 
 struct HydraulicLinkVertex
 {
-    double latitude_deg = 0.0;
-    double longitude_deg = 0.0;
+    CoordinateWGS84 coordinate_wgs84;
     std::optional<HydraulicMapPosition> map_position;
 };
 

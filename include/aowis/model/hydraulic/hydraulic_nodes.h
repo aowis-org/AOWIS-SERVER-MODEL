@@ -7,6 +7,7 @@
 #include <QString>
 #include <QUuid>
 
+#include "../gis.h"
 #include "hydraulic_types.h"
 
 struct HydraulicNodeJunctionDemand
@@ -24,8 +25,7 @@ struct HydraulicNodeJunction
     QString id;
     QUuid uuid;
 
-    double latitude_deg = 0.0;
-    double longitude_deg = 0.0;
+    CoordinateWGS84 coordinate_wgs84;
     std::optional<HydraulicMapPosition> map_position;
 
     HydraulicNodeElevationInputType elevation_input_type = HydraulicNodeElevationInputType::TotalElevation;
@@ -48,8 +48,7 @@ struct HydraulicNodeReservoir
     QString id;
     QUuid uuid;
 
-    double latitude_deg = 0.0;
-    double longitude_deg = 0.0;
+    CoordinateWGS84 coordinate_wgs84;
     std::optional<HydraulicMapPosition> map_position;
 
     HydraulicNodeElevationInputType head_input_type = HydraulicNodeElevationInputType::TotalHead;
@@ -69,8 +68,7 @@ struct HydraulicNodeTank
     QString id;
     QUuid uuid;
 
-    double latitude_deg = 0.0;
-    double longitude_deg = 0.0;
+    CoordinateWGS84 coordinate_wgs84;
     std::optional<HydraulicMapPosition> map_position;
 
     HydraulicNodeTankElevationInputType elevation_input_type = HydraulicNodeTankElevationInputType::BottomElevation;
