@@ -1,11 +1,11 @@
-#ifndef AOWIS_MODEL_HYDRAULIC_EPANET_CURVES_H
-#define AOWIS_MODEL_HYDRAULIC_EPANET_CURVES_H
+#ifndef AOWIS_MODEL_HYDRAULIC_CURVES_H
+#define AOWIS_MODEL_HYDRAULIC_CURVES_H
 
 #include <QList>
 #include <QString>
 #include <QUuid>
 
-struct EpanetPatternTime
+struct HydraulicPatternTime
 {
     QString id;
     QUuid uuid;
@@ -13,88 +13,88 @@ struct EpanetPatternTime
     QString comment;
 };
 
-struct EpanetCurveTankVolumePoint
+struct HydraulicCurveTankVolumePoint
 {
     double water_level_m = 0.0;
     double volume_m3 = 0.0;
 };
 
-struct EpanetCurveTankVolume
+struct HydraulicCurveTankVolume
 {
     QString id;
     QUuid uuid;
-    QList<EpanetCurveTankVolumePoint> points;
+    QList<HydraulicCurveTankVolumePoint> points;
     QString comment;
 };
 
-struct EpanetCurvePumpHeadPoint
+struct HydraulicCurvePumpHeadPoint
 {
     double flow_m3_per_h = 0.0;
     double head_gain_m = 0.0;
 };
 
-struct EpanetCurvePumpHead
+struct HydraulicCurvePumpHead
 {
     QString id;
     QUuid uuid;
-    QList<EpanetCurvePumpHeadPoint> points;
+    QList<HydraulicCurvePumpHeadPoint> points;
     QString comment;
 };
 
-struct EpanetCurvePumpEfficiencyPoint
+struct HydraulicCurvePumpEfficiencyPoint
 {
     double flow_m3_per_h = 0.0;
     double efficiency_percent = 0.0;
 };
 
-struct EpanetCurvePumpEfficiency
+struct HydraulicCurvePumpEfficiency
 {
     QString id;
     QUuid uuid;
-    QList<EpanetCurvePumpEfficiencyPoint> points;
+    QList<HydraulicCurvePumpEfficiencyPoint> points;
     QString comment;
 };
 
-struct EpanetCurveValveHeadlossPoint
+struct HydraulicCurveValveHeadlossPoint
 {
     double flow_m3_per_h = 0.0;
     double head_loss_m = 0.0;
 };
 
-struct EpanetCurveValveHeadloss
+struct HydraulicCurveValveHeadloss
 {
     QString id;
     QUuid uuid;
-    QList<EpanetCurveValveHeadlossPoint> points;
+    QList<HydraulicCurveValveHeadlossPoint> points;
     QString comment;
 };
 
-struct EpanetCurveValveCharacteristicPoint
+struct HydraulicCurveValveCharacteristicPoint
 {
     double position_percent = 0.0;
     double relative_flow_percent = 0.0;
 };
 
-struct EpanetCurveValveCharacteristic
+struct HydraulicCurveValveCharacteristic
 {
     QString id;
     QUuid uuid;
-    QList<EpanetCurveValveCharacteristicPoint> points;
+    QList<HydraulicCurveValveCharacteristicPoint> points;
     QString comment;
 };
 
-struct EpanetCurveGenericPoint
+struct HydraulicCurveGenericPoint
 {
     double x = 0.0;
     double y = 0.0;
 };
 
-struct EpanetCurveGeneric
+struct HydraulicCurveGeneric
 {
     QString id;
     QUuid uuid;
-    QList<EpanetCurveGenericPoint> points;
+    QList<HydraulicCurveGenericPoint> points;
     QString comment;
 };
 
-#endif // AOWIS_MODEL_HYDRAULIC_EPANET_CURVES_H
+#endif // AOWIS_MODEL_HYDRAULIC_CURVES_H

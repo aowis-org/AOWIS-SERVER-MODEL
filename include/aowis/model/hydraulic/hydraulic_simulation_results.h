@@ -1,15 +1,15 @@
-#ifndef AOWIS_MODEL_HYDRAULIC_EPANET_RESULTS_H
-#define AOWIS_MODEL_HYDRAULIC_EPANET_RESULTS_H
+#ifndef AOWIS_MODEL_HYDRAULIC_SIMULATION_RESULTS_H
+#define AOWIS_MODEL_HYDRAULIC_SIMULATION_RESULTS_H
 
 #include <QDateTime>
 #include <QList>
 #include <QMetaType>
 #include <QString>
 
-#include "epanet_status.h"
-#include "epanet_types.h"
+#include "hydraulic_simulation_status.h"
+#include "hydraulic_types.h"
 
-struct EpanetResultNodeJunction
+struct HydraulicSimulationResultNodeJunction
 {
     QString id;
 
@@ -29,7 +29,7 @@ struct EpanetResultNodeJunction
     bool appears_in_control = false;
 };
 
-struct EpanetResultNodeReservoir
+struct HydraulicSimulationResultNodeReservoir
 {
     QString id;
 
@@ -43,7 +43,7 @@ struct EpanetResultNodeReservoir
     bool appears_in_control = false;
 };
 
-struct EpanetResultNodeTank
+struct HydraulicSimulationResultNodeTank
 {
     QString id;
 
@@ -61,7 +61,7 @@ struct EpanetResultNodeTank
     bool appears_in_control = false;
 };
 
-struct EpanetResultLinkPipe
+struct HydraulicSimulationResultLinkPipe
 {
     QString id;
 
@@ -79,7 +79,7 @@ struct EpanetResultLinkPipe
     bool appears_in_control = false;
 };
 
-struct EpanetResultLinkPump
+struct HydraulicSimulationResultLinkPump
 {
     QString id;
 
@@ -88,7 +88,7 @@ struct EpanetResultLinkPump
     double headloss = 0.0;
 
     bool open = true;
-    EpanetResultLinkPumpState state = EpanetResultLinkPumpState::Closed;
+    HydraulicSimulationPumpState state = HydraulicSimulationPumpState::Closed;
     double speed = 0.0;
 
     double efficiency_percent = 0.0;
@@ -99,7 +99,7 @@ struct EpanetResultLinkPump
     bool appears_in_control = false;
 };
 
-struct EpanetResultLinkValve
+struct HydraulicSimulationResultLinkValve
 {
     QString id;
 
@@ -116,7 +116,7 @@ struct EpanetResultLinkValve
     bool appears_in_control = false;
 };
 
-struct EpanetResultLinkPumpEnergyUsage
+struct HydraulicSimulationResultLinkPumpEnergyUsage
 {
     QString pump_id;
 
@@ -128,7 +128,7 @@ struct EpanetResultLinkPumpEnergyUsage
     double average_cost_per_day = 0.0;
 };
 
-struct EpanetResultStatistics
+struct HydraulicSimulationResultStatistics
 {
     double hydraulic_iterations = 0.0;
     double relative_error = 0.0;
@@ -142,40 +142,40 @@ struct EpanetResultStatistics
     double leakage_loss_percent = 0.0;
 };
 
-struct EpanetResultTimestepEvent
+struct HydraulicSimulationResultTimestepEvent
 {
-    EpanetResultTimestepEventType type = EpanetResultTimestepEventType::HydraulicStep;
+    HydraulicSimulationTimestepEventType type = HydraulicSimulationTimestepEventType::HydraulicStep;
     long time_until_event_s = 0;
     QString tank_id;
 };
 
-struct EpanetResult
+struct HydraulicSimulationResult
 {
     long time_elapsed_s = 0;
 
-    EpanetStatus status;
+    HydraulicSimulationStatus status;
 
-    QList<EpanetResultNodeJunction> nodes_junctions;
-    QList<EpanetResultNodeReservoir> nodes_reservoirs;
-    QList<EpanetResultNodeTank> nodes_tanks;
+    QList<HydraulicSimulationResultNodeJunction> nodes_junctions;
+    QList<HydraulicSimulationResultNodeReservoir> nodes_reservoirs;
+    QList<HydraulicSimulationResultNodeTank> nodes_tanks;
 
-    QList<EpanetResultLinkPipe> links_pipes;
-    QList<EpanetResultLinkPump> links_pumps;
-    QList<EpanetResultLinkValve> links_valves;
+    QList<HydraulicSimulationResultLinkPipe> links_pipes;
+    QList<HydraulicSimulationResultLinkPump> links_pumps;
+    QList<HydraulicSimulationResultLinkValve> links_valves;
 
-    QList<EpanetResultLinkPumpEnergyUsage> links_pump_energy_usage;
+    QList<HydraulicSimulationResultLinkPumpEnergyUsage> links_pump_energy_usage;
 
-    EpanetResultStatistics statistics;
-    EpanetResultTimestepEvent event_next;
+    HydraulicSimulationResultStatistics statistics;
+    HydraulicSimulationResultTimestepEvent event_next;
 };
 
-struct EpanetResultTimeline
+struct HydraulicSimulationResultTimeline
 {
-    EpanetStatus status;
+    HydraulicSimulationStatus status;
     QDateTime simulation_start_utc;
-    QList<EpanetResult> results;
+    QList<HydraulicSimulationResult> results;
 };
 
-Q_DECLARE_METATYPE(EpanetResultTimeline)
+Q_DECLARE_METATYPE(HydraulicSimulationResultTimeline)
 
-#endif // AOWIS_MODEL_HYDRAULIC_EPANET_RESULTS_H
+#endif // AOWIS_MODEL_HYDRAULIC_SIMULATION_RESULTS_H

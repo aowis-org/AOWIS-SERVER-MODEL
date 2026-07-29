@@ -5,12 +5,13 @@
 #include <QString>
 #include <QUuid>
 
-#include "epanet_controls.h"
-#include "epanet_curves.h"
-#include "epanet_links.h"
-#include "epanet_nodes.h"
-#include "epanet_options.h"
-#include "epanet_types.h"
+#include "hydraulic_controls.h"
+#include "hydraulic_curves.h"
+#include "hydraulic_links.h"
+#include "hydraulic_map.h"
+#include "hydraulic_nodes.h"
+#include "hydraulic_simulation_options.h"
+#include "hydraulic_types.h"
 
 struct NetworkHydraulicCustomerPoint
 {
@@ -26,9 +27,9 @@ struct NetworkHydraulic
     QString title_line_2;
     QString title_line_3;
 
-    // The AOWIS model stores measurement quantities in canonical SI-based engineering units.
-    // options_hydraulic.flow_units and options_hydraulic.pressure_units only define EPANET
-    // import/export and solver units.
+    // Measurement quantities are stored in canonical SI-based engineering units.
+    // The configured flow and pressure units apply only at import, export, report,
+    // and simulation-backend boundaries.
     long duration_s = 0;
     long timestep_hydraulic_s = 3600;
     long timestep_quality_s = 300;
@@ -38,36 +39,36 @@ struct NetworkHydraulic
     long start_report_s = 0;
     long timestep_rule_s = 360;
     long start_time_of_day_s = 0;
-    EpanetOptionsReportStatistic report_statistic = EpanetOptionsReportStatistic::Series;
+    HydraulicSimulationReportStatistic report_statistic = HydraulicSimulationReportStatistic::Series;
 
-    EpanetOptionsHydraulic options_hydraulic;
-    EpanetOptionsQuality options_quality;
-    EpanetOptionsReaction options_reaction;
-    EpanetOptionsEnergy options_energy;
-    EpanetOptionsReport options_report;
+    HydraulicSolverOptions options_hydraulic;
+    WaterQualitySolverOptions options_quality;
+    WaterQualityReactionOptions options_reaction;
+    PumpEnergyOptions options_energy;
+    HydraulicSimulationReportOptions options_report;
 
-    QList<EpanetPatternTime> patterns_time;
+    QList<HydraulicPatternTime> patterns_time;
 
-    QList<EpanetCurveTankVolume> curves_tank_volume;
-    QList<EpanetCurvePumpHead> curves_pump_head;
-    QList<EpanetCurvePumpEfficiency> curves_pump_efficiency;
-    QList<EpanetCurveValveHeadloss> curves_valve_headloss;
-    QList<EpanetCurveValveCharacteristic> curves_valve_characteristic;
-    QList<EpanetCurveGeneric> curves_generic;
+    QList<HydraulicCurveTankVolume> curves_tank_volume;
+    QList<HydraulicCurvePumpHead> curves_pump_head;
+    QList<HydraulicCurvePumpEfficiency> curves_pump_efficiency;
+    QList<HydraulicCurveValveHeadloss> curves_valve_headloss;
+    QList<HydraulicCurveValveCharacteristic> curves_valve_characteristic;
+    QList<HydraulicCurveGeneric> curves_generic;
 
-    QList<EpanetNodeReservoir> nodes_reservoirs;
-    QList<EpanetNodeJunction> nodes_junctions;
-    QList<EpanetNodeTank> nodes_tanks;
+    QList<HydraulicNodeReservoir> nodes_reservoirs;
+    QList<HydraulicNodeJunction> nodes_junctions;
+    QList<HydraulicNodeTank> nodes_tanks;
 
-    QList<EpanetLinkPipe> links_pipes;
-    QList<EpanetLinkPump> links_pumps;
-    QList<EpanetLinkValve> links_valves;
+    QList<HydraulicLinkPipe> links_pipes;
+    QList<HydraulicLinkPump> links_pumps;
+    QList<HydraulicLinkValve> links_valves;
 
-    QList<EpanetControlSimple> controls_simple;
-    QList<EpanetControlRule> controls_rules;
+    QList<HydraulicControlSimple> controls_simple;
+    QList<HydraulicControlRule> controls_rules;
 
-    QList<EpanetMapLabel> map_labels;
-    EpanetMapBackdrop map_backdrop;
+    QList<HydraulicMapLabel> map_labels;
+    HydraulicMapBackdrop map_backdrop;
 
     QList<NetworkHydraulicCustomerPoint> customer_points;
 };

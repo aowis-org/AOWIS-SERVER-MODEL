@@ -9,7 +9,7 @@ struct CoordinateWGS84
     double latitude_deg = 0.0;
 
     // GPS altitude, if available.
-    // Not necessarily suitable as hydraulic EPANET elevation.
+    // Not necessarily suitable as hydraulic model elevation.
     std::optional<double> altitude_m;
 };
 

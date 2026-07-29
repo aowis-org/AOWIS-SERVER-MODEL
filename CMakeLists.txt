@@ -16,14 +16,15 @@ add_library(aowis-server-model STATIC
     include/aowis/model/project.h
     include/aowis/model/revision.h
 
-    include/aowis/model/hydraulic/epanet_controls.h
-    include/aowis/model/hydraulic/epanet_curves.h
-    include/aowis/model/hydraulic/epanet_links.h
-    include/aowis/model/hydraulic/epanet_nodes.h
-    include/aowis/model/hydraulic/epanet_options.h
-    include/aowis/model/hydraulic/epanet_status.h
-    include/aowis/model/hydraulic/epanet_types.h
-    include/aowis/model/hydraulic/epanet_results.h
+    include/aowis/model/hydraulic/hydraulic_controls.h
+    include/aowis/model/hydraulic/hydraulic_curves.h
+    include/aowis/model/hydraulic/hydraulic_links.h
+    include/aowis/model/hydraulic/hydraulic_map.h
+    include/aowis/model/hydraulic/hydraulic_nodes.h
+    include/aowis/model/hydraulic/hydraulic_simulation_options.h
+    include/aowis/model/hydraulic/hydraulic_simulation_status.h
+    include/aowis/model/hydraulic/hydraulic_types.h
+    include/aowis/model/hydraulic/hydraulic_simulation_results.h
     include/aowis/model/hydraulic/network_hydraulic.h
 )
 

@@ -1,11 +1,11 @@
-#ifndef AOWIS_MODEL_HYDRAULIC_EPANET_TYPES_H
-#define AOWIS_MODEL_HYDRAULIC_EPANET_TYPES_H
+#ifndef AOWIS_MODEL_HYDRAULIC_TYPES_H
+#define AOWIS_MODEL_HYDRAULIC_TYPES_H
 
 #include <optional>
 
 #include <QString>
 
-enum class EpanetNodeElevationInputType
+enum class HydraulicNodeElevationInputType
 {
     AbsoluteElevation = 0,
     BottomElevation = AbsoluteElevation,
@@ -14,9 +14,9 @@ enum class EpanetNodeElevationInputType
     TerrainElevationAndOffset = 1
 };
 
-using EpanetNodeTankElevationInputType = EpanetNodeElevationInputType;
+using HydraulicNodeTankElevationInputType = HydraulicNodeElevationInputType;
 
-enum class EpanetNodeTankGeometryInputType
+enum class HydraulicNodeTankGeometryInputType
 {
     Cylindrical,
     UniformArea,
@@ -24,7 +24,7 @@ enum class EpanetNodeTankGeometryInputType
     VolumeCurve
 };
 
-enum class EpanetNodeQualitySourceType
+enum class HydraulicNodeQualitySourceType
 {
     None,
     Concentration,
@@ -33,7 +33,7 @@ enum class EpanetNodeQualitySourceType
     SetpointBooster
 };
 
-enum class EpanetNodeTankMixingModel
+enum class HydraulicNodeTankMixingModel
 {
     CompleteMix,
     TwoCompartment,
@@ -41,21 +41,21 @@ enum class EpanetNodeTankMixingModel
     LastInFirstOut
 };
 
-enum class EpanetNodeJunctionDemandSourceMethod
+enum class HydraulicNodeJunctionDemandSourceMethod
 {
     ManualEstimation,
     MeterData,
     Scenario
 };
 
-enum class EpanetLinkPipeInitialStatus
+enum class HydraulicLinkPipeInitialStatus
 {
     Open,
     Closed,
     CheckValve
 };
 
-enum class EpanetLinkPumpDefinitionType
+enum class HydraulicLinkPumpDefinitionType
 {
     ConstantPower,
     OnePointCurve,
@@ -63,34 +63,34 @@ enum class EpanetLinkPumpDefinitionType
     Library
 };
 
-enum class EpanetLinkPumpInitialStatus
+enum class HydraulicLinkPumpInitialStatus
 {
     On,
     Off
 };
 
-enum class EpanetLinkPumpControlType
+enum class HydraulicLinkPumpControlType
 {
     None,
     LevelBased,
     TimeBased
 };
 
-enum class EpanetLinkPumpEfficiencyInputType
+enum class HydraulicLinkPumpEfficiencyInputType
 {
     Global,
     Constant,
     Curve
 };
 
-enum class EpanetLinkPumpEnergyPriceInputType
+enum class HydraulicLinkPumpEnergyPriceInputType
 {
     Global,
     Constant,
     Pattern
 };
 
-enum class EpanetLinkValveType
+enum class HydraulicLinkValveType
 {
     PRV,
     PSV,
@@ -101,14 +101,14 @@ enum class EpanetLinkValveType
     PCV
 };
 
-enum class EpanetLinkValveInitialStatus
+enum class HydraulicLinkValveInitialStatus
 {
     Active,
     Open,
     Closed
 };
 
-enum class EpanetOptionsHydraulicFlowUnits
+enum class HydraulicFlowUnit
 {
     CubicFeetPerSecond,
     GallonsPerMinute,
@@ -123,7 +123,7 @@ enum class EpanetOptionsHydraulicFlowUnits
     CubicMetersPerSecond
 };
 
-enum class EpanetOptionsHydraulicPressureUnits
+enum class HydraulicPressureUnit
 {
     Psi,
     Kilopascals,
@@ -132,20 +132,20 @@ enum class EpanetOptionsHydraulicPressureUnits
     Feet
 };
 
-enum class EpanetOptionsHydraulicHeadlossFormula
+enum class HydraulicHeadlossFormula
 {
     HazenWilliams,
     DarcyWeisbach,
     ChezyManning
 };
 
-enum class EpanetOptionsHydraulicDemandModel
+enum class HydraulicDemandModel
 {
     DemandDriven,
     PressureDriven
 };
 
-enum class EpanetOptionsQualityAnalysis
+enum class WaterQualityAnalysisType
 {
     None,
     Chemical,
@@ -153,7 +153,7 @@ enum class EpanetOptionsQualityAnalysis
     SourceTrace
 };
 
-enum class EpanetOptionsReportStatistic
+enum class HydraulicSimulationReportStatistic
 {
     Series,
     Average,
@@ -162,20 +162,20 @@ enum class EpanetOptionsReportStatistic
     Range
 };
 
-enum class EpanetOptionsReportStatus
+enum class HydraulicSimulationReportStatus
 {
     None,
     Normal,
     Full
 };
 
-enum class EpanetOptionsHydraulicUnbalancedAction
+enum class HydraulicUnbalancedAction
 {
     Stop,
     Continue
 };
 
-enum class EpanetCurveType
+enum class HydraulicCurveType
 {
     TankVolume,
     PumpHead,
@@ -185,7 +185,7 @@ enum class EpanetCurveType
     ValveCharacteristic
 };
 
-enum class EpanetControlSimpleType
+enum class HydraulicControlSimpleType
 {
     LowLevel,
     HighLevel,
@@ -193,28 +193,28 @@ enum class EpanetControlSimpleType
     TimeOfDay
 };
 
-enum class EpanetControlActionType
+enum class HydraulicControlActionType
 {
     Open,
     Close,
     Setting
 };
 
-enum class EpanetControlRuleLogicalOperator
+enum class HydraulicControlRuleLogicalOperator
 {
     If,
     And,
     Or
 };
 
-enum class EpanetControlRuleObject
+enum class HydraulicControlRuleObject
 {
     Node,
     Link,
     System
 };
 
-enum class EpanetControlRuleVariable
+enum class HydraulicControlRuleVariable
 {
     Demand,
     Head,
@@ -231,7 +231,7 @@ enum class EpanetControlRuleVariable
     DrainTime
 };
 
-enum class EpanetControlRuleOperator
+enum class HydraulicControlRuleOperator
 {
     Equal,
     NotEqual,
@@ -245,21 +245,21 @@ enum class EpanetControlRuleOperator
     Above
 };
 
-enum class EpanetControlRuleStatus
+enum class HydraulicControlRuleStatus
 {
     Open,
     Closed,
     Active
 };
 
-enum class EpanetOptionsReportSelectionMode
+enum class HydraulicSimulationReportSelectionMode
 {
     None,
     All,
     Selected
 };
 
-enum class EpanetMapBackdropUnits
+enum class HydraulicMapBackdropUnit
 {
     None,
     Feet,
@@ -267,15 +267,15 @@ enum class EpanetMapBackdropUnits
     Degrees
 };
 
-enum class EpanetResultLinkPumpState
+enum class HydraulicSimulationPumpState
 {
-    CannotSupplyHead = 0,
-    Closed = 2,
-    Open = 3,
-    CannotSupplyFlow = 5
+    CannotSupplyHead,
+    Closed,
+    Open,
+    CannotSupplyFlow
 };
 
-enum class EpanetResultTimestepEventType
+enum class HydraulicSimulationTimestepEventType
 {
     ReportStep,
     HydraulicStep,
@@ -284,30 +284,30 @@ enum class EpanetResultTimestepEventType
     ControlEvent
 };
 
-struct EpanetEntityMetadata
+struct HydraulicEntityMetadata
 {
     QString comment;
     QString tag;
 };
 
-struct EpanetMapPosition
+struct HydraulicMapPosition
 {
     double x = 0.0;
     double y = 0.0;
 };
 
-struct EpanetLinkVertex
+struct HydraulicLinkVertex
 {
     double latitude_deg = 0.0;
     double longitude_deg = 0.0;
-    std::optional<EpanetMapPosition> map_position;
+    std::optional<HydraulicMapPosition> map_position;
 };
 
-struct EpanetNodeQualitySource
+struct HydraulicNodeQualitySource
 {
-    EpanetNodeQualitySourceType type = EpanetNodeQualitySourceType::None;
+    HydraulicNodeQualitySourceType type = HydraulicNodeQualitySourceType::None;
     double strength = 0.0;
     QString pattern_id;
 };
 
-#endif // AOWIS_MODEL_HYDRAULIC_EPANET_TYPES_H
+#endif // AOWIS_MODEL_HYDRAULIC_TYPES_H
