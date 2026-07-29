@@ -25,7 +25,7 @@ AOWIS uses canonical SI-based engineering units.
 - Each measurement quantity is assigned exactly one canonical unit.
 - Each canonical unit is identified by its UCUM unit identifier.
 - The measurement quantity identifier defines what is measured; the unit identifier defines the unit in which it is expressed.
-- Fixed-unit C++ fields should include the unit in the field name where this improves clarity, for example `diameter_mm`, `flow_m3h`, or `pressure_head_m`.
+- Fixed-unit C++ fields should include the unit in the field name where this improves clarity, for example `diameter_mm`, `flow_m3_per_h`, or `pressure_head_m`.
 - Alternative input, output, and display units must be converted at the applicable system boundary.
 - Multiple authoritative representations of the same quantity in different units must not be stored in the model.
 - Dynamically represented or serialized unit identifiers must conform to UCUM.

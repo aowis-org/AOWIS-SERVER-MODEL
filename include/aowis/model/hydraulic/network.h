@@ -26,7 +26,7 @@ struct NetworkHydraulic
     QString title_line_2;
     QString title_line_3;
 
-    // The AOWIS model stores physical quantities in canonical SI units.
+    // The AOWIS model stores measurement quantities in canonical SI-based engineering units.
     // flow_units and pressure_units only define EPANET import/export and solver units.
     long duration_s = 0;
     long hydraulic_timestep_s = 3600;

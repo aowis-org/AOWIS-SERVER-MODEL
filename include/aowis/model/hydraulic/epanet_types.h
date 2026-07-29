@@ -298,8 +298,8 @@ struct EpanetMapPoint
 
 struct EpanetLinkVertex
 {
-    double latitude = 0.0;
-    double longitude = 0.0;
+    double latitude_deg = 0.0;
+    double longitude_deg = 0.0;
     std::optional<EpanetMapPoint> epanet_position;
 };
 

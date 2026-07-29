@@ -51,7 +51,7 @@ struct TankResult
 
     double head_m = 0.0;
     double pressure_head_m = 0.0;
-    double level_m = 0.0;
+    double water_level_m = 0.0;
     double volume_m3 = 0.0;
     double mixing_zone_volume_m3 = 0.0;
 
@@ -145,13 +145,13 @@ struct EpanetAnalysisStatistics
 struct EpanetTimestepEvent
 {
     EpanetTimestepEventType type = EpanetTimestepEventType::HydraulicStep;
-    long seconds_until_event = 0;
+    long time_until_event_s = 0;
     QString tank_id;
 };
 
 struct SimulationResult
 {
-    long elapsed_time_s = 0;
+    long time_elapsed_s = 0;
 
     EpanetStatus status;
 

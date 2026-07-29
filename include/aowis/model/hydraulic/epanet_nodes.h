@@ -77,9 +77,9 @@ struct Tank
     double terrain_elevation_m = 0.0;
     double bottom_offset_m = 0.0;
 
-    double initial_level_m = 0.0;
-    double minimum_level_m = 0.0;
-    double maximum_level_m = 0.0;
+    double water_level_initial_m = 0.0;
+    double water_level_minimum_m = 0.0;
+    double water_level_maximum_m = 0.0;
 
     TankGeometryInputType geometry_input_type = TankGeometryInputType::Cylindrical;
     double diameter_m = 0.0;

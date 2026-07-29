@@ -15,7 +15,7 @@ struct EpanetTimePattern
 
 struct TankVolumeCurvePoint
 {
-    double level_m = 0.0;
+    double water_level_m = 0.0;
     double volume_m3 = 0.0;
 };
 
@@ -30,7 +30,7 @@ struct TankVolumeCurve
 struct PumpCurvePoint
 {
     double flow_m3_per_h = 0.0;
-    double head_m = 0.0;
+    double head_gain_m = 0.0;
 };
 
 struct PumpCurve
