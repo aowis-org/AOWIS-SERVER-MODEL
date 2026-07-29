@@ -39,11 +39,11 @@ struct NetworkHydraulic
     long start_time_of_day_s = 0;
     EpanetReportingStatistic reporting_statistic = EpanetReportingStatistic::Series;
 
-    EpanetHydraulicOptions hydraulic_options;
-    EpanetQualityOptions quality_options;
-    EpanetReactionOptions reaction_options;
-    EpanetEnergyOptions energy_options;
-    EpanetReportOptions report_options;
+    EpanetOptionsHydraulic options_hydraulic;
+    EpanetOptionsQuality options_quality;
+    EpanetOptionsReaction options_reaction;
+    EpanetOptionsEnergy options_energy;
+    EpanetOptionsReport options_report;
 
     QList<EpanetTimePattern> patterns;
 

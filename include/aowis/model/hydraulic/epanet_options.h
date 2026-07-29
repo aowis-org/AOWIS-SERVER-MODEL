@@ -8,7 +8,7 @@
 
 #include "epanet_types.h"
 
-struct EpanetHydraulicOptions
+struct EpanetOptionsHydraulic
 {
     EpanetFlowUnits flow_units = EpanetFlowUnits::LitersPerSecond;
     EpanetPressureUnits pressure_units = EpanetPressureUnits::Meters;
@@ -39,7 +39,7 @@ struct EpanetHydraulicOptions
     double relative_viscosity = 1.0;
 };
 
-struct EpanetQualityOptions
+struct EpanetOptionsQuality
 {
     EpanetQualityAnalysis analysis = EpanetQualityAnalysis::None;
     QString chemical_name;
@@ -50,7 +50,7 @@ struct EpanetQualityOptions
     double relative_diffusivity = 1.0;
 };
 
-struct EpanetReactionOptions
+struct EpanetOptionsReaction
 {
     double pipe_bulk_order = 1.0;
     double pipe_wall_order = 1.0;
@@ -64,7 +64,7 @@ struct EpanetReactionOptions
     double roughness_correlation = 0.0;
 };
 
-struct EpanetEnergyOptions
+struct EpanetOptionsEnergy
 {
     double global_pump_efficiency_percent = 75.0;
     double global_energy_price_per_kw_h = 0.0;
@@ -108,7 +108,7 @@ struct EpanetReportSelectionOptions
     QStringList ids;
 };
 
-struct EpanetReportOptions
+struct EpanetOptionsReport
 {
     int page_size = 0;
     EpanetStatusReport status = EpanetStatusReport::Normal;
