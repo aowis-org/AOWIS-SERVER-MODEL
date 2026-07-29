@@ -2,10 +2,10 @@
 #define AOWIS_MODEL_HYDRAULIC_EPANET_TYPES_H
 
 #include <optional>
-#include <QString>
-#include <QUuid>
 
-enum class ElevationInputType
+#include <QString>
+
+enum class EpanetNodeElevationInputType
 {
     AbsoluteElevation = 0,
     BottomElevation = AbsoluteElevation,
@@ -14,9 +14,9 @@ enum class ElevationInputType
     TerrainElevationAndOffset = 1
 };
 
-using TankElevationInputType = ElevationInputType;
+using EpanetNodeTankElevationInputType = EpanetNodeElevationInputType;
 
-enum class TankGeometryInputType
+enum class EpanetNodeTankGeometryInputType
 {
     Cylindrical,
     UniformArea,
@@ -24,7 +24,7 @@ enum class TankGeometryInputType
     VolumeCurve
 };
 
-enum class QualitySourceType
+enum class EpanetNodeQualitySourceType
 {
     None,
     Concentration,
@@ -33,7 +33,7 @@ enum class QualitySourceType
     SetpointBooster
 };
 
-enum class TankMixingModel
+enum class EpanetNodeTankMixingModel
 {
     CompleteMix,
     TwoCompartment,
@@ -41,21 +41,21 @@ enum class TankMixingModel
     LastInFirstOut
 };
 
-enum class DemandSourceMethod
+enum class EpanetNodeJunctionDemandSourceMethod
 {
     ManualEstimation,
     MeterData,
     Scenario
 };
 
-enum class PipeInitialStatus
+enum class EpanetLinkPipeInitialStatus
 {
     Open,
     Closed,
     CheckValve
 };
 
-enum class PumpDefinitionType
+enum class EpanetLinkPumpDefinitionType
 {
     ConstantPower,
     OnePointCurve,
@@ -63,34 +63,34 @@ enum class PumpDefinitionType
     Library
 };
 
-enum class PumpInitialStatus
+enum class EpanetLinkPumpInitialStatus
 {
     On,
     Off
 };
 
-enum class PumpControlType
+enum class EpanetLinkPumpControlType
 {
     None,
     LevelBased,
     TimeBased
 };
 
-enum class PumpEfficiencyInputType
+enum class EpanetLinkPumpEfficiencyInputType
 {
     Global,
     Constant,
     Curve
 };
 
-enum class PumpEnergyPriceInputType
+enum class EpanetLinkPumpEnergyPriceInputType
 {
     Global,
     Constant,
     Pattern
 };
 
-enum class ValveType
+enum class EpanetLinkValveType
 {
     PRV,
     PSV,
@@ -101,14 +101,14 @@ enum class ValveType
     PCV
 };
 
-enum class ValveInitialStatus
+enum class EpanetLinkValveInitialStatus
 {
     Active,
     Open,
     Closed
 };
 
-enum class EpanetFlowUnits
+enum class EpanetOptionsHydraulicFlowUnits
 {
     CubicFeetPerSecond,
     GallonsPerMinute,
@@ -123,7 +123,7 @@ enum class EpanetFlowUnits
     CubicMetersPerSecond
 };
 
-enum class EpanetPressureUnits
+enum class EpanetOptionsHydraulicPressureUnits
 {
     Psi,
     Kilopascals,
@@ -132,20 +132,20 @@ enum class EpanetPressureUnits
     Feet
 };
 
-enum class EpanetHeadlossFormula
+enum class EpanetOptionsHydraulicHeadlossFormula
 {
     HazenWilliams,
     DarcyWeisbach,
     ChezyManning
 };
 
-enum class EpanetDemandModel
+enum class EpanetOptionsHydraulicDemandModel
 {
     DemandDriven,
     PressureDriven
 };
 
-enum class EpanetQualityAnalysis
+enum class EpanetOptionsQualityAnalysis
 {
     None,
     Chemical,
@@ -153,7 +153,7 @@ enum class EpanetQualityAnalysis
     SourceTrace
 };
 
-enum class EpanetReportingStatistic
+enum class EpanetOptionsReportStatistic
 {
     Series,
     Average,
@@ -162,14 +162,14 @@ enum class EpanetReportingStatistic
     Range
 };
 
-enum class EpanetStatusReport
+enum class EpanetOptionsReportStatus
 {
     None,
     Normal,
     Full
 };
 
-enum class EpanetUnbalancedAction
+enum class EpanetOptionsHydraulicUnbalancedAction
 {
     Stop,
     Continue
@@ -185,7 +185,7 @@ enum class EpanetCurveType
     ValveCharacteristic
 };
 
-enum class EpanetSimpleControlType
+enum class EpanetControlSimpleType
 {
     LowLevel,
     HighLevel,
@@ -200,21 +200,21 @@ enum class EpanetControlActionType
     Setting
 };
 
-enum class EpanetRuleLogicalOperator
+enum class EpanetControlRuleLogicalOperator
 {
     If,
     And,
     Or
 };
 
-enum class EpanetRuleObject
+enum class EpanetControlRuleObject
 {
     Node,
     Link,
     System
 };
 
-enum class EpanetRuleVariable
+enum class EpanetControlRuleVariable
 {
     Demand,
     Head,
@@ -231,7 +231,7 @@ enum class EpanetRuleVariable
     DrainTime
 };
 
-enum class EpanetRuleOperator
+enum class EpanetControlRuleOperator
 {
     Equal,
     NotEqual,
@@ -245,21 +245,21 @@ enum class EpanetRuleOperator
     Above
 };
 
-enum class EpanetRuleStatus
+enum class EpanetControlRuleStatus
 {
     Open,
     Closed,
     Active
 };
 
-enum class EpanetReportSelection
+enum class EpanetOptionsReportSelectionMode
 {
     None,
     All,
     Selected
 };
 
-enum class EpanetBackdropUnits
+enum class EpanetMapBackdropUnits
 {
     None,
     Feet,
@@ -267,7 +267,7 @@ enum class EpanetBackdropUnits
     Degrees
 };
 
-enum class EpanetPumpState
+enum class EpanetResultLinkPumpState
 {
     CannotSupplyHead = 0,
     Closed = 2,
@@ -275,7 +275,7 @@ enum class EpanetPumpState
     CannotSupplyFlow = 5
 };
 
-enum class EpanetTimestepEventType
+enum class EpanetResultTimestepEventType
 {
     ReportStep,
     HydraulicStep,
@@ -284,13 +284,13 @@ enum class EpanetTimestepEventType
     ControlEvent
 };
 
-struct EpanetObjectMetadata
+struct EpanetEntityMetadata
 {
     QString comment;
     QString tag;
 };
 
-struct EpanetMapPoint
+struct EpanetMapPosition
 {
     double x = 0.0;
     double y = 0.0;
@@ -300,12 +300,12 @@ struct EpanetLinkVertex
 {
     double latitude_deg = 0.0;
     double longitude_deg = 0.0;
-    std::optional<EpanetMapPoint> epanet_position;
+    std::optional<EpanetMapPosition> map_position;
 };
 
-struct EpanetQualitySource
+struct EpanetNodeQualitySource
 {
-    QualitySourceType type = QualitySourceType::None;
+    EpanetNodeQualitySourceType type = EpanetNodeQualitySourceType::None;
     double strength = 0.0;
     QString pattern_id;
 };

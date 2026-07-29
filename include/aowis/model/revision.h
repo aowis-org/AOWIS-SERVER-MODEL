@@ -1,11 +1,11 @@
-#ifndef REVISION_H
-#define REVISION_H
+#ifndef AOWIS_MODEL_REVISION_H
+#define AOWIS_MODEL_REVISION_H
+
+#include <optional>
 
 #include <QDateTime>
 #include <QString>
 #include <QUuid>
-
-#include <optional>
 
 enum class RevisionState
 {
@@ -16,18 +16,18 @@ enum class RevisionState
 struct Revision
 {
     QUuid id;
-    QUuid projectId;
-    std::optional<QUuid> parentRevisionId;
+    QUuid project_id;
+    std::optional<QUuid> parent_revision_id;
     std::optional<qint64> number;
-    
+
     RevisionState state = RevisionState::Working;
-    
+
     QString title;
-    QString commitMessage;
-    
-    QDateTime createdAt;
-    QDateTime modifiedAt;
-    std::optional<QDateTime> committedAt;
+    QString commit_message;
+
+    QDateTime created_at;
+    QDateTime modified_at;
+    std::optional<QDateTime> committed_at;
 };
 
-#endif // REVISION_H
+#endif // AOWIS_MODEL_REVISION_H

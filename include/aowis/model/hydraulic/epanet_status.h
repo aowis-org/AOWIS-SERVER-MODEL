@@ -1,12 +1,12 @@
-#ifndef EPANET_STATUS_H
-#define EPANET_STATUS_H
+#ifndef AOWIS_MODEL_HYDRAULIC_EPANET_STATUS_H
+#define AOWIS_MODEL_HYDRAULIC_EPANET_STATUS_H
 
 #include <QMetaType>
 #include <QObject>
 #include <QString>
 #include <QStringList>
 
-class EpanetEnums
+class EpanetStatusEnums
 {
     Q_GADGET
 
@@ -190,14 +190,14 @@ public:
     Q_ENUM(EntityType)
 };
 
-using EpanetStage = EpanetEnums::Stage;
-using EpanetOperation = EpanetEnums::Operation;
-using EpanetProperty = EpanetEnums::Property;
-using EpanetEntityType = EpanetEnums::EntityType;
+using EpanetStatusStage = EpanetStatusEnums::Stage;
+using EpanetStatusOperation = EpanetStatusEnums::Operation;
+using EpanetStatusProperty = EpanetStatusEnums::Property;
+using EpanetStatusEntityType = EpanetStatusEnums::EntityType;
 
-struct EpanetEntity
+struct EpanetStatusEntity
 {
-    EpanetEntityType type = EpanetEntityType::None;
+    EpanetStatusEntityType type = EpanetStatusEntityType::None;
 
     QString id;
     int index = 0;
@@ -209,11 +209,11 @@ struct EpanetStatus
 
     int epanet_error_code = 0;
 
-    EpanetStage stage = EpanetStage::None;
-    EpanetOperation operation = EpanetOperation::None;
-    EpanetProperty property = EpanetProperty::None;
+    EpanetStatusStage stage = EpanetStatusStage::None;
+    EpanetStatusOperation operation = EpanetStatusOperation::None;
+    EpanetStatusProperty property = EpanetStatusProperty::None;
 
-    EpanetEntity entity;
+    EpanetStatusEntity entity;
 
     QString message;
     QString message_epanet;
@@ -222,4 +222,4 @@ struct EpanetStatus
 
 Q_DECLARE_METATYPE(EpanetStatus)
 
-#endif // EPANET_STATUS_H
+#endif // AOWIS_MODEL_HYDRAULIC_EPANET_STATUS_H

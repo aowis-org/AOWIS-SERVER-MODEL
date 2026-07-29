@@ -1,5 +1,5 @@
-#ifndef GIS_STRUCTS_H
-#define GIS_STRUCTS_H
+#ifndef AOWIS_MODEL_GIS_H
+#define AOWIS_MODEL_GIS_H
 
 #include <optional>
 
@@ -45,4 +45,4 @@ struct CoordinateLocal
     double y_m = 0.0;
 };
 
-#endif // GIS_STRUCTS_H
+#endif // AOWIS_MODEL_GIS_H

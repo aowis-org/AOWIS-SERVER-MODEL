@@ -2,7 +2,7 @@
 #define AOWIS_MODEL_HYDRAULIC_EPANET_OPTIONS_H
 
 #include <optional>
-#include <QList>
+
 #include <QString>
 #include <QStringList>
 
@@ -10,10 +10,10 @@
 
 struct EpanetOptionsHydraulic
 {
-    EpanetFlowUnits flow_units = EpanetFlowUnits::LitersPerSecond;
-    EpanetPressureUnits pressure_units = EpanetPressureUnits::Meters;
-    EpanetHeadlossFormula headloss_formula = EpanetHeadlossFormula::HazenWilliams;
-    EpanetDemandModel demand_model = EpanetDemandModel::DemandDriven;
+    EpanetOptionsHydraulicFlowUnits flow_units = EpanetOptionsHydraulicFlowUnits::LitersPerSecond;
+    EpanetOptionsHydraulicPressureUnits pressure_units = EpanetOptionsHydraulicPressureUnits::Meters;
+    EpanetOptionsHydraulicHeadlossFormula headloss_formula = EpanetOptionsHydraulicHeadlossFormula::HazenWilliams;
+    EpanetOptionsHydraulicDemandModel demand_model = EpanetOptionsHydraulicDemandModel::DemandDriven;
 
     double minimum_pressure_head_m = 0.0;
     double required_pressure_head_m = 0.0;
@@ -21,7 +21,7 @@ struct EpanetOptionsHydraulic
 
     int maximum_trials = 200;
     double accuracy = 0.001;
-    EpanetUnbalancedAction unbalanced_action = EpanetUnbalancedAction::Stop;
+    EpanetOptionsHydraulicUnbalancedAction unbalanced_action = EpanetOptionsHydraulicUnbalancedAction::Stop;
     int unbalanced_extra_trials = 0;
     int check_frequency = 2;
     int maximum_check = 10;
@@ -41,7 +41,7 @@ struct EpanetOptionsHydraulic
 
 struct EpanetOptionsQuality
 {
-    EpanetQualityAnalysis analysis = EpanetQualityAnalysis::None;
+    EpanetOptionsQualityAnalysis analysis = EpanetOptionsQualityAnalysis::None;
     QString chemical_name;
     QString chemical_units;
     QString trace_node_id;
@@ -72,7 +72,7 @@ struct EpanetOptionsEnergy
     double demand_charge_per_kw = 0.0;
 };
 
-struct EpanetReportField
+struct EpanetOptionsReportField
 {
     bool enabled = true;
     std::optional<int> precision;
@@ -80,46 +80,46 @@ struct EpanetReportField
     std::optional<double> above;
 };
 
-struct EpanetNodeReportFields
+struct EpanetOptionsReportFieldsNode
 {
-    EpanetReportField elevation;
-    EpanetReportField demand;
-    EpanetReportField head;
-    EpanetReportField pressure;
-    EpanetReportField quality;
+    EpanetOptionsReportField elevation;
+    EpanetOptionsReportField demand;
+    EpanetOptionsReportField head;
+    EpanetOptionsReportField pressure;
+    EpanetOptionsReportField quality;
 };
 
-struct EpanetLinkReportFields
+struct EpanetOptionsReportFieldsLink
 {
-    EpanetReportField length;
-    EpanetReportField diameter;
-    EpanetReportField flow;
-    EpanetReportField velocity;
-    EpanetReportField headloss;
-    EpanetReportField position;
-    EpanetReportField setting;
-    EpanetReportField reaction;
-    EpanetReportField friction;
+    EpanetOptionsReportField length;
+    EpanetOptionsReportField diameter;
+    EpanetOptionsReportField flow;
+    EpanetOptionsReportField velocity;
+    EpanetOptionsReportField headloss;
+    EpanetOptionsReportField position;
+    EpanetOptionsReportField setting;
+    EpanetOptionsReportField reaction;
+    EpanetOptionsReportField friction;
 };
 
-struct EpanetReportSelectionOptions
+struct EpanetOptionsReportSelection
 {
-    EpanetReportSelection selection = EpanetReportSelection::All;
+    EpanetOptionsReportSelectionMode mode = EpanetOptionsReportSelectionMode::All;
     QStringList ids;
 };
 
 struct EpanetOptionsReport
 {
     int page_size = 0;
-    EpanetStatusReport status = EpanetStatusReport::Normal;
+    EpanetOptionsReportStatus status = EpanetOptionsReportStatus::Normal;
     bool summary = true;
     bool energy = false;
 
-    EpanetReportSelectionOptions nodes;
-    EpanetReportSelectionOptions links;
+    EpanetOptionsReportSelection selection_nodes;
+    EpanetOptionsReportSelection selection_links;
 
-    EpanetNodeReportFields node_fields;
-    EpanetLinkReportFields link_fields;
+    EpanetOptionsReportFieldsNode fields_node;
+    EpanetOptionsReportFieldsLink fields_link;
 
     QStringList additional_commands;
 };
@@ -132,14 +132,14 @@ struct EpanetMapLabel
     QString anchor_node_id;
 };
 
-struct EpanetBackdrop
+struct EpanetMapBackdrop
 {
     double lower_left_x = 0.0;
     double lower_left_y = 0.0;
     double upper_right_x = 0.0;
     double upper_right_y = 0.0;
 
-    EpanetBackdropUnits units = EpanetBackdropUnits::None;
+    EpanetMapBackdropUnits units = EpanetMapBackdropUnits::None;
     QString file;
 
     double offset_x = 0.0;

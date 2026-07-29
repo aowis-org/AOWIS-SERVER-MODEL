@@ -1,11 +1,11 @@
-#ifndef PROJECT_H
-#define PROJECT_H
+#ifndef AOWIS_MODEL_PROJECT_H
+#define AOWIS_MODEL_PROJECT_H
+
+#include <optional>
 
 #include <QDateTime>
 #include <QString>
 #include <QUuid>
-
-#include <optional>
 
 enum class ProjectState
 {
@@ -15,24 +15,24 @@ enum class ProjectState
 
 struct Project
 {
-    QUuid projectId;
+    QUuid project_id;
     QString name;
     QString description;
-    QDateTime createdAt;
-    QDateTime modifiedAt;
-    std::optional<QDateTime> archivedAt;
+    QDateTime created_at;
+    QDateTime modified_at;
+    std::optional<QDateTime> archived_at;
 
     bool isValid() const
     {
-        return !this->projectId.isNull();
+        return !this->project_id.isNull();
     }
 
     ProjectState state() const
     {
-        return this->archivedAt.has_value()
+        return this->archived_at.has_value()
             ? ProjectState::Archived
             : ProjectState::Active;
     }
 };
 
-#endif // PROJECT_H
+#endif // AOWIS_MODEL_PROJECT_H

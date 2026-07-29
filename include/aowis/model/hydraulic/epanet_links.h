@@ -2,13 +2,14 @@
 #define AOWIS_MODEL_HYDRAULIC_EPANET_LINKS_H
 
 #include <optional>
+
 #include <QList>
 #include <QString>
 #include <QUuid>
 
 #include "epanet_types.h"
 
-struct Pipe
+struct EpanetLinkPipe
 {
     QString id;
     QUuid uuid;
@@ -20,7 +21,7 @@ struct Pipe
     double length_calculated_m = 0.0;
     std::optional<double> length_measured_m;
 
-    PipeInitialStatus initial_status = PipeInitialStatus::Open;
+    EpanetLinkPipeInitialStatus initial_status = EpanetLinkPipeInitialStatus::Open;
     double diameter_mm = 100.0;
 
     QString material_id;
@@ -36,10 +37,10 @@ struct Pipe
     double leak_area_mm2_per_100m = 0.0;
     double leak_expansion_mm2_per_m_head = 0.0;
 
-    EpanetObjectMetadata metadata;
+    EpanetEntityMetadata metadata;
 };
 
-struct Pump
+struct EpanetLinkPump
 {
     QString id;
     QUuid uuid;
@@ -48,28 +49,28 @@ struct Pump
     QString node_id_to;
     QList<EpanetLinkVertex> vertices;
 
-    PumpDefinitionType definition_type = PumpDefinitionType::ConstantPower;
+    EpanetLinkPumpDefinitionType definition_type = EpanetLinkPumpDefinitionType::ConstantPower;
     double constant_power_kw = 0.0;
     QString head_curve_id;
 
     double initial_speed = 1.0;
-    PumpInitialStatus initial_status = PumpInitialStatus::On;
+    EpanetLinkPumpInitialStatus initial_status = EpanetLinkPumpInitialStatus::On;
     QString speed_pattern_id;
 
-    PumpControlType control_type = PumpControlType::None;
+    EpanetLinkPumpControlType control_type = EpanetLinkPumpControlType::None;
 
-    PumpEfficiencyInputType efficiency_input_type = PumpEfficiencyInputType::Global;
+    EpanetLinkPumpEfficiencyInputType efficiency_input_type = EpanetLinkPumpEfficiencyInputType::Global;
     double constant_efficiency_percent = 75.0;
     QString efficiency_curve_id;
 
-    PumpEnergyPriceInputType energy_price_input_type = PumpEnergyPriceInputType::Global;
+    EpanetLinkPumpEnergyPriceInputType energy_price_input_type = EpanetLinkPumpEnergyPriceInputType::Global;
     double energy_price_per_kw_h = 0.0;
     QString price_pattern_id;
 
-    EpanetObjectMetadata metadata;
+    EpanetEntityMetadata metadata;
 };
 
-struct Valve
+struct EpanetLinkValve
 {
     QString id;
     QUuid uuid;
@@ -78,7 +79,7 @@ struct Valve
     QString node_id_to;
     QList<EpanetLinkVertex> vertices;
 
-    ValveType type = ValveType::PRV;
+    EpanetLinkValveType type = EpanetLinkValveType::PRV;
 
     // PRV, PSV, and PBV: pressure in meters of water.
     // FCV: flow in m3/h.
@@ -88,11 +89,11 @@ struct Valve
     double setting = 0.0;
     QString setting_curve_id;
 
-    ValveInitialStatus initial_status = ValveInitialStatus::Active;
+    EpanetLinkValveInitialStatus initial_status = EpanetLinkValveInitialStatus::Active;
     double diameter_mm = 0.0;
     double minor_loss = 0.0;
 
-    EpanetObjectMetadata metadata;
+    EpanetEntityMetadata metadata;
 };
 
 #endif // AOWIS_MODEL_HYDRAULIC_EPANET_LINKS_H

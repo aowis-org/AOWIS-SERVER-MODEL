@@ -2,18 +2,19 @@
 #define AOWIS_MODEL_HYDRAULIC_EPANET_CONTROLS_H
 
 #include <optional>
+
 #include <QList>
 #include <QString>
 #include <QUuid>
 
 #include "epanet_types.h"
 
-struct EpanetSimpleControl
+struct EpanetControlSimple
 {
     QString id;
     QUuid uuid;
 
-    EpanetSimpleControlType type = EpanetSimpleControlType::LowLevel;
+    EpanetControlSimpleType type = EpanetControlSimpleType::LowLevel;
 
     QString link_id;
     EpanetControlActionType action = EpanetControlActionType::Setting;
@@ -26,33 +27,33 @@ struct EpanetSimpleControl
     bool enabled = true;
 };
 
-struct EpanetRulePremise
+struct EpanetControlRulePremise
 {
-    EpanetRuleLogicalOperator logical_operator = EpanetRuleLogicalOperator::If;
-    EpanetRuleObject object = EpanetRuleObject::Node;
+    EpanetControlRuleLogicalOperator logical_operator = EpanetControlRuleLogicalOperator::If;
+    EpanetControlRuleObject object = EpanetControlRuleObject::Node;
     QString object_id;
-    EpanetRuleVariable variable = EpanetRuleVariable::Pressure;
-    EpanetRuleOperator comparison = EpanetRuleOperator::Greater;
+    EpanetControlRuleVariable variable = EpanetControlRuleVariable::Pressure;
+    EpanetControlRuleOperator comparison = EpanetControlRuleOperator::Greater;
 
-    std::optional<EpanetRuleStatus> status;
+    std::optional<EpanetControlRuleStatus> status;
     std::optional<double> value;
 };
 
-struct EpanetRuleAction
+struct EpanetControlRuleAction
 {
     QString link_id;
-    std::optional<EpanetRuleStatus> status;
+    std::optional<EpanetControlRuleStatus> status;
     std::optional<double> setting;
 };
 
-struct EpanetRule
+struct EpanetControlRule
 {
     QString id;
     QUuid uuid;
 
-    QList<EpanetRulePremise> premises;
-    QList<EpanetRuleAction> then_actions;
-    QList<EpanetRuleAction> else_actions;
+    QList<EpanetControlRulePremise> premises;
+    QList<EpanetControlRuleAction> actions_then;
+    QList<EpanetControlRuleAction> actions_else;
 
     double priority = 0.0;
     bool enabled = true;

@@ -5,7 +5,7 @@
 #include <QString>
 #include <QUuid>
 
-struct EpanetTimePattern
+struct EpanetPatternTime
 {
     QString id;
     QUuid uuid;
@@ -13,90 +13,87 @@ struct EpanetTimePattern
     QString comment;
 };
 
-struct TankVolumeCurvePoint
+struct EpanetCurveTankVolumePoint
 {
     double water_level_m = 0.0;
     double volume_m3 = 0.0;
 };
 
-struct TankVolumeCurve
+struct EpanetCurveTankVolume
 {
     QString id;
     QUuid uuid;
-    QList<TankVolumeCurvePoint> points;
+    QList<EpanetCurveTankVolumePoint> points;
     QString comment;
 };
 
-struct PumpCurvePoint
+struct EpanetCurvePumpHeadPoint
 {
     double flow_m3_per_h = 0.0;
     double head_gain_m = 0.0;
 };
 
-struct PumpCurve
+struct EpanetCurvePumpHead
 {
     QString id;
     QUuid uuid;
-    QList<PumpCurvePoint> points;
+    QList<EpanetCurvePumpHeadPoint> points;
     QString comment;
 };
 
-using PumpHeadCurvePoint = PumpCurvePoint;
-using PumpHeadCurve = PumpCurve;
-
-struct PumpEfficiencyCurvePoint
+struct EpanetCurvePumpEfficiencyPoint
 {
     double flow_m3_per_h = 0.0;
     double efficiency_percent = 0.0;
 };
 
-struct PumpEfficiencyCurve
+struct EpanetCurvePumpEfficiency
 {
     QString id;
     QUuid uuid;
-    QList<PumpEfficiencyCurvePoint> points;
+    QList<EpanetCurvePumpEfficiencyPoint> points;
     QString comment;
 };
 
-struct ValveHeadlossCurvePoint
+struct EpanetCurveValveHeadlossPoint
 {
     double flow_m3_per_h = 0.0;
     double head_loss_m = 0.0;
 };
 
-struct ValveHeadlossCurve
+struct EpanetCurveValveHeadloss
 {
     QString id;
     QUuid uuid;
-    QList<ValveHeadlossCurvePoint> points;
+    QList<EpanetCurveValveHeadlossPoint> points;
     QString comment;
 };
 
-struct ValveCharacteristicCurvePoint
+struct EpanetCurveValveCharacteristicPoint
 {
     double position_percent = 0.0;
     double relative_flow_percent = 0.0;
 };
 
-struct ValveCharacteristicCurve
+struct EpanetCurveValveCharacteristic
 {
     QString id;
     QUuid uuid;
-    QList<ValveCharacteristicCurvePoint> points;
+    QList<EpanetCurveValveCharacteristicPoint> points;
     QString comment;
 };
 
-struct GenericCurvePoint
+struct EpanetCurveGenericPoint
 {
     double x = 0.0;
     double y = 0.0;
 };
 
-struct GenericCurve
+struct EpanetCurveGeneric
 {
     QString id;
     QUuid uuid;
-    QList<GenericCurvePoint> points;
+    QList<EpanetCurveGenericPoint> points;
     QString comment;
 };
 

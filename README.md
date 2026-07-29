@@ -75,7 +75,7 @@ Headers can then be included directly:
 ```cpp
 #include <aowis/model/project.h>
 #include <aowis/model/gis.h>
-#include <aowis/model/hydraulic/network.h>
+#include <aowis/model/hydraulic/network_hydraulic.h>
 ```
 
 ## Installation
@@ -96,6 +96,29 @@ cmake --install build --prefix /desired/install/prefix
 - Use one authoritative representation for each value.
 - Keep external-system-specific conversion and adaptation at system boundaries.
 - Prefer domain terminology over implementation-specific terminology where the two differ.
+
+## Naming Convention
+
+Names are ordered from the broad shared group to the specific concept so related identifiers remain adjacent in autocomplete results.
+
+- Related type names use a shared PascalCase prefix, followed by the more specific concept.
+- Related member names use a shared snake_case prefix, followed by the more specific concept.
+- Type and member suffixes should correspond wherever practical.
+- Collection members keep the shared group prefix and use a plural specific name.
+- External identifiers whose spelling is defined by an external API or serialization format remain unchanged when that spelling is intentional.
+
+For example:
+
+```cpp
+EpanetOptionsHydraulic options_hydraulic;
+EpanetOptionsQuality options_quality;
+
+QList<EpanetNodeJunction> nodes_junctions;
+QList<EpanetLinkPipe> links_pipes;
+QList<EpanetCurvePumpHead> curves_pump_head;
+```
+
+Nested option types follow the same rule, for example `EpanetOptionsReportField`, `EpanetOptionsReportFieldsNode`, and `EpanetOptionsReportSelection`.
 
 ## Contributing
 

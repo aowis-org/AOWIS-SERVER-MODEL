@@ -23,8 +23,8 @@ add_library(aowis-server-model STATIC
     include/aowis/model/hydraulic/epanet_options.h
     include/aowis/model/hydraulic/epanet_status.h
     include/aowis/model/hydraulic/epanet_types.h
-    include/aowis/model/hydraulic/network.h
-    include/aowis/model/hydraulic/simulation_result.h
+    include/aowis/model/hydraulic/epanet_results.h
+    include/aowis/model/hydraulic/network_hydraulic.h
 )
 
 add_library(AOWIS::ServerModel ALIAS aowis-server-model)

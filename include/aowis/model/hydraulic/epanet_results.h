@@ -1,5 +1,5 @@
-#ifndef SIMULATION_RESULT_H
-#define SIMULATION_RESULT_H
+#ifndef AOWIS_MODEL_HYDRAULIC_EPANET_RESULTS_H
+#define AOWIS_MODEL_HYDRAULIC_EPANET_RESULTS_H
 
 #include <QDateTime>
 #include <QList>
@@ -9,7 +9,7 @@
 #include "epanet_status.h"
 #include "epanet_types.h"
 
-struct JunctionResult
+struct EpanetResultNodeJunction
 {
     QString id;
 
@@ -29,7 +29,7 @@ struct JunctionResult
     bool appears_in_control = false;
 };
 
-struct ReservoirResult
+struct EpanetResultNodeReservoir
 {
     QString id;
 
@@ -43,7 +43,7 @@ struct ReservoirResult
     bool appears_in_control = false;
 };
 
-struct TankResult
+struct EpanetResultNodeTank
 {
     QString id;
 
@@ -61,7 +61,7 @@ struct TankResult
     bool appears_in_control = false;
 };
 
-struct PipeResult
+struct EpanetResultLinkPipe
 {
     QString id;
 
@@ -79,7 +79,7 @@ struct PipeResult
     bool appears_in_control = false;
 };
 
-struct PumpResult
+struct EpanetResultLinkPump
 {
     QString id;
 
@@ -88,7 +88,7 @@ struct PumpResult
     double headloss = 0.0;
 
     bool open = true;
-    EpanetPumpState state = EpanetPumpState::Closed;
+    EpanetResultLinkPumpState state = EpanetResultLinkPumpState::Closed;
     double speed = 0.0;
 
     double efficiency_percent = 0.0;
@@ -99,7 +99,7 @@ struct PumpResult
     bool appears_in_control = false;
 };
 
-struct ValveResult
+struct EpanetResultLinkValve
 {
     QString id;
 
@@ -116,7 +116,7 @@ struct ValveResult
     bool appears_in_control = false;
 };
 
-struct PumpEnergyUsageResult
+struct EpanetResultLinkPumpEnergyUsage
 {
     QString pump_id;
 
@@ -128,7 +128,7 @@ struct PumpEnergyUsageResult
     double average_cost_per_day = 0.0;
 };
 
-struct EpanetAnalysisStatistics
+struct EpanetResultStatistics
 {
     double hydraulic_iterations = 0.0;
     double relative_error = 0.0;
@@ -142,40 +142,40 @@ struct EpanetAnalysisStatistics
     double leakage_loss_percent = 0.0;
 };
 
-struct EpanetTimestepEvent
+struct EpanetResultTimestepEvent
 {
-    EpanetTimestepEventType type = EpanetTimestepEventType::HydraulicStep;
+    EpanetResultTimestepEventType type = EpanetResultTimestepEventType::HydraulicStep;
     long time_until_event_s = 0;
     QString tank_id;
 };
 
-struct SimulationResult
+struct EpanetResult
 {
     long time_elapsed_s = 0;
 
     EpanetStatus status;
 
-    QList<JunctionResult> junctions;
-    QList<ReservoirResult> reservoirs;
-    QList<TankResult> tanks;
+    QList<EpanetResultNodeJunction> nodes_junctions;
+    QList<EpanetResultNodeReservoir> nodes_reservoirs;
+    QList<EpanetResultNodeTank> nodes_tanks;
 
-    QList<PipeResult> pipes;
-    QList<PumpResult> pumps;
-    QList<ValveResult> valves;
+    QList<EpanetResultLinkPipe> links_pipes;
+    QList<EpanetResultLinkPump> links_pumps;
+    QList<EpanetResultLinkValve> links_valves;
 
-    QList<PumpEnergyUsageResult> pump_energy_usage;
+    QList<EpanetResultLinkPumpEnergyUsage> links_pump_energy_usage;
 
-    EpanetAnalysisStatistics statistics;
-    EpanetTimestepEvent next_event;
+    EpanetResultStatistics statistics;
+    EpanetResultTimestepEvent event_next;
 };
 
-struct SimulationResultTimeline
+struct EpanetResultTimeline
 {
     EpanetStatus status;
     QDateTime simulation_start_utc;
-    QList<SimulationResult> results;
+    QList<EpanetResult> results;
 };
 
-Q_DECLARE_METATYPE(SimulationResultTimeline)
+Q_DECLARE_METATYPE(EpanetResultTimeline)
 
-#endif // SIMULATION_RESULT_H
+#endif // AOWIS_MODEL_HYDRAULIC_EPANET_RESULTS_H
