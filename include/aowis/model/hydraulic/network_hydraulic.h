@@ -29,9 +29,8 @@ struct NetworkHydraulic
     QString title_line_2;
     QString title_line_3;
 
-    // Measurement quantities are stored in canonical SI-based engineering units.
-    // The configured flow and pressure units apply only at import, export, report,
-    // and simulation-backend boundaries.
+    // Measurement quantities are stored in the canonical units encoded by their field names.
+    // Conversion to other units belongs only at import, export, and presentation boundaries.
     quint64 duration_s = 0;
     quint64 timestep_hydraulic_s = 3600;
     quint64 timestep_quality_s = 300;

@@ -29,7 +29,7 @@ The previous option prefix did not describe the responsibility of each type. The
 | `EpanetOptionsEnergy` | `PumpEnergyOptions` |
 | `EpanetOptionsReport` | `HydraulicSimulationReportOptions` |
 
-The related enums were similarly renamed, for example `HydraulicFlowUnit`, `HydraulicPressureUnit`, `HydraulicHeadlossFormula`, and `WaterQualityAnalysisType`.
+The related enums were similarly renamed, for example `HydraulicFlowUnit`, `HydraulicPressureUnit`, `HydraulicHeadlossFormula`, and `WaterQualityAnalysisType`. Native solver-unit selectors are not part of `HydraulicSolverOptions`; canonical units are encoded by measurement field names, while conversion belongs at import, export, and presentation boundaries.
 
 ## Backend-Specific Information
 
@@ -58,12 +58,13 @@ Consumers must update includes and public type names. Simulation wrappers must a
 
 | Previous field | New field |
 |---|---|
-| `flow_units` | `flow_unit` |
-| `pressure_units` | `pressure_unit` |
 | `additional_commands` | `backend_commands` |
 | `HydraulicMapBackdrop::units` | `HydraulicMapBackdrop::unit` |
 | `epanet_error_code` | `backend_error_code` |
 | `message_epanet` | `message_backend` |
+| `HydraulicSimulationResultLinkPipe::setting` | Formula-specific `roughness_hw`, `roughness_dw_mm`, or `roughness_cm` |
+
+`HydraulicSolverOptions::flow_unit` and `HydraulicSolverOptions::pressure_unit` were removed. Hydraulic quantities use the canonical units encoded by their field names; external unit selection belongs at import, export, and presentation boundaries.
 
 `HydraulicSimulationStatusOperation` no longer reproduces native API function names as enum values. It contains backend-neutral operation categories. The exact native function or operation name belongs in `HydraulicSimulationStatus::backend_operation`.
 
@@ -72,7 +73,7 @@ Consumers must update includes and public type names. Simulation wrappers must a
 The names are now generic, but several structures still reflect capabilities or conventions of the current backend. They should be reviewed before treating them as permanent cross-backend contracts:
 
 - algorithm controls such as `maximum_trials`, `check_frequency`, `maximum_check`, `damping_limit`, and unbalanced-network handling;
-- the fixed flow-unit and pressure-unit enum sets, which may be better represented by UCUM identifiers at an import/export boundary;
+- flow-unit and pressure-unit enum sets used at import/export boundaries, which may be better represented by UCUM identifiers;
 - one-point and three-point pump-curve definition modes;
 - text-report page, status, selection, threshold, and precision behavior;
 - the exact set of control-rule variables, operators, and statuses;

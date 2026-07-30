@@ -1,6 +1,8 @@
 #ifndef AOWIS_MODEL_HYDRAULIC_SIMULATION_RESULTS_H
 #define AOWIS_MODEL_HYDRAULIC_SIMULATION_RESULTS_H
 
+#include <optional>
+
 #include <QDateTime>
 #include <QList>
 #include <QMetaType>
@@ -78,7 +80,9 @@ struct HydraulicSimulationResultLinkPipe
     double head_loss_m = 0.0;
 
     bool open = true;
-    double setting = 0.0;
+    std::optional<double> roughness_hw;
+    std::optional<double> roughness_dw_mm;
+    std::optional<double> roughness_cm;
 
     double quality = 0.0;
 

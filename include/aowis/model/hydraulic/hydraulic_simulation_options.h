@@ -12,8 +12,6 @@
 
 struct HydraulicSolverOptions
 {
-    HydraulicFlowUnit flow_unit = HydraulicFlowUnit::LitersPerSecond;
-    HydraulicPressureUnit pressure_unit = HydraulicPressureUnit::Meters;
     HydraulicHeadlossFormula headloss_formula = HydraulicHeadlossFormula::HazenWilliams;
     HydraulicDemandModel demand_model = HydraulicDemandModel::DemandDriven;
 
