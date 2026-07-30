@@ -6,6 +6,7 @@
 #include <QList>
 #include <QString>
 #include <QUuid>
+#include <QtGlobal>
 
 #include "hydraulic_types.h"
 
@@ -16,13 +17,13 @@ struct HydraulicControlSimple
 
     HydraulicControlSimpleType type = HydraulicControlSimpleType::LowLevel;
 
-    QString link_id;
+    QUuid link_uuid;
     HydraulicControlActionType action = HydraulicControlActionType::Setting;
     double setting = 0.0;
 
-    QString trigger_node_id;
+    QUuid trigger_node_uuid;
     double trigger_level_or_pressure_head_m = 0.0;
-    long trigger_time_s = 0;
+    quint64 trigger_time_s = 0;
 
     bool enabled = true;
 };
@@ -31,7 +32,7 @@ struct HydraulicControlRulePremise
 {
     HydraulicControlRuleLogicalOperator logical_operator = HydraulicControlRuleLogicalOperator::If;
     HydraulicControlRuleObject object = HydraulicControlRuleObject::Node;
-    QString object_id;
+    QUuid object_uuid;
     HydraulicControlRuleVariable variable = HydraulicControlRuleVariable::Pressure;
     HydraulicControlRuleOperator comparison = HydraulicControlRuleOperator::Greater;
 
@@ -41,7 +42,7 @@ struct HydraulicControlRulePremise
 
 struct HydraulicControlRuleAction
 {
-    QString link_id;
+    QUuid link_uuid;
     std::optional<HydraulicControlRuleStatus> status;
     std::optional<double> setting;
 };

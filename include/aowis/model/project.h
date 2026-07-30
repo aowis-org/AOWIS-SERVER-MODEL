@@ -15,7 +15,8 @@ enum class ProjectState
 
 struct Project
 {
-    QUuid project_id;
+    QString id;
+    QUuid uuid;
     QString name;
     QString description;
     QDateTime created_at;
@@ -24,7 +25,7 @@ struct Project
 
     bool isValid() const
     {
-        return !this->project_id.isNull();
+        return !this->uuid.isNull();
     }
 
     ProjectState state() const

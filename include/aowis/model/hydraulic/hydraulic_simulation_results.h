@@ -5,6 +5,8 @@
 #include <QList>
 #include <QMetaType>
 #include <QString>
+#include <QUuid>
+#include <QtGlobal>
 
 #include "hydraulic_simulation_status.h"
 #include "hydraulic_types.h"
@@ -12,6 +14,7 @@
 struct HydraulicSimulationResultNodeJunction
 {
     QString id;
+    QUuid uuid;
 
     double demand_requested_m3_per_h = 0.0;
     double demand_delivered_m3_per_h = 0.0;
@@ -32,6 +35,7 @@ struct HydraulicSimulationResultNodeJunction
 struct HydraulicSimulationResultNodeReservoir
 {
     QString id;
+    QUuid uuid;
 
     double net_demand_m3_per_h = 0.0;
     double head_m = 0.0;
@@ -46,6 +50,7 @@ struct HydraulicSimulationResultNodeReservoir
 struct HydraulicSimulationResultNodeTank
 {
     QString id;
+    QUuid uuid;
 
     double net_demand_m3_per_h = 0.0;
 
@@ -64,12 +69,13 @@ struct HydraulicSimulationResultNodeTank
 struct HydraulicSimulationResultLinkPipe
 {
     QString id;
+    QUuid uuid;
 
     double flow_m3_per_h = 0.0;
     double leakage_flow_m3_per_h = 0.0;
 
     double velocity_m_per_s = 0.0;
-    double headloss = 0.0;
+    double head_loss_m = 0.0;
 
     bool open = true;
     double setting = 0.0;
@@ -82,10 +88,11 @@ struct HydraulicSimulationResultLinkPipe
 struct HydraulicSimulationResultLinkPump
 {
     QString id;
+    QUuid uuid;
 
     double flow_m3_per_h = 0.0;
     double velocity_m_per_s = 0.0;
-    double headloss = 0.0;
+    double head_gain_m = 0.0;
 
     bool open = true;
     HydraulicSimulationPumpState state = HydraulicSimulationPumpState::Closed;
@@ -102,10 +109,11 @@ struct HydraulicSimulationResultLinkPump
 struct HydraulicSimulationResultLinkValve
 {
     QString id;
+    QUuid uuid;
 
     double flow_m3_per_h = 0.0;
     double velocity_m_per_s = 0.0;
-    double headloss = 0.0;
+    double head_loss_m = 0.0;
 
     bool open = true;
     bool active = false;
@@ -119,6 +127,7 @@ struct HydraulicSimulationResultLinkValve
 struct HydraulicSimulationResultLinkPumpEnergyUsage
 {
     QString pump_id;
+    QUuid pump_uuid;
 
     double time_online_percent = 0.0;
     double average_efficiency_percent = 0.0;
@@ -130,14 +139,14 @@ struct HydraulicSimulationResultLinkPumpEnergyUsage
 
 struct HydraulicSimulationResultStatistics
 {
-    double hydraulic_iterations = 0.0;
+    qint64 hydraulic_iterations = 0;
     double relative_error = 0.0;
     double maximum_head_error_m = 0.0;
     double maximum_flow_change_m3_per_h = 0.0;
 
     double quality_mass_balance_ratio = 0.0;
 
-    double deficient_nodes = 0.0;
+    qint64 deficient_nodes = 0;
     double demand_reduction_percent = 0.0;
     double leakage_loss_percent = 0.0;
 };
@@ -145,13 +154,14 @@ struct HydraulicSimulationResultStatistics
 struct HydraulicSimulationResultTimestepEvent
 {
     HydraulicSimulationTimestepEventType type = HydraulicSimulationTimestepEventType::HydraulicStep;
-    long time_until_event_s = 0;
+    quint64 time_until_event_s = 0;
     QString tank_id;
+    QUuid tank_uuid;
 };
 
 struct HydraulicSimulationResult
 {
-    long time_elapsed_s = 0;
+    quint64 time_elapsed_s = 0;
 
     HydraulicSimulationStatus status;
 

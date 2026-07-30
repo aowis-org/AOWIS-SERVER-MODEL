@@ -4,6 +4,7 @@
 #include <QList>
 #include <QString>
 #include <QUuid>
+#include <QtGlobal>
 
 #include "hydraulic_controls.h"
 #include "hydraulic_curves.h"
@@ -21,6 +22,7 @@ struct NetworkHydraulicCustomerPoint
 
 struct NetworkHydraulic
 {
+    QString id;
     QUuid uuid;
 
     QString title_line_1;
@@ -30,15 +32,15 @@ struct NetworkHydraulic
     // Measurement quantities are stored in canonical SI-based engineering units.
     // The configured flow and pressure units apply only at import, export, report,
     // and simulation-backend boundaries.
-    long duration_s = 0;
-    long timestep_hydraulic_s = 3600;
-    long timestep_quality_s = 300;
-    long timestep_pattern_s = 3600;
-    long start_pattern_s = 0;
-    long timestep_report_s = 3600;
-    long start_report_s = 0;
-    long timestep_rule_s = 360;
-    long start_time_of_day_s = 0;
+    quint64 duration_s = 0;
+    quint64 timestep_hydraulic_s = 3600;
+    quint64 timestep_quality_s = 300;
+    quint64 timestep_pattern_s = 3600;
+    quint64 start_pattern_s = 0;
+    quint64 timestep_report_s = 3600;
+    quint64 start_report_s = 0;
+    quint64 timestep_rule_s = 360;
+    quint64 start_time_of_day_s = 0;
     HydraulicSimulationReportStatistic report_statistic = HydraulicSimulationReportStatistic::Series;
 
     HydraulicSolverOptions options_hydraulic;

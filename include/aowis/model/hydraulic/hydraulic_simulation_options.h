@@ -3,8 +3,10 @@
 
 #include <optional>
 
+#include <QList>
 #include <QString>
 #include <QStringList>
+#include <QUuid>
 
 #include "hydraulic_types.h"
 
@@ -30,7 +32,7 @@ struct HydraulicSolverOptions
     double maximum_flow_change_m3_per_h = 0.0;
 
     double demand_multiplier = 1.0;
-    QString default_demand_pattern_id;
+    QUuid default_demand_pattern_uuid;
 
     double emitter_exponent = 0.5;
     bool emitters_can_backflow = false;
@@ -44,7 +46,7 @@ struct WaterQualitySolverOptions
     WaterQualityAnalysisType analysis = WaterQualityAnalysisType::None;
     QString chemical_name;
     QString chemical_units;
-    QString trace_node_id;
+    QUuid trace_node_uuid;
 
     double tolerance = 0.01;
     double relative_diffusivity = 1.0;
@@ -68,7 +70,7 @@ struct PumpEnergyOptions
 {
     double global_pump_efficiency_percent = 75.0;
     double global_energy_price_per_kw_h = 0.0;
-    QString global_energy_price_pattern_id;
+    QUuid global_energy_price_pattern_uuid;
     double demand_charge_per_kw = 0.0;
 };
 
@@ -105,7 +107,7 @@ struct HydraulicSimulationReportLinkFields
 struct HydraulicSimulationReportSelection
 {
     HydraulicSimulationReportSelectionMode mode = HydraulicSimulationReportSelectionMode::All;
-    QStringList ids;
+    QList<QUuid> uuids;
 };
 
 struct HydraulicSimulationReportOptions

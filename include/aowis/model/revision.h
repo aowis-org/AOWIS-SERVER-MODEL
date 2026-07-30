@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QString>
 #include <QUuid>
+#include <QtGlobal>
 
 enum class RevisionState
 {
@@ -15,9 +16,10 @@ enum class RevisionState
 
 struct Revision
 {
-    QUuid id;
-    QUuid project_id;
-    std::optional<QUuid> parent_revision_id;
+    QString id;
+    QUuid uuid;
+    QUuid project_uuid;
+    std::optional<QUuid> parent_revision_uuid;
     std::optional<qint64> number;
 
     RevisionState state = RevisionState::Working;

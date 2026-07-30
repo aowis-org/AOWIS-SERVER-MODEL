@@ -4,6 +4,7 @@
 #include <optional>
 
 #include <QString>
+#include <QUuid>
 
 #include "../gis.h"
 
@@ -308,7 +309,7 @@ struct HydraulicNodeQualitySource
 {
     HydraulicNodeQualitySourceType type = HydraulicNodeQualitySourceType::None;
     double strength = 0.0;
-    QString pattern_id;
+    QUuid pattern_uuid;
 };
 
 #endif // AOWIS_MODEL_HYDRAULIC_TYPES_H

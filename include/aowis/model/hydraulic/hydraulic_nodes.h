@@ -14,7 +14,7 @@ struct HydraulicNodeJunctionDemand
 {
     QString category_name;
     double base_demand_m3_per_h = 0.0;
-    QString pattern_id;
+    QUuid pattern_uuid;
 
     HydraulicNodeJunctionDemandSourceMethod source_method = HydraulicNodeJunctionDemandSourceMethod::ManualEstimation;
     QString note;
@@ -55,7 +55,7 @@ struct HydraulicNodeReservoir
     double head_m = 0.0;
     double terrain_elevation_m = 0.0;
     double head_offset_m = 0.0;
-    QString head_pattern_id;
+    QUuid head_pattern_uuid;
 
     double initial_quality = 0.0;
     HydraulicNodeQualitySource quality_source;
@@ -85,7 +85,7 @@ struct HydraulicNodeTank
     double cross_section_area_m2 = 0.0;
     double volume_at_maximum_level_m3 = 0.0;
     double minimum_volume_m3 = 0.0;
-    QString volume_curve_id;
+    QUuid volume_curve_uuid;
 
     bool can_overflow = false;
 

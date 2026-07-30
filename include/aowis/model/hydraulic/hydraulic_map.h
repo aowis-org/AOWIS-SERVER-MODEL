@@ -2,15 +2,19 @@
 #define AOWIS_MODEL_HYDRAULIC_MAP_H
 
 #include <QString>
+#include <QUuid>
 
 #include "hydraulic_types.h"
 
 struct HydraulicMapLabel
 {
+    QString id;
+    QUuid uuid;
+
     double x = 0.0;
     double y = 0.0;
     QString text;
-    QString anchor_node_id;
+    QUuid anchor_node_uuid;
 };
 
 struct HydraulicMapBackdrop

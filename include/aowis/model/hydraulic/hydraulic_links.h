@@ -51,21 +51,21 @@ struct HydraulicLinkPump
 
     HydraulicLinkPumpDefinitionType definition_type = HydraulicLinkPumpDefinitionType::ConstantPower;
     double constant_power_kw = 0.0;
-    QString head_curve_id;
+    QUuid head_curve_uuid;
 
     double initial_speed = 1.0;
     HydraulicLinkPumpInitialStatus initial_status = HydraulicLinkPumpInitialStatus::On;
-    QString speed_pattern_id;
+    QUuid speed_pattern_uuid;
 
     HydraulicLinkPumpControlType control_type = HydraulicLinkPumpControlType::None;
 
     HydraulicLinkPumpEfficiencyInputType efficiency_input_type = HydraulicLinkPumpEfficiencyInputType::Global;
     double constant_efficiency_percent = 75.0;
-    QString efficiency_curve_id;
+    QUuid efficiency_curve_uuid;
 
     HydraulicLinkPumpEnergyPriceInputType energy_price_input_type = HydraulicLinkPumpEnergyPriceInputType::Global;
     double energy_price_per_kw_h = 0.0;
-    QString price_pattern_id;
+    QUuid price_pattern_uuid;
 
     HydraulicEntityMetadata metadata;
 };
@@ -85,9 +85,9 @@ struct HydraulicLinkValve
     // FCV: flow in m3/h.
     // TCV: dimensionless loss coefficient.
     // PCV: position in percent.
-    // GPV uses setting_curve_id instead.
+    // GPV uses setting_curve_uuid instead.
     double setting = 0.0;
-    QString setting_curve_id;
+    QUuid setting_curve_uuid;
 
     HydraulicLinkValveInitialStatus initial_status = HydraulicLinkValveInitialStatus::Active;
     double diameter_mm = 0.0;

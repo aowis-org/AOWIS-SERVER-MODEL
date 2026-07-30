@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QUuid>
 
 class HydraulicSimulationStatusEnums
 {
@@ -172,6 +173,7 @@ struct HydraulicSimulationStatusEntity
     HydraulicSimulationStatusEntityType type = HydraulicSimulationStatusEntityType::None;
 
     QString id;
+    QUuid uuid;
     int index = 0;
 };
 
