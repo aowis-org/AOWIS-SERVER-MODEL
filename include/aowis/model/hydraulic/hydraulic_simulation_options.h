@@ -113,6 +113,7 @@ struct HydraulicSimulationReportOptions
     int page_size = 0;
     HydraulicSimulationReportStatus status = HydraulicSimulationReportStatus::Normal;
     bool summary = true;
+    bool messages = true;
     bool energy = false;
 
     HydraulicSimulationReportSelection selection_nodes;
