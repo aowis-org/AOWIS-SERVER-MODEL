@@ -35,7 +35,7 @@ struct HydraulicNodeJunction
 
     QList<HydraulicNodeJunctionDemand> demands;
 
-    double emitter_coefficient_lps_per_m_exponent = 0.0;
+    double emitter_coefficient_m3_per_h_per_m_exponent = 0.0;
 
     double initial_quality = 0.0;
     HydraulicNodeQualitySource quality_source;
