@@ -3,9 +3,11 @@
 
 #include <optional>
 
+#include <QDate>
 #include <QString>
 #include <QUuid>
 
+#include "../entity.h"
 #include "../gis.h"
 
 enum class HydraulicNodeElevationInputType
@@ -289,6 +291,11 @@ enum class HydraulicSimulationTimestepEventType
 
 struct HydraulicEntityMetadata
 {
+    bool enabled = true;
+    EntityModelRole model_role = EntityModelRole::Unspecified;
+    std::optional<QDate> date_added;
+    std::optional<QDate> date_installed;
+
     QString comment;
     QString tag;
 };

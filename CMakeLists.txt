@@ -13,6 +13,7 @@ add_library(aowis-server-model STATIC
     src/model.cpp
     src/uuid.cpp
 
+    include/aowis/model/entity.h
     include/aowis/model/gis.h
     include/aowis/model/project.h
     include/aowis/model/revision.h
