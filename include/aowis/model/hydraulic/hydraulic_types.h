@@ -46,6 +46,12 @@ enum class HydraulicNodeTankMixingModel
     LastInFirstOut
 };
 
+enum class HydraulicTimePatternMode
+{
+    Constant,
+    TimePattern
+};
+
 enum class HydraulicNodeJunctionDemandSourceMethod
 {
     ManualEstimation,

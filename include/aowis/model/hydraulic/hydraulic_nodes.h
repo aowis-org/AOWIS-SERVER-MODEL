@@ -14,6 +14,7 @@ struct HydraulicNodeJunctionDemand
 {
     QString category_name;
     double base_demand_m3_per_h = 0.0;
+    HydraulicTimePatternMode pattern_mode = HydraulicTimePatternMode::Constant;
     QUuid pattern_uuid;
 
     HydraulicNodeJunctionDemandSourceMethod source_method = HydraulicNodeJunctionDemandSourceMethod::ManualEstimation;
