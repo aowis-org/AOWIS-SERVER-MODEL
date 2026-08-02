@@ -56,6 +56,7 @@ struct HydraulicNodeReservoir
     double head_m = 0.0;
     double terrain_elevation_m = 0.0;
     double head_offset_m = 0.0;
+    HydraulicTimePatternMode head_pattern_mode = HydraulicTimePatternMode::Constant;
     QUuid head_pattern_uuid;
 
     double initial_quality = 0.0;
