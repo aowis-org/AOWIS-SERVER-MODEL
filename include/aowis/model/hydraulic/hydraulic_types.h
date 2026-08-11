@@ -71,7 +71,8 @@ enum class HydraulicLinkPumpDefinitionType
     ConstantPower,
     OnePointCurve,
     ThreePointCurve,
-    Library
+    Library,
+    MultiPointCurve
 };
 
 enum class HydraulicLinkPumpInitialStatus

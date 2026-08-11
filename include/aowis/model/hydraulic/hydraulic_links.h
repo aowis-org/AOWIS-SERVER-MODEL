@@ -49,6 +49,9 @@ struct HydraulicLinkPump
     QUuid node_uuid_to;
     QList<HydraulicLinkVertex> vertices;
 
+    // One-point, three-point, multi-point, and library definitions use
+    // head_curve_uuid. The curve point count determines how a simulation
+    // backend interprets the pump curve.
     HydraulicLinkPumpDefinitionType definition_type = HydraulicLinkPumpDefinitionType::ConstantPower;
     double constant_power_kw = 0.0;
     QUuid head_curve_uuid;
@@ -85,7 +88,8 @@ struct HydraulicLinkValve
     // FCV: flow in m3/h.
     // TCV: dimensionless loss coefficient.
     // PCV: position in percent.
-    // GPV uses setting_curve_uuid instead.
+    // GPV uses setting_curve_uuid for its head-loss curve.
+    // PCV uses setting_curve_uuid for its valve-characteristic curve.
     double setting = 0.0;
     QUuid setting_curve_uuid;
 
