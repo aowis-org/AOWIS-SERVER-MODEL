@@ -10,6 +10,7 @@
 #include <QUuid>
 #include <QtGlobal>
 
+#include "hydraulic_simulation_diagnostics.h"
 #include "hydraulic_simulation_status.h"
 #include "hydraulic_types.h"
 
@@ -183,9 +184,22 @@ struct HydraulicSimulationResult
     HydraulicSimulationResultTimestepEvent event_next;
 };
 
+// Numerical result trustworthiness is independent from the overall backend status.
+// A backend can fail during reporting/cleanup after producing valid numerical results.
+enum class HydraulicSimulationResultValidity
+{
+    Valid,
+    Partial,
+    Invalid
+};
+
+Q_DECLARE_METATYPE(HydraulicSimulationResultValidity)
+
 struct HydraulicSimulationResultTimeline
 {
     HydraulicSimulationStatus status;
+    HydraulicSimulationResultValidity validity = HydraulicSimulationResultValidity::Invalid;
+    QList<HydraulicSimulationDiagnostic> diagnostics;
     QDateTime simulation_start_utc;
     QList<HydraulicSimulationResult> results;
 };
