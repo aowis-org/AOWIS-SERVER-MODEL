@@ -23,6 +23,10 @@ struct HydraulicSimulationResultNodeJunction
     double demand_delivered_m3_per_h = 0.0;
     double demand_deficit_m3_per_h = 0.0;
 
+    // Total hydraulic outflow at the junction: delivered consumer demand,
+    // emitter flow, and pipe leakage assigned to the node.
+    double total_demand_m3_per_h = 0.0;
+
     double emitter_flow_m3_per_h = 0.0;
     double leakage_flow_m3_per_h = 0.0;
 
@@ -79,6 +83,8 @@ struct HydraulicSimulationResultLinkPipe
 
     double velocity_m_per_s = 0.0;
     double head_loss_m = 0.0;
+    double unit_head_loss_m_per_km = 0.0;
+    double friction_factor = 0.0;
 
     bool open = true;
     std::optional<double> roughness_hw;
@@ -142,6 +148,30 @@ struct HydraulicSimulationResultLinkPumpEnergyUsage
     double average_cost_per_day = 0.0;
 };
 
+struct HydraulicSimulationResultFlowBalance
+{
+    double total_inflow_m3_per_h = 0.0;
+    double total_outflow_m3_per_h = 0.0;
+    double consumer_demand_m3_per_h = 0.0;
+    double demand_deficit_m3_per_h = 0.0;
+    double emitter_flow_m3_per_h = 0.0;
+    double leakage_flow_m3_per_h = 0.0;
+
+    // Positive storage flow means tanks are filling; negative storage flow
+    // means tanks are supplying the network.
+    double storage_flow_m3_per_h = 0.0;
+    double flow_balance_ratio = 0.0;
+};
+
+struct HydraulicSimulationResultEnergyUsage
+{
+    // Peak simultaneous power demand across all pumps.
+    double peak_power_kw = 0.0;
+    double energy_cost_per_day = 0.0;
+    double demand_charge_per_day = 0.0;
+    double total_cost_per_day = 0.0;
+};
+
 struct HydraulicSimulationResultStatistics
 {
     qint64 hydraulic_iterations = 0;
@@ -162,6 +192,8 @@ struct HydraulicSimulationResultTimestepEvent
     quint64 time_until_event_s = 0;
     QString tank_id;
     QUuid tank_uuid;
+    QString control_id;
+    QUuid control_uuid;
 };
 
 struct HydraulicSimulationResult
@@ -179,6 +211,10 @@ struct HydraulicSimulationResult
     QList<HydraulicSimulationResultLinkValve> links_valves;
 
     QList<HydraulicSimulationResultLinkPumpEnergyUsage> links_pump_energy_usage;
+
+    // Full-run summaries are populated on the final result in the timeline.
+    HydraulicSimulationResultFlowBalance flow_balance;
+    HydraulicSimulationResultEnergyUsage energy_usage;
 
     HydraulicSimulationResultStatistics statistics;
     HydraulicSimulationResultTimestepEvent event_next;

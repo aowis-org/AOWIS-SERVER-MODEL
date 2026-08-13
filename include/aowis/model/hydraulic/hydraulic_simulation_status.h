@@ -49,7 +49,9 @@ public:
         CloseQuality,
         SaveHydraulics,
         GenerateReport,
-        Cleanup
+        Cleanup,
+
+        ReadNextEvent
     };
     Q_ENUM(Stage)
 
@@ -98,7 +100,9 @@ public:
         ReadNodeResult,
         ReadLinkResult,
         ReadStatistic,
-        ReadBackendError
+        ReadBackendError,
+
+        ReadNextEvent
     };
     Q_ENUM(Operation)
 

@@ -60,6 +60,9 @@ struct HydraulicLinkPump
     HydraulicLinkPumpInitialStatus initial_status = HydraulicLinkPumpInitialStatus::On;
     QUuid speed_pattern_uuid;
 
+    // Describes the pump's configured control family for presentation. The
+    // executable control logic is stored in NetworkHydraulic::controls_simple
+    // and NetworkHydraulic::controls_rules, keyed by this pump's UUID.
     HydraulicLinkPumpControlType control_type = HydraulicLinkPumpControlType::None;
 
     HydraulicLinkPumpEfficiencyInputType efficiency_input_type = HydraulicLinkPumpEfficiencyInputType::Global;

@@ -37,6 +37,9 @@ struct HydraulicControlRulePremise
     HydraulicControlRuleOperator comparison = HydraulicControlRuleOperator::Greater;
 
     std::optional<HydraulicControlRuleStatus> status;
+
+    // Values use the hydraulic model's public units (m3/h, m, and kW). Time,
+    // clock-time, fill-time, and drain-time values are expressed in seconds.
     std::optional<double> value;
 };
 
