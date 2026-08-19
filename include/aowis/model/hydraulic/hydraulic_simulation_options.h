@@ -80,30 +80,76 @@ struct HydraulicSimulationReportField
 {
     bool enabled = true;
     std::optional<int> precision;
-    std::optional<double> below;
-    std::optional<double> above;
+};
+
+struct HydraulicSimulationReportFieldM
+{
+    bool enabled = true;
+    std::optional<int> precision;
+    std::optional<double> below_m;
+    std::optional<double> above_m;
+};
+
+struct HydraulicSimulationReportFieldM3PerH
+{
+    bool enabled = true;
+    std::optional<int> precision;
+    std::optional<double> below_m3_per_h;
+    std::optional<double> above_m3_per_h;
+};
+
+struct HydraulicSimulationReportFieldMm
+{
+    bool enabled = true;
+    std::optional<int> precision;
+    std::optional<double> below_mm;
+    std::optional<double> above_mm;
+};
+
+struct HydraulicSimulationReportFieldMPerS
+{
+    bool enabled = true;
+    std::optional<int> precision;
+    std::optional<double> below_m_per_s;
+    std::optional<double> above_m_per_s;
+};
+
+struct HydraulicSimulationReportFieldMPerKm
+{
+    bool enabled = true;
+    std::optional<int> precision;
+    std::optional<double> below_m_per_km;
+    std::optional<double> above_m_per_km;
+};
+
+struct HydraulicSimulationReportFieldFrictionFactor
+{
+    bool enabled = true;
+    std::optional<int> precision;
+    std::optional<double> below_friction_factor;
+    std::optional<double> above_friction_factor;
 };
 
 struct HydraulicSimulationReportNodeFields
 {
-    HydraulicSimulationReportField elevation;
-    HydraulicSimulationReportField demand;
-    HydraulicSimulationReportField head;
-    HydraulicSimulationReportField pressure;
+    HydraulicSimulationReportFieldM elevation;
+    HydraulicSimulationReportFieldM3PerH demand;
+    HydraulicSimulationReportFieldM head;
+    HydraulicSimulationReportFieldM pressure;
     HydraulicSimulationReportField quality;
 };
 
 struct HydraulicSimulationReportLinkFields
 {
-    HydraulicSimulationReportField length;
-    HydraulicSimulationReportField diameter;
-    HydraulicSimulationReportField flow;
-    HydraulicSimulationReportField velocity;
-    HydraulicSimulationReportField headloss;
+    HydraulicSimulationReportFieldM length;
+    HydraulicSimulationReportFieldMm diameter;
+    HydraulicSimulationReportFieldM3PerH flow;
+    HydraulicSimulationReportFieldMPerS velocity;
+    HydraulicSimulationReportFieldMPerKm headloss;
     HydraulicSimulationReportField position;
     HydraulicSimulationReportField setting;
     HydraulicSimulationReportField reaction;
-    HydraulicSimulationReportField friction;
+    HydraulicSimulationReportFieldFrictionFactor friction;
 };
 
 struct HydraulicSimulationReportSelection

@@ -1,8 +1,6 @@
 #ifndef AOWIS_MODEL_HYDRAULIC_NODES_H
 #define AOWIS_MODEL_HYDRAULIC_NODES_H
 
-#include <optional>
-
 #include <QList>
 #include <QString>
 #include <QUuid>
@@ -27,7 +25,6 @@ struct HydraulicNodeJunction
     QUuid uuid;
 
     CoordinateWGS84 coordinate_wgs84;
-    std::optional<HydraulicMapPosition> map_position;
 
     HydraulicNodeElevationInputType elevation_input_type = HydraulicNodeElevationInputType::TotalElevation;
     double elevation_m = 0.0;
@@ -50,7 +47,6 @@ struct HydraulicNodeReservoir
     QUuid uuid;
 
     CoordinateWGS84 coordinate_wgs84;
-    std::optional<HydraulicMapPosition> map_position;
 
     HydraulicNodeElevationInputType head_input_type = HydraulicNodeElevationInputType::TotalHead;
     double hydraulic_head_m = 0.0;
@@ -71,7 +67,6 @@ struct HydraulicNodeTank
     QUuid uuid;
 
     CoordinateWGS84 coordinate_wgs84;
-    std::optional<HydraulicMapPosition> map_position;
 
     HydraulicNodeTankElevationInputType elevation_input_type = HydraulicNodeTankElevationInputType::BottomElevation;
     double bottom_elevation_m = 0.0;

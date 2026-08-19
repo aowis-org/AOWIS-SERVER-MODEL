@@ -4,31 +4,28 @@
 #include <QString>
 #include <QUuid>
 
-#include "hydraulic_types.h"
+#include "../gis.h"
 
 struct HydraulicMapLabel
 {
     QString id;
     QUuid uuid;
 
-    double x = 0.0;
-    double y = 0.0;
+    CoordinateWGS84 coordinate_wgs84;
     QString text;
     QUuid anchor_node_uuid;
 };
 
 struct HydraulicMapBackdrop
 {
-    double lower_left_x = 0.0;
-    double lower_left_y = 0.0;
-    double upper_right_x = 0.0;
-    double upper_right_y = 0.0;
+    bool enabled = false;
 
-    HydraulicMapBackdropUnit unit = HydraulicMapBackdropUnit::None;
+    CoordinateWGS84 lower_left_wgs84;
+    CoordinateWGS84 upper_right_wgs84;
     QString file;
 
-    double offset_x = 0.0;
-    double offset_y = 0.0;
+    double offset_longitude_deg = 0.0;
+    double offset_latitude_deg = 0.0;
 };
 
 #endif // AOWIS_MODEL_HYDRAULIC_MAP_H

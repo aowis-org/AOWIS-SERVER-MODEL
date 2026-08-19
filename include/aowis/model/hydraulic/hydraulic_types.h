@@ -271,14 +271,6 @@ enum class HydraulicSimulationReportSelectionMode
     Selected
 };
 
-enum class HydraulicMapBackdropUnit
-{
-    None,
-    Feet,
-    Meters,
-    Degrees
-};
-
 enum class HydraulicSimulationPumpState
 {
     CannotSupplyHead,
@@ -307,16 +299,9 @@ struct HydraulicEntityMetadata
     QString tag;
 };
 
-struct HydraulicMapPosition
-{
-    double x = 0.0;
-    double y = 0.0;
-};
-
 struct HydraulicLinkVertex
 {
     CoordinateWGS84 coordinate_wgs84;
-    std::optional<HydraulicMapPosition> map_position;
 };
 
 struct HydraulicNodeQualitySource

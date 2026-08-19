@@ -83,6 +83,9 @@ struct HydraulicCurveValveCharacteristic
     QString comment;
 };
 
+// Opaque backend curve coordinates. Generic x/y values are deliberately not
+// AOWIS measurement quantities: their meaning and units are backend-defined.
+// Use a typed curve structure whenever AOWIS knows the coordinate quantities.
 struct HydraulicCurveGenericPoint
 {
     double x = 0.0;

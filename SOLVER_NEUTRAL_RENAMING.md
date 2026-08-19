@@ -59,7 +59,7 @@ Consumers must update includes and public type names. Simulation wrappers must a
 | Previous field | New field |
 |---|---|
 | `additional_commands` | `backend_commands` |
-| `HydraulicMapBackdrop::units` | `HydraulicMapBackdrop::unit` |
+| Generic hydraulic map `x`/`y` positions and backdrop unit selection | Canonical WGS84 coordinates; generated EPANET backdrop data uses degrees |
 | `epanet_error_code` | `backend_error_code` |
 | `message_epanet` | `message_backend` |
 | `HydraulicSimulationResultLinkPipe::setting` | Formula-specific `roughness_hazen_williams`, `roughness_darcy_weisbach_mm`, or `roughness_chezy_manning` |
