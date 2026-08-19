@@ -9,7 +9,7 @@ struct HydraulicPatternTime
 {
     QString id;
     QUuid uuid;
-    QList<double> factors;
+    QList<double> multipliers;
     QString comment;
 };
 

@@ -62,7 +62,7 @@ Consumers must update includes and public type names. Simulation wrappers must a
 | `HydraulicMapBackdrop::units` | `HydraulicMapBackdrop::unit` |
 | `epanet_error_code` | `backend_error_code` |
 | `message_epanet` | `message_backend` |
-| `HydraulicSimulationResultLinkPipe::setting` | Formula-specific `roughness_hw`, `roughness_dw_mm`, or `roughness_cm` |
+| `HydraulicSimulationResultLinkPipe::setting` | Formula-specific `roughness_hazen_williams`, `roughness_darcy_weisbach_mm`, or `roughness_chezy_manning` |
 
 `HydraulicSolverOptions::flow_unit` and `HydraulicSolverOptions::pressure_unit` were removed. Hydraulic quantities use the canonical units encoded by their field names; external unit selection belongs at import, export, and presentation boundaries.
 

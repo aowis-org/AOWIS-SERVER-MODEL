@@ -25,17 +25,17 @@ struct HydraulicLinkPipe
     double diameter_mm = 100.0;
 
     QString material_id;
-    double roughness_hw = 130.0;
-    double roughness_dw_mm = 0.1;
-    double roughness_cm = 0.013;
-    double minor_loss = 0.0;
+    double roughness_hazen_williams = 130.0;
+    double roughness_darcy_weisbach_mm = 0.1;
+    double roughness_chezy_manning = 0.013;
+    double minor_loss_coefficient = 0.0;
 
     bool override_reaction_coefficients = false;
     double bulk_reaction_coefficient_per_day = 0.0;
     double wall_reaction_coefficient_m_per_day = 0.0;
 
     double leak_area_mm2_per_100m = 0.0;
-    double leak_expansion_mm2_per_m_head = 0.0;
+    double leak_area_expansion_per_pressure_head_mm2_per_m = 0.0;
 
     HydraulicEntityMetadata metadata;
 };
@@ -56,7 +56,7 @@ struct HydraulicLinkPump
     double constant_power_kw = 0.0;
     QUuid head_curve_uuid;
 
-    double initial_speed = 1.0;
+    double initial_speed_ratio = 1.0;
     HydraulicLinkPumpInitialStatus initial_status = HydraulicLinkPumpInitialStatus::On;
     QUuid speed_pattern_uuid;
 
@@ -98,7 +98,7 @@ struct HydraulicLinkValve
 
     HydraulicLinkValveInitialStatus initial_status = HydraulicLinkValveInitialStatus::Active;
     double diameter_mm = 0.0;
-    double minor_loss = 0.0;
+    double minor_loss_coefficient = 0.0;
 
     HydraulicEntityMetadata metadata;
 };

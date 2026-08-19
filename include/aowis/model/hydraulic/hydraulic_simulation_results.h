@@ -30,7 +30,7 @@ struct HydraulicSimulationResultNodeJunction
     double emitter_flow_m3_per_h = 0.0;
     double leakage_flow_m3_per_h = 0.0;
 
-    double head_m = 0.0;
+    double hydraulic_head_m = 0.0;
     double pressure_head_m = 0.0;
 
     double quality = 0.0;
@@ -45,7 +45,7 @@ struct HydraulicSimulationResultNodeReservoir
     QUuid uuid;
 
     double net_demand_m3_per_h = 0.0;
-    double head_m = 0.0;
+    double hydraulic_head_m = 0.0;
     double pressure_head_m = 0.0;
 
     double quality = 0.0;
@@ -61,7 +61,7 @@ struct HydraulicSimulationResultNodeTank
 
     double net_demand_m3_per_h = 0.0;
 
-    double head_m = 0.0;
+    double hydraulic_head_m = 0.0;
     double pressure_head_m = 0.0;
     double water_level_m = 0.0;
     double volume_m3 = 0.0;
@@ -83,13 +83,13 @@ struct HydraulicSimulationResultLinkPipe
 
     double velocity_m_per_s = 0.0;
     double head_loss_m = 0.0;
-    double unit_head_loss_m_per_km = 0.0;
+    double head_loss_gradient_m_per_km = 0.0;
     double friction_factor = 0.0;
 
     bool open = true;
-    std::optional<double> roughness_hw;
-    std::optional<double> roughness_dw_mm;
-    std::optional<double> roughness_cm;
+    std::optional<double> roughness_hazen_williams;
+    std::optional<double> roughness_darcy_weisbach_mm;
+    std::optional<double> roughness_chezy_manning;
 
     double quality = 0.0;
 
@@ -107,7 +107,7 @@ struct HydraulicSimulationResultLinkPump
 
     bool open = true;
     HydraulicSimulationPumpState state = HydraulicSimulationPumpState::Closed;
-    double speed = 0.0;
+    double speed_ratio = 0.0;
 
     double efficiency_percent = 0.0;
     double power_kw = 0.0;
