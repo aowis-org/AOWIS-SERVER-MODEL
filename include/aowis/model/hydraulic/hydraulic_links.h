@@ -87,14 +87,16 @@ struct HydraulicLinkValve
 
     HydraulicLinkValveType type = HydraulicLinkValveType::PRV;
 
-    // PRV, PSV, and PBV: pressure in meters of water.
-    // FCV: flow in m3/h.
-    // TCV: dimensionless loss coefficient.
-    // PCV: position in percent.
-    // GPV uses setting_curve_uuid for its head-loss curve.
-    // PCV uses setting_curve_uuid for its valve-characteristic curve.
-    double setting = 0.0;
-    QUuid setting_curve_uuid;
+    // Only the setting field applicable to type is used. Keeping the physical
+    // quantities as separate fields makes their units explicit in the Model.
+    double setting_pressure_head_m = 0.0;
+    double setting_flow_m3_per_h = 0.0;
+    double setting_loss_coefficient = 0.0;
+    double setting_position_percent = 0.0;
+
+    // GPV uses a head-loss curve. PCV may use a valve-characteristic curve.
+    QUuid head_loss_curve_uuid;
+    QUuid characteristic_curve_uuid;
 
     HydraulicLinkValveInitialStatus initial_status = HydraulicLinkValveInitialStatus::Active;
     double diameter_mm = 0.0;

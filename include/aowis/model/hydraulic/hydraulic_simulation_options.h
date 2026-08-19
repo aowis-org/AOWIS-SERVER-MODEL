@@ -66,6 +66,10 @@ struct WaterQualityReactionOptions
 
 struct PumpEnergyOptions
 {
+    // ISO 4217 alphabetic code for all energy price, demand-charge, and cost values.
+    // Currency conversion and exchange rates are controller responsibilities.
+    QString currency_iso4217;
+
     double global_pump_efficiency_percent = 75.0;
     double global_energy_price_per_kw_h = 0.0;
     QUuid global_energy_price_pattern_uuid;

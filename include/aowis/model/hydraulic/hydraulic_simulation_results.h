@@ -121,6 +121,7 @@ struct HydraulicSimulationResultLinkValve
 {
     QString id;
     QUuid uuid;
+    HydraulicLinkValveType type = HydraulicLinkValveType::PRV;
 
     double flow_m3_per_h = 0.0;
     double velocity_m_per_s = 0.0;
@@ -128,7 +129,12 @@ struct HydraulicSimulationResultLinkValve
 
     bool open = true;
     bool active = false;
-    double setting = 0.0;
+
+    // Only the setting field applicable to the corresponding valve type is used.
+    double setting_pressure_head_m = 0.0;
+    double setting_flow_m3_per_h = 0.0;
+    double setting_loss_coefficient = 0.0;
+    double setting_position_percent = 0.0;
 
     double quality = 0.0;
 
@@ -139,10 +145,11 @@ struct HydraulicSimulationResultLinkPumpEnergyUsage
 {
     QString pump_id;
     QUuid pump_uuid;
+    QString currency_iso4217;
 
     double time_online_percent = 0.0;
     double average_efficiency_percent = 0.0;
-    double average_kw_per_flow_unit = 0.0;
+    double average_energy_intensity_kw_h_per_m3 = 0.0;
     double average_power_kw = 0.0;
     double peak_power_kw = 0.0;
     double average_cost_per_day = 0.0;
@@ -165,6 +172,8 @@ struct HydraulicSimulationResultFlowBalance
 
 struct HydraulicSimulationResultEnergyUsage
 {
+    QString currency_iso4217;
+
     // Peak simultaneous power demand across all pumps.
     double peak_power_kw = 0.0;
     double energy_cost_per_day = 0.0;
