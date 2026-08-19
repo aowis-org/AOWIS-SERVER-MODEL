@@ -307,8 +307,29 @@ struct HydraulicLinkVertex
 struct HydraulicNodeQualitySource
 {
     HydraulicNodeQualitySourceType type = HydraulicNodeQualitySourceType::None;
-    double strength = 0.0;
+
+    // Concentration, flow-paced, and setpoint sources use concentration.
+    double chemical_concentration_mg_per_l = 0.0;
+
+    // Mass boosters use an absolute chemical mass flow.
+    double chemical_mass_flow_mg_per_min = 0.0;
+
     QUuid pattern_uuid;
+};
+
+struct WaterQualityBulkReaction
+{
+    // Reaction rate = coefficient * concentration^order. The coefficient therefore
+    // has no fixed canonical UCUM unit independent of order.
+    double coefficient = 0.0;
+    double order = 1.0;
+};
+
+struct WaterQualityWallReaction
+{
+    // Wall-reaction coefficient dimensions depend on the configured reaction order.
+    double coefficient = 0.0;
+    double order = 1.0;
 };
 
 #endif // AOWIS_MODEL_HYDRAULIC_TYPES_H

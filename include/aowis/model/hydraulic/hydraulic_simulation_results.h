@@ -33,8 +33,6 @@ struct HydraulicSimulationResultNodeJunction
     double hydraulic_head_m = 0.0;
     double pressure_head_m = 0.0;
 
-    double quality = 0.0;
-    double source_mass_per_minute = 0.0;
 
     bool appears_in_control = false;
 };
@@ -48,8 +46,6 @@ struct HydraulicSimulationResultNodeReservoir
     double hydraulic_head_m = 0.0;
     double pressure_head_m = 0.0;
 
-    double quality = 0.0;
-    double source_mass_per_minute = 0.0;
 
     bool appears_in_control = false;
 };
@@ -67,8 +63,6 @@ struct HydraulicSimulationResultNodeTank
     double volume_m3 = 0.0;
     double mixing_zone_volume_m3 = 0.0;
 
-    double quality = 0.0;
-    double source_mass_per_minute = 0.0;
 
     bool appears_in_control = false;
 };
@@ -91,7 +85,6 @@ struct HydraulicSimulationResultLinkPipe
     std::optional<double> roughness_darcy_weisbach_mm;
     std::optional<double> roughness_chezy_manning;
 
-    double quality = 0.0;
 
     bool appears_in_control = false;
 };
@@ -112,7 +105,6 @@ struct HydraulicSimulationResultLinkPump
     double efficiency_percent = 0.0;
     double power_kw = 0.0;
 
-    double quality = 0.0;
 
     bool appears_in_control = false;
 };
@@ -136,7 +128,6 @@ struct HydraulicSimulationResultLinkValve
     double setting_loss_coefficient = 0.0;
     double setting_position_percent = 0.0;
 
-    double quality = 0.0;
 
     bool appears_in_control = false;
 };
@@ -188,7 +179,6 @@ struct HydraulicSimulationResultStatistics
     double maximum_head_error_m = 0.0;
     double maximum_flow_change_m3_per_h = 0.0;
 
-    double quality_mass_balance_ratio = 0.0;
 
     qint64 deficient_nodes = 0;
     double demand_reduction_percent = 0.0;

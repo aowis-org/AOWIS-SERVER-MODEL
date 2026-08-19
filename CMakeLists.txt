@@ -29,6 +29,7 @@ add_library(aowis-server-model STATIC
     include/aowis/model/hydraulic/hydraulic_simulation_status.h
     include/aowis/model/hydraulic/hydraulic_types.h
     include/aowis/model/hydraulic/hydraulic_simulation_results.h
+    include/aowis/model/hydraulic/water_quality_simulation_results.h
     include/aowis/model/hydraulic/network_hydraulic.h
 )
 

@@ -32,7 +32,6 @@ struct HydraulicSolverOptions
     double demand_multiplier = 1.0;
     QUuid default_demand_pattern_uuid;
 
-    double emitter_exponent = 0.5;
     bool emitters_can_backflow = false;
 
     double specific_gravity = 1.0;
@@ -43,25 +42,27 @@ struct WaterQualitySolverOptions
 {
     WaterQualityAnalysisType analysis = WaterQualityAnalysisType::None;
     QString chemical_name;
-    QString chemical_units;
     QUuid trace_node_uuid;
 
-    double tolerance = 0.01;
+    // Only the tolerance matching analysis is used. Chemical concentration is
+    // canonical mg/L, water age is h, and source trace is %.
+    double chemical_tolerance_mg_per_l = 0.01;
+    double water_age_tolerance_h = 0.01;
+    double source_trace_tolerance_percent = 0.01;
+
     double relative_diffusivity = 1.0;
 };
 
 struct WaterQualityReactionOptions
 {
-    double pipe_bulk_order = 1.0;
-    double pipe_wall_order = 1.0;
-    double tank_bulk_order = 1.0;
+    WaterQualityBulkReaction global_pipe_bulk_reaction;
+    WaterQualityWallReaction global_pipe_wall_reaction;
+    WaterQualityBulkReaction global_tank_bulk_reaction;
 
-    double global_pipe_bulk_coefficient_per_day = 0.0;
-    double global_pipe_wall_coefficient_m_per_day = 0.0;
-    double global_tank_bulk_coefficient_per_day = 0.0;
+    double limiting_concentration_mg_per_l = 0.0;
 
-    double limiting_concentration = 0.0;
-    double roughness_correlation = 0.0;
+    // EPANET's roughness-reaction correlation factor is backend/formula dependent.
+    double roughness_reaction_factor = 0.0;
 };
 
 struct PumpEnergyOptions

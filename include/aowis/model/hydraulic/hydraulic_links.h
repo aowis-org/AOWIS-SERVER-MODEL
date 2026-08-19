@@ -30,9 +30,9 @@ struct HydraulicLinkPipe
     double roughness_chezy_manning = 0.013;
     double minor_loss_coefficient = 0.0;
 
-    bool override_reaction_coefficients = false;
-    double bulk_reaction_coefficient_per_day = 0.0;
-    double wall_reaction_coefficient_m_per_day = 0.0;
+    bool override_reactions = false;
+    WaterQualityBulkReaction bulk_reaction;
+    WaterQualityWallReaction wall_reaction;
 
     double leak_area_mm2_per_100m = 0.0;
     double leak_area_expansion_per_pressure_head_mm2_per_m = 0.0;

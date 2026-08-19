@@ -19,6 +19,14 @@ struct HydraulicNodeJunctionDemand
     QString note;
 };
 
+struct HydraulicNodeJunctionEmitter
+{
+    // Q = coefficient * pressure_head^pressure_exponent, with Q in m3/h and pressure head in m.
+    // The coefficient therefore has no fixed canonical UCUM unit independent of pressure_exponent.
+    double coefficient = 0.0;
+    double pressure_exponent = 0.5;
+};
+
 struct HydraulicNodeJunction
 {
     QString id;
@@ -33,9 +41,11 @@ struct HydraulicNodeJunction
 
     QList<HydraulicNodeJunctionDemand> demands;
 
-    double emitter_coefficient_m3_per_h_per_m_exponent = 0.0;
+    HydraulicNodeJunctionEmitter emitter;
 
-    double initial_quality = 0.0;
+    double initial_chemical_concentration_mg_per_l = 0.0;
+    double initial_water_age_h = 0.0;
+    double initial_source_trace_percent = 0.0;
     HydraulicNodeQualitySource quality_source;
 
     HydraulicEntityMetadata metadata;
@@ -55,7 +65,9 @@ struct HydraulicNodeReservoir
     HydraulicTimePatternMode head_pattern_mode = HydraulicTimePatternMode::Constant;
     QUuid head_pattern_uuid;
 
-    double initial_quality = 0.0;
+    double initial_chemical_concentration_mg_per_l = 0.0;
+    double initial_water_age_h = 0.0;
+    double initial_source_trace_percent = 0.0;
     HydraulicNodeQualitySource quality_source;
 
     HydraulicEntityMetadata metadata;
@@ -86,14 +98,16 @@ struct HydraulicNodeTank
 
     bool can_overflow = false;
 
-    double initial_quality = 0.0;
+    double initial_chemical_concentration_mg_per_l = 0.0;
+    double initial_water_age_h = 0.0;
+    double initial_source_trace_percent = 0.0;
     HydraulicNodeQualitySource quality_source;
 
     HydraulicNodeTankMixingModel mixing_model = HydraulicNodeTankMixingModel::CompleteMix;
     double mixing_fraction = 1.0;
 
-    bool override_bulk_reaction_coefficient = false;
-    double bulk_reaction_coefficient_per_day = 0.0;
+    bool override_bulk_reaction = false;
+    WaterQualityBulkReaction bulk_reaction;
 
     HydraulicEntityMetadata metadata;
 };
