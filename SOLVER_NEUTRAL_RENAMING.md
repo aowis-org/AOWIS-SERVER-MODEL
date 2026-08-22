@@ -48,7 +48,7 @@ They are handled as follows:
 - `backend_error_code`, `backend_operation`, and `message_backend` preserve native diagnostics without defining backend-specific public enums.
 - `HydraulicSimulationReportOptions::backend_commands` isolates report commands that only a selected backend understands.
 - Shared result enums use semantic values without backend numeric assignments. Adapters must map native constants explicitly.
-- `HydraulicControlRule::source_text` may preserve imported rule text, while the structured rule fields remain the authoritative shared representation.
+- Imported control rules must be parsed into the structured shared rule representation. Backend-specific textual formatting is not part of the shared model.
 
 ## Required Consumer Changes
 

@@ -80,9 +80,6 @@ struct HydraulicControlRule
 
     double priority = 0.0;
     bool enabled = true;
-
-    // Preserves the exact imported backend rule text when desired.
-    QString source_text;
 };
 
 #endif // AOWIS_MODEL_HYDRAULIC_CONTROLS_H
