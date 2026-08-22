@@ -45,7 +45,6 @@ struct HydraulicNodeJunction
 
     double initial_chemical_concentration_mg_per_l = 0.0;
     double initial_water_age_h = 0.0;
-    double initial_source_trace_percent = 0.0;
     HydraulicNodeQualitySource quality_source;
 
     HydraulicEntityMetadata metadata;
@@ -67,7 +66,6 @@ struct HydraulicNodeReservoir
 
     double initial_chemical_concentration_mg_per_l = 0.0;
     double initial_water_age_h = 0.0;
-    double initial_source_trace_percent = 0.0;
     HydraulicNodeQualitySource quality_source;
 
     HydraulicEntityMetadata metadata;
@@ -100,7 +98,6 @@ struct HydraulicNodeTank
 
     double initial_chemical_concentration_mg_per_l = 0.0;
     double initial_water_age_h = 0.0;
-    double initial_source_trace_percent = 0.0;
     HydraulicNodeQualitySource quality_source;
 
     HydraulicNodeTankMixingModel mixing_model = HydraulicNodeTankMixingModel::CompleteMix;
