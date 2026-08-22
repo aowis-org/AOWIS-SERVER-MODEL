@@ -29,7 +29,7 @@ The previous option prefix did not describe the responsibility of each type. The
 | `EpanetOptionsEnergy` | `PumpEnergyOptions` |
 | `EpanetOptionsReport` | `HydraulicSimulationReportOptions` |
 
-The related enums were similarly renamed, for example `HydraulicFlowUnit`, `HydraulicPressureUnit`, `HydraulicHeadlossFormula`, and `WaterQualityAnalysisType`. Native solver-unit selectors are not part of `HydraulicSolverOptions`; canonical units are encoded by measurement field names, while conversion belongs at import, export, and presentation boundaries.
+The related enums were similarly renamed, for example `HydraulicHeadlossFormula` and `WaterQualityAnalysisType`. Native solver-unit selectors are not part of the shared hydraulic model; canonical units are encoded by measurement field names, while conversion belongs at import, export, and presentation boundaries.
 
 ## Backend-Specific Information
 

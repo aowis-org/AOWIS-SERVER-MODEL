@@ -120,30 +120,6 @@ enum class HydraulicLinkValveInitialStatus
     Closed
 };
 
-enum class HydraulicFlowUnit
-{
-    CubicFeetPerSecond,
-    GallonsPerMinute,
-    MillionGallonsPerDay,
-    ImperialMillionGallonsPerDay,
-    AcreFeetPerDay,
-    LitersPerSecond,
-    LitersPerMinute,
-    MillionLitersPerDay,
-    CubicMetersPerHour,
-    CubicMetersPerDay,
-    CubicMetersPerSecond
-};
-
-enum class HydraulicPressureUnit
-{
-    Psi,
-    Kilopascals,
-    Meters,
-    Bar,
-    Feet
-};
-
 enum class HydraulicHeadlossFormula
 {
     HazenWilliams,
@@ -185,16 +161,6 @@ enum class HydraulicUnbalancedAction
 {
     Stop,
     Continue
-};
-
-enum class HydraulicCurveType
-{
-    TankVolume,
-    PumpHead,
-    PumpEfficiency,
-    ValveHeadloss,
-    Generic,
-    ValveCharacteristic
 };
 
 enum class HydraulicControlSimpleType
