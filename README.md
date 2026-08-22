@@ -127,12 +127,12 @@ For example:
 
 ```cpp
 HydraulicSolverOptions options_hydraulic;
-WaterQualitySolverOptions options_quality;
-
 QList<HydraulicNodeJunction> nodes_junctions;
 QList<HydraulicLinkPipe> links_pipes;
 QList<HydraulicCurvePumpHead> curves_pump_head;
 ```
+
+`WaterQualitySolverOptions` describes one requested quality analysis rather than persistent network state. Solver execution requests carry those options alongside a `NetworkHydraulic`; the network itself stores quality inputs, sources, mixing, reactions, and shared simulation timing.
 
 ## Contributing
 

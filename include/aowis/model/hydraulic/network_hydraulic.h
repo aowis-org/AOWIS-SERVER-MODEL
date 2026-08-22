@@ -43,7 +43,6 @@ struct NetworkHydraulic
     HydraulicSimulationReportStatistic report_statistic = HydraulicSimulationReportStatistic::Series;
 
     HydraulicSolverOptions options_hydraulic;
-    WaterQualitySolverOptions options_quality;
     WaterQualityReactionOptions options_reaction;
     PumpEnergyOptions options_energy;
     HydraulicSimulationReportOptions options_report;
