@@ -81,13 +81,6 @@ enum class HydraulicLinkPumpInitialStatus
     Off
 };
 
-enum class HydraulicLinkPumpControlType
-{
-    None,
-    LevelBased,
-    TimeBased
-};
-
 enum class HydraulicLinkPumpEfficiencyInputType
 {
     Global,

@@ -51,7 +51,10 @@ public:
         GenerateReport,
         Cleanup,
 
-        ReadNextEvent
+        ReadNextEvent,
+
+        OpenInput,
+        ReadInput
     };
     Q_ENUM(Stage)
 
@@ -102,7 +105,10 @@ public:
         ReadStatistic,
         ReadBackendError,
 
-        ReadNextEvent
+        ReadNextEvent,
+
+        OpenInput,
+        ReadInput
     };
     Q_ENUM(Operation)
 
