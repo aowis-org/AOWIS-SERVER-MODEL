@@ -11,6 +11,7 @@
 #include "hydraulic_links.h"
 #include "hydraulic_map.h"
 #include "hydraulic_nodes.h"
+#include "multi_species.h"
 #include "hydraulic_simulation_options.h"
 #include "hydraulic_types.h"
 
@@ -46,6 +47,10 @@ struct NetworkHydraulic
     WaterQualityReactionOptions options_reaction;
     PumpEnergyOptions options_energy;
     HydraulicSimulationReportOptions options_report;
+
+    // An empty multi_species.species list means no multi-species reaction
+    // model is defined for this network.
+    NetworkMultiSpecies multi_species;
 
     QList<HydraulicPatternTime> patterns_time;
 
