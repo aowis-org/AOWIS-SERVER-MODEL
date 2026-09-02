@@ -216,6 +216,18 @@ struct MultiSpeciesOptions
     double default_relative_tolerance = 0.001;
 };
 
+// Execution-time selection of which species to simulate for one run. Not
+// network state -- carried only by EpanetRunRequest::multi_species_run, the
+// same way WaterQualitySolverOptions is carried only by
+// EpanetRunRequest::quality_runs. An empty list means every species in
+// NetworkMultiSpecies::species is simulated; a non-empty list restricts this
+// run to just those species, letting one network's reaction library serve
+// multiple narrower runs.
+struct MultiSpeciesRunOptions
+{
+    QList<QUuid> species_uuids;
+};
+
 // The full multi-species reaction model attached to a NetworkHydraulic. An
 // empty species list means no multi-species model is defined for this
 // network, mirroring how an empty patterns_time list means no time patterns

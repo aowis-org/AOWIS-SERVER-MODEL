@@ -70,6 +70,7 @@ public:
         ConfigureTime,
         ConfigureHydraulics,
         ConfigureQuality,
+        ConfigureMultiSpecies,
         ConfigureReport,
 
         AddPattern,
@@ -167,6 +168,7 @@ public:
 
         HydraulicSolver,
         QualitySolver,
+        MultiSpeciesSolver,
         Report,
         Result
     };
