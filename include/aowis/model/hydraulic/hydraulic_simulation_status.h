@@ -98,6 +98,12 @@ public:
         StepQuality,
         CloseQuality,
 
+        OpenMultiSpecies,
+        InitializeMultiSpecies,
+        RunMultiSpecies,
+        StepMultiSpecies,
+        CloseMultiSpecies,
+
         GenerateReport,
 
         ResolveEntity,
