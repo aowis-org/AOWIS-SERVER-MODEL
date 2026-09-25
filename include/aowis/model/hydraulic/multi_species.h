@@ -6,6 +6,8 @@
 #include <QUuid>
 #include <QtGlobal>
 
+#include <optional>
+
 #include "hydraulic_types.h"
 
 // The multi-species reaction model (species, terms, and reaction expressions)
@@ -27,7 +29,8 @@ enum class MultiSpeciesUnits
 {
     Milligrams,
     Micrograms,
-    Moles
+    Moles,
+    Millimoles
 };
 
 enum class MultiSpeciesAreaUnits
@@ -91,6 +94,14 @@ struct MultiSpeciesSpecies
     // applies to this species instead of a per-species override.
     double absolute_tolerance = 0.0;
     double relative_tolerance = 0.0;
+
+    // AOWIS stores physical transport coefficients canonically in m2/s.
+    // EPANET-MSX uses a backend-relative representation in [DIFFUSIVITY],
+    // which is converted by the adapter. Only bulk species can use these.
+    // Setting both coefficients is invalid: the fixed longitudinal value and
+    // molecular-diffusivity model are alternative dispersion definitions.
+    std::optional<double> molecular_diffusivity_m2_per_s;
+    std::optional<double> longitudinal_dispersion_coefficient_m2_per_s;
 
     QString note;
 };
@@ -164,14 +175,16 @@ struct MultiSpeciesPattern
 struct MultiSpeciesGlobalInitialQuality
 {
     QUuid species_uuid;
-    double concentration = 0.0;
+    // Canonical quantity is resolved from the referenced species.
+    double value = 0.0;
 };
 
 struct MultiSpeciesNodeInitialQuality
 {
     QUuid node_uuid;
     QUuid species_uuid;
-    double concentration = 0.0;
+    // Canonical quantity is resolved from the referenced species.
+    double value = 0.0;
 };
 
 // Unlike core EPANET water quality, MSX also allows an explicit initial
@@ -181,7 +194,8 @@ struct MultiSpeciesPipeInitialQuality
 {
     QUuid pipe_uuid;
     QUuid species_uuid;
-    double concentration = 0.0;
+    // Canonical quantity is resolved from the referenced species.
+    double value = 0.0;
 };
 
 struct MultiSpeciesNodeSource
@@ -191,11 +205,11 @@ struct MultiSpeciesNodeSource
 
     MultiSpeciesSourceType type = MultiSpeciesSourceType::Concentration;
 
-    // Concentration, flow-paced, and setpoint sources use a concentration;
-    // mass sources use an absolute mass flow. Which one applies follows type,
-    // mirroring HydraulicNodeQualitySource's split of the same ambiguity.
-    double concentration = 0.0;
-    double mass_flow_per_min = 0.0;
+    // The canonical quantity is resolved from type and the referenced species:
+    // CONCEN/FLOWPACED/SETPOINT use mg/L or mmol/L; MASS uses mg/min or
+    // mmol/min. The EPANET-MSX adapter converts to the species' configured
+    // solver units at the backend boundary.
+    double value = 0.0;
 
     QUuid pattern_uuid;
 };
@@ -208,7 +222,12 @@ struct MultiSpeciesOptions
     MultiSpeciesSolverMethod solver_method = MultiSpeciesSolverMethod::RungeKutta5;
     MultiSpeciesCouplingMethod coupling_method = MultiSpeciesCouplingMethod::Full;
 
-    quint64 timestep_s = 300;
+    double timestep_s = 300.0;
+
+    // Dispersion controls. EPANET-MSX applies dispersion when at least one
+    // bulk species defines a molecular or fixed longitudinal coefficient.
+    double peclet_number_threshold = 1000.0;
+    int maximum_segments = 5000;
 
     // Network-wide default tolerances, used by any species that does not
     // define its own absolute_tolerance/relative_tolerance.
@@ -216,16 +235,15 @@ struct MultiSpeciesOptions
     double default_relative_tolerance = 0.001;
 };
 
-// Execution-time selection of which species to simulate for one run. Not
+// Execution-time selection of which species are returned for one run. Not
 // network state -- carried only by EpanetRunRequest::multi_species_run, the
 // same way WaterQualitySolverOptions is carried only by
-// EpanetRunRequest::quality_runs. An empty list means every species in
-// NetworkMultiSpecies::species is simulated; a non-empty list restricts this
-// run to just those species, letting one network's reaction library serve
-// multiple narrower runs.
+// EpanetRunRequest::quality_runs. An empty list returns every species in
+// NetworkMultiSpecies::species. A non-empty list filters only AOWIS result
+// output; the complete coupled chemistry model is always solved.
 struct MultiSpeciesRunOptions
 {
-    QList<QUuid> species_uuids;
+    QList<QUuid> output_species_uuids;
 };
 
 // The full multi-species reaction model attached to a NetworkHydraulic. An

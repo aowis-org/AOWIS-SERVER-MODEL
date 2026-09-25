@@ -18,7 +18,8 @@
 struct MultiSpeciesResultValue
 {
     QUuid species_uuid;
-    double concentration = 0.0;
+    // Canonical quantity is resolved from the referenced species definition.
+    double value = 0.0;
 };
 
 struct MultiSpeciesSimulationResultNodeJunction
@@ -69,16 +70,22 @@ struct MultiSpeciesSimulationResultLinkValve
     QList<MultiSpeciesResultValue> species_values;
 };
 
+struct MultiSpeciesMassBalanceRatio
+{
+    QUuid species_uuid;
+    double ratio = 0.0;
+};
+
 struct MultiSpeciesSimulationResultStatistics
 {
-    // One mass balance ratio per species, since MSX closes a separate mass
-    // balance for each species rather than one balance for the whole run.
-    QList<MultiSpeciesResultValue> mass_balance_ratios;
+    // One dimensionless mass-balance ratio per species, since MSX closes a
+    // separate mass balance for each species rather than one for the run.
+    QList<MultiSpeciesMassBalanceRatio> mass_balance_ratios;
 };
 
 struct MultiSpeciesSimulationResult
 {
-    quint64 time_elapsed_s = 0;
+    double time_elapsed_s = 0.0;
     HydraulicSimulationStatus status;
 
     QList<MultiSpeciesSimulationResultNodeJunction> nodes_junctions;
