@@ -90,8 +90,12 @@ struct MultiSpeciesSpecies
     MultiSpeciesSpeciesType type = MultiSpeciesSpeciesType::Bulk;
     MultiSpeciesUnits units = MultiSpeciesUnits::Milligrams;
 
-    // A zero tolerance means the network-wide default in MultiSpeciesOptions
-    // applies to this species instead of a per-species override.
+    // Tolerances are expressed in AOWIS model semantics, not backend-native
+    // numeric units. absolute_tolerance uses this species' canonical quantity
+    // (for example mg/L, mmol/L, mg/m2, or mmol/m2); relative_tolerance is
+    // dimensionless. A zero value inherits the corresponding network-wide
+    // default in MultiSpeciesOptions. The adapter converts the effective
+    // absolute tolerance to the solver representation for this species.
     double absolute_tolerance = 0.0;
     double relative_tolerance = 0.0;
 
@@ -229,8 +233,10 @@ struct MultiSpeciesOptions
     double peclet_number_threshold = 1000.0;
     int maximum_segments = 5000;
 
-    // Network-wide default tolerances, used by any species that does not
-    // define its own absolute_tolerance/relative_tolerance.
+    // Network-wide AOWIS tolerance defaults. The absolute default is applied
+    // in each species' canonical quantity rather than as one shared raw solver
+    // number; the adapter therefore materializes explicit per-species solver
+    // tolerances after unit conversion. The relative default is dimensionless.
     double default_absolute_tolerance = 0.01;
     double default_relative_tolerance = 0.001;
 };

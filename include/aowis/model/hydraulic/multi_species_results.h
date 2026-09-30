@@ -96,6 +96,8 @@ struct MultiSpeciesSimulationResult
     QList<MultiSpeciesSimulationResultLinkPump> links_pumps;
     QList<MultiSpeciesSimulationResultLinkValve> links_valves;
 
+    // Full-run MSX mass-balance summary. Backends populate this on the final
+    // result in the timeline; preceding timestep results leave it empty.
     MultiSpeciesSimulationResultStatistics statistics;
 };
 
