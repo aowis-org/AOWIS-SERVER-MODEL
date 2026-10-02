@@ -19,6 +19,20 @@ enum class HydraulicDemandPointAttachmentType
     Junction
 };
 
+// Determines how demand from a pipe-attached demand point is assigned to the
+// hydraulic nodes at the pipe ends.
+//
+// InterpolateByPosition is the native AOWIS behavior: demand is distributed
+// between both endpoint junctions according to pipe_position.
+// AssignedJunction preserves epanet-js semantics: the point remains visually
+// attached to the pipe, while all demand is assigned to one explicit endpoint
+// junction.
+enum class HydraulicDemandPointPipeAllocationMode
+{
+    InterpolateByPosition,
+    AssignedJunction
+};
+
 // Logical attachment of a demand point to the modeled hydraulic network.
 // A pipe attachment is a normalized position along the complete pipe geometry:
 // 0.0 is the pipe's from-node and 1.0 is its to-node.
@@ -30,6 +44,8 @@ struct HydraulicDemandPointAttachment
 
     QUuid pipe_uuid;
     double pipe_position = 0.0;
+    HydraulicDemandPointPipeAllocationMode pipe_allocation_mode = HydraulicDemandPointPipeAllocationMode::InterpolateByPosition;
+    QUuid pipe_assigned_junction_uuid;
 
     QUuid junction_uuid;
 };
