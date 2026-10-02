@@ -5,22 +5,39 @@
 #include <QString>
 #include <QUuid>
 
+#include <optional>
+
 #include "../entity.h"
 #include "../gis.h"
 #include "../measurement/water_meter.h"
 #include "hydraulic_demands.h"
 
-// A solver or adapter can distribute a demand point over one or more hydraulic junctions.
-// Fractions for one demand point are expected to sum to 1.0 when allocations are present.
-struct HydraulicDemandPointAllocation
+enum class HydraulicDemandPointAttachmentType
 {
+    None,
+    Pipe,
+    Junction
+};
+
+// Logical attachment of a demand point to the modeled hydraulic network.
+// A pipe attachment is a normalized position along the complete pipe geometry:
+// 0.0 is the pipe's from-node and 1.0 is its to-node.
+// This is not a hydraulic node. If the attachment location must become an
+// explicit hydraulic state point, convert it to a junction in the editable model.
+struct HydraulicDemandPointAttachment
+{
+    HydraulicDemandPointAttachmentType type = HydraulicDemandPointAttachmentType::None;
+
+    QUuid pipe_uuid;
+    double pipe_position = 0.0;
+
     QUuid junction_uuid;
-    double fraction = 1.0;
 };
 
 // A geographically located demand that is intentionally not part of the hydraulic
-// node/link topology. If connection hydraulics matter, model them explicitly with
-// junctions and links instead of adding hydraulic connection properties here.
+// node/link topology. The demand-point coordinate and the network attachment are
+// independent: the coordinate says where the demand is, while the attachment says
+// where it is supplied from the modeled network.
 struct HydraulicDemandPoint
 {
     QString id;
@@ -28,9 +45,9 @@ struct HydraulicDemandPoint
 
     CoordinateWGS84 coordinate_wgs84;
 
+    HydraulicDemandPointAttachment attachment;
     QList<HydraulicDemand> demands;
-    QList<HydraulicDemandPointAllocation> allocations;
-    QList<WaterMeter> meters;
+    std::optional<WaterMeter> meter;
 
     EntityMetadata metadata;
 };

@@ -176,7 +176,9 @@ public:
         QualitySolver,
         MultiSpeciesSolver,
         Report,
-        Result
+        Result,
+
+        DemandPoint
     };
     Q_ENUM(EntityType)
 };
