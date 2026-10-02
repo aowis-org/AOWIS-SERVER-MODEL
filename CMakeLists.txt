@@ -21,6 +21,8 @@ add_library(aowis-server-model STATIC
 
     include/aowis/model/hydraulic/hydraulic_controls.h
     include/aowis/model/hydraulic/hydraulic_curves.h
+    include/aowis/model/hydraulic/hydraulic_demand_point.h
+    include/aowis/model/hydraulic/hydraulic_demands.h
     include/aowis/model/hydraulic/hydraulic_links.h
     include/aowis/model/hydraulic/hydraulic_map.h
     include/aowis/model/hydraulic/hydraulic_nodes.h
@@ -31,6 +33,8 @@ add_library(aowis-server-model STATIC
     include/aowis/model/hydraulic/hydraulic_simulation_results.h
     include/aowis/model/hydraulic/water_quality_simulation_results.h
     include/aowis/model/hydraulic/network_hydraulic.h
+
+    include/aowis/model/measurement/water_meter.h
 )
 
 add_library(AOWIS::ServerModel ALIAS aowis-server-model)

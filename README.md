@@ -38,6 +38,7 @@ The canonical units and quantity identifiers are defined by the AOWIS measuremen
 include/aowis/model/
 ├── electric/          Reserved for electrical domain models
 ├── hydraulic/        Hydraulic network and simulation-domain models
+├── measurement/      Measurement-device models
 ├── gis.h              Geographic and projected coordinate structures
 ├── project.h          Project metadata and lifecycle state
 └── revision.h         Project revision metadata and lifecycle state

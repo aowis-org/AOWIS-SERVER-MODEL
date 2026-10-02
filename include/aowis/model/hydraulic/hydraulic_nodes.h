@@ -6,18 +6,8 @@
 #include <QUuid>
 
 #include "../gis.h"
+#include "hydraulic_demands.h"
 #include "hydraulic_types.h"
-
-struct HydraulicNodeJunctionDemand
-{
-    QString category_name;
-    double base_demand_m3_per_h = 0.0;
-    HydraulicTimePatternMode pattern_mode = HydraulicTimePatternMode::Constant;
-    QUuid pattern_uuid;
-
-    HydraulicNodeJunctionDemandSourceMethod source_method = HydraulicNodeJunctionDemandSourceMethod::ManualEstimation;
-    QString note;
-};
 
 struct HydraulicNodeJunctionEmitter
 {
@@ -39,7 +29,7 @@ struct HydraulicNodeJunction
     double terrain_elevation_m = 0.0;
     double elevation_offset_m = 0.0;
 
-    QList<HydraulicNodeJunctionDemand> demands;
+    QList<HydraulicDemand> demands;
 
     HydraulicNodeJunctionEmitter emitter;
 

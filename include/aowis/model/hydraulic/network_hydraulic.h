@@ -8,18 +8,13 @@
 
 #include "hydraulic_controls.h"
 #include "hydraulic_curves.h"
+#include "hydraulic_demand_point.h"
 #include "hydraulic_links.h"
 #include "hydraulic_map.h"
 #include "hydraulic_nodes.h"
 #include "multi_species.h"
 #include "hydraulic_simulation_options.h"
 #include "hydraulic_types.h"
-
-struct NetworkHydraulicCustomerPoint
-{
-    QString id;
-    QUuid uuid;
-};
 
 struct NetworkHydraulic
 {
@@ -65,6 +60,8 @@ struct NetworkHydraulic
     QList<HydraulicNodeJunction> nodes_junctions;
     QList<HydraulicNodeTank> nodes_tanks;
 
+    QList<HydraulicDemandPoint> demand_points;
+
     QList<HydraulicLinkPipe> links_pipes;
     QList<HydraulicLinkPump> links_pumps;
     QList<HydraulicLinkValve> links_valves;
@@ -75,7 +72,6 @@ struct NetworkHydraulic
     QList<HydraulicMapLabel> map_labels;
     HydraulicMapBackdrop map_backdrop;
 
-    QList<NetworkHydraulicCustomerPoint> customer_points;
 };
 
 #endif // AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_H

@@ -1,9 +1,6 @@
 #ifndef AOWIS_MODEL_HYDRAULIC_TYPES_H
 #define AOWIS_MODEL_HYDRAULIC_TYPES_H
 
-#include <optional>
-
-#include <QDate>
 #include <QString>
 #include <QUuid>
 
@@ -52,7 +49,7 @@ enum class HydraulicTimePatternMode
     TimePattern
 };
 
-enum class HydraulicNodeJunctionDemandSourceMethod
+enum class HydraulicDemandSourceMethod
 {
     ManualEstimation,
     MeterData,
@@ -247,16 +244,7 @@ enum class HydraulicSimulationTimestepEventType
     ControlEvent
 };
 
-struct HydraulicEntityMetadata
-{
-    bool enabled = true;
-    EntityModelRole model_role = EntityModelRole::Unspecified;
-    std::optional<QDate> date_added;
-    std::optional<QDate> date_installed;
-
-    QString comment;
-    QString tag;
-};
+using HydraulicEntityMetadata = EntityMetadata;
 
 struct HydraulicLinkVertex
 {
