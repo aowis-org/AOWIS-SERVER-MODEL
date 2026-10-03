@@ -7,6 +7,7 @@
 #include <QString>
 #include <QUuid>
 
+#include "hydraulic_pipe_materials.h"
 #include "hydraulic_types.h"
 
 struct HydraulicLinkPipe
@@ -24,7 +25,8 @@ struct HydraulicLinkPipe
     HydraulicLinkPipeInitialStatus initial_status = HydraulicLinkPipeInitialStatus::Open;
     double diameter_mm = 100.0;
 
-    QString material_id;
+    QUuid material_uuid;
+    HydraulicPipeRoughnessMode roughness_mode = HydraulicPipeRoughnessMode::Explicit;
     double roughness_hazen_williams = 130.0;
     double roughness_darcy_weisbach_mm = 0.1;
     double roughness_chezy_manning = 0.013;

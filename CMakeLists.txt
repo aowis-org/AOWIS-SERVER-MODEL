@@ -12,6 +12,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 add_library(aowis-server-model STATIC
     src/model.cpp
     src/uuid.cpp
+    src/hydraulic_pipe_materials.cpp
 
     include/aowis/model/entity.h
     include/aowis/model/gis.h
@@ -25,6 +26,7 @@ add_library(aowis-server-model STATIC
     include/aowis/model/hydraulic/hydraulic_demands.h
     include/aowis/model/hydraulic/hydraulic_links.h
     include/aowis/model/hydraulic/hydraulic_map.h
+    include/aowis/model/hydraulic/hydraulic_pipe_materials.h
     include/aowis/model/hydraulic/hydraulic_nodes.h
     include/aowis/model/hydraulic/hydraulic_simulation_options.h
     include/aowis/model/hydraulic/hydraulic_simulation_diagnostics.h
