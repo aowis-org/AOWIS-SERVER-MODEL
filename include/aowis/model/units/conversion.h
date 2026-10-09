@@ -14,6 +14,13 @@ inline constexpr double cubic_metres_per_imperial_gallon = 0.00454609;
 inline constexpr double pascals_per_psi = 6894.757293168361; // Derived from exact lbf/in² definitions.
 inline constexpr double pascals_per_kilopascal = 1000.0;
 inline constexpr double pascals_per_bar = 100000.0;
+inline constexpr double seconds_per_minute = 60.0;
+inline constexpr double minutes_per_hour = 60.0;
+inline constexpr double hours_per_day = 24.0;
+inline constexpr double standard_gravity_m_per_s2 = 9.80665;
+inline constexpr double reference_water_density_kg_per_m3 = 1000.0;
+// Mechanical horsepower (international): 550 ft*lbf/s, expressed in kW.
+inline constexpr double kilowatts_per_mechanical_horsepower = 0.7456998715822702;
 inline constexpr double seconds_per_hour = 3600.0;
 inline constexpr double seconds_per_day = 86400.0;
 inline constexpr double cubic_metres_per_cubic_foot =
@@ -21,6 +28,16 @@ inline constexpr double cubic_metres_per_cubic_foot =
 inline constexpr double cubic_metres_per_acre_foot =
     43560.0 * cubic_metres_per_cubic_foot;
 
+// One millifoot is 0.001 international foot; numerically equal to
+// metres per foot when the destination is millimetres.
+[[nodiscard]] constexpr double millifeetToMillimetres(double value) noexcept
+{
+    return value * metres_per_international_foot;
+}
+[[nodiscard]] constexpr double mechanicalHorsepowerToKilowatts(double value) noexcept
+{
+    return value * kilowatts_per_mechanical_horsepower;
+}
 [[nodiscard]] constexpr double feetToMetres(double value) noexcept
 {
     return value * metres_per_international_foot;

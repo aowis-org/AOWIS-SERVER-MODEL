@@ -27,7 +27,9 @@ int main()
     check(near(u::usGallonsPerMinuteToCubicMetresPerHour(1.0), 0.22712470704));
     check(near(u::litresPerSecondToCubicMetresPerHour(1.0), 3.6));
     check(near(u::pascalsToMetresHead(9810.0, 1000.0, 9.81), 1.0));
-    check(!near(u::usSurveyFeetToMetres(1000000.0), u::feetToMetres(1000000.0)));
+    check(near(u::usSurveyFeetToMetres(3937.0), 1200.0));
+    check(near(u::millifeetToMillimetres(1.0), 0.3048));
+    check(near(u::mechanicalHorsepowerToKilowatts(1.0), 0.7456998715822702));
     // Check every primitive and representative inverse conversions.
     check(near(u::feetToMillimetres(1.0), 304.8));
     check(near(u::acreFeetPerDayToCubicMetresPerHour(1.0),
@@ -42,5 +44,4 @@ int main()
     check(near(u::usGallonsToCubicMetres(264.1720523581484), 1.0));
     check(near(u::feetToMetres(1.0 / u::metres_per_international_foot), 1.0));
     check(near(u::inchesToMillimetres(1.0 / 25.4), 1.0));
-    check(near(u::pascalsToMetresHead(9810.0, 1000.0, 9.81), 1.0));
 }

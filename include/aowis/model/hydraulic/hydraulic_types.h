@@ -266,15 +266,20 @@ struct HydraulicNodeQualitySource
 
 struct WaterQualityBulkReaction
 {
-    // Reaction rate = coefficient * concentration^order. The coefficient therefore
-    // has no fixed canonical UCUM unit independent of order.
+    // Chemical concentration C is in mg/L; time is in days.
+    // For dC/dt = k * C^order, k has units (mg/L)^(1-order)/day.
+    // In particular, first-order k is 1/day; zero-order k is mg/L/day.
+    // The coefficient therefore has no fixed unit independent of order.
     double coefficient = 0.0;
     double order = 1.0;
 };
 
 struct WaterQualityWallReaction
 {
-    // Wall-reaction coefficient dimensions depend on the configured reaction order.
+    // EPANET wall-reaction convention: time is in days, length in metres,
+    // and concentration in mg/L. For first-order reactions the wall
+    // coefficient is m/day; for zero-order reactions it is mg/m²/day.
+    // Do not apply bulk-reaction dimensional rules to wall reactions.
     double coefficient = 0.0;
     double order = 1.0;
 };
