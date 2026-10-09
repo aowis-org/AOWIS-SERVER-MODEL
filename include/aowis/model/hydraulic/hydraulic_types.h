@@ -267,8 +267,11 @@ struct HydraulicNodeQualitySource
 struct WaterQualityBulkReaction
 {
     // Chemical concentration C is in mg/L; time is in days.
-    // For dC/dt = k * C^order, k has units (mg/L)^(1-order)/day.
+    // For order >= 0, dC/dt = k * C^order, so k has units (mg/L)^(1-order)/day.
     // In particular, first-order k is 1/day; zero-order k is mg/L/day.
+    // A negative order selects EPANET's Michaelis-Menten kinetics,
+    // dC/dt = k * C / (C_limit + sgn(k) * C), so k is then mg/L/day like
+    // zero order.
     // The coefficient therefore has no fixed unit independent of order.
     double coefficient = 0.0;
     double order = 1.0;
@@ -281,6 +284,7 @@ struct WaterQualityWallReaction
     // coefficient is m/day; for zero-order reactions it is mg/m²/day.
     // Do not apply bulk-reaction dimensional rules to wall reactions.
     double coefficient = 0.0;
+    // EPANET supports wall order 0 or 1 only; other values are invalid.
     double order = 1.0;
 };
 
