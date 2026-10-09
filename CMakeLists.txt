@@ -14,6 +14,7 @@ add_library(aowis-server-model STATIC
     src/uuid.cpp
     src/hydraulic_pipe_materials.cpp
 
+    include/aowis/model/units/conversion.h
     include/aowis/model/entity.h
     include/aowis/model/gis.h
     include/aowis/model/project.h
@@ -85,3 +86,11 @@ install(
     NAMESPACE AOWIS::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/AOWISServerModel
 )
+
+# Lightweight dependency-free unit conversion regression test.
+if(BUILD_TESTING)
+    add_executable(aowis-model-unit-conversion-test tests/unit_conversion_test.cpp)
+    target_compile_features(aowis-model-unit-conversion-test PRIVATE cxx_std_20)
+    target_include_directories(aowis-model-unit-conversion-test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    add_test(NAME aowis-model-unit-conversion COMMAND aowis-model-unit-conversion-test)
+endif()
