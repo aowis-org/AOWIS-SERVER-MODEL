@@ -1,24 +1,46 @@
 #include <aowis/model/units/conversion.h>
 #include <algorithm>
-#include <cassert>
+#include <cstdlib>
+#include <iostream>
 #include <cmath>
 
 namespace u = aowis::units;
 
 int main()
 {
+    const auto check = [](bool condition) {
+        if (!condition) {
+            std::cerr << "Unit conversion regression check failed\n";
+            std::exit(EXIT_FAILURE);
+        }
+    };
     const auto near = [](double actual, double expected) {
         return std::abs(actual - expected) <= 1e-12 * std::max(1.0, std::abs(expected));
     };
-    assert(near(u::feetToMetres(1.0), 0.3048));
-    assert(near(u::inchesToMillimetres(1.0), 25.4));
-    assert(near(u::cubicFeetToCubicMetres(1.0), 0.028316846592));
-    assert(near(u::usGallonsToCubicMetres(1.0), 0.003785411784));
-    assert(near(u::millionUsGallonsPerDayToCubicMetresPerHour(1.0), 157.725491));
-    assert(near(u::millionImperialGallonsPerDayToCubicMetresPerHour(1.0), 189.42041666666667));
-    assert(near(u::cubicFeetPerSecondToCubicMetresPerHour(1.0), 101.9406477312));
-    assert(near(u::usGallonsPerMinuteToCubicMetresPerHour(1.0), 0.22712470704));
-    assert(near(u::litresPerSecondToCubicMetresPerHour(1.0), 3.6));
-    assert(near(u::pascalsToMetresHead(9810.0, 1000.0, 9.81), 1.0));
-    assert(!near(u::usSurveyFeetToMetres(1.0), u::feetToMetres(1.0)));
+    check(near(u::feetToMetres(1.0), 0.3048));
+    check(near(u::inchesToMillimetres(1.0), 25.4));
+    check(near(u::cubicFeetToCubicMetres(1.0), 0.028316846592));
+    check(near(u::usGallonsToCubicMetres(1.0), 0.003785411784));
+    check(near(u::millionUsGallonsPerDayToCubicMetresPerHour(1.0), 157.725491));
+    check(near(u::millionImperialGallonsPerDayToCubicMetresPerHour(1.0), 189.42041666666667));
+    check(near(u::cubicFeetPerSecondToCubicMetresPerHour(1.0), 101.9406477312));
+    check(near(u::usGallonsPerMinuteToCubicMetresPerHour(1.0), 0.22712470704));
+    check(near(u::litresPerSecondToCubicMetresPerHour(1.0), 3.6));
+    check(near(u::pascalsToMetresHead(9810.0, 1000.0, 9.81), 1.0));
+    check(!near(u::usSurveyFeetToMetres(1000000.0), u::feetToMetres(1000000.0)));
+    // Check every primitive and representative inverse conversions.
+    check(near(u::feetToMillimetres(1.0), 304.8));
+    check(near(u::acreFeetPerDayToCubicMetresPerHour(1.0),
+               43560.0 * 0.028316846592 / 24.0));
+    check(near(u::litresPerMinuteToCubicMetresPerHour(1.0), 0.06));
+    check(near(u::cubicMetresPerSecondToCubicMetresPerHour(1.0), 3600.0));
+    check(near(u::cubicMetresPerDayToCubicMetresPerHour(1.0), 1.0 / 24.0));
+    check(near(u::millionLitresPerDayToCubicMetresPerHour(1.0), 1000.0 / 24.0));
+    check(near(u::psiToPascals(1.0), 6894.757293168361));
+    check(near(u::kilopascalsToPascals(1.0), 1000.0));
+    check(near(u::barToPascals(1.0), 100000.0));
+    check(near(u::usGallonsToCubicMetres(264.1720523581484), 1.0));
+    check(near(u::feetToMetres(1.0 / u::metres_per_international_foot), 1.0));
+    check(near(u::inchesToMillimetres(1.0 / 25.4), 1.0));
+    check(near(u::pascalsToMetresHead(9810.0, 1000.0, 9.81), 1.0));
 }
