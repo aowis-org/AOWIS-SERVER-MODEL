@@ -15,6 +15,7 @@ add_library(aowis-server-model STATIC
     src/hydraulic_pipe_materials.cpp
 
     include/aowis/model/units/canonical_registry.h
+    include/aowis/model/units/unit_profile.h
     include/aowis/model/units/conversion.h
     include/aowis/model/entity.h
     include/aowis/model/gis.h

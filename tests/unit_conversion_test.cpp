@@ -1,4 +1,5 @@
 #include <aowis/model/units/conversion.h>
+#include <aowis/model/units/unit_profile.h>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -30,6 +31,38 @@ int main()
     check(near(u::usSurveyFeetToMetres(3937.0), 1200.0));
     check(near(u::millifeetToMillimetres(1.0), 0.3048));
     check(near(u::mechanicalHorsepowerToKilowatts(1.0), 0.7456998715822702));
+    // Unit-profile metadata is canonical, complete, and Qt independent.
+    check(u::unit_fields.size() == u::canonical_quantities.size());
+    for (const u::UnitField &field : u::unit_fields)
+        check(u::isAllowedUnit(field.key, u::canonicalUnit(field.key)));
+    std::vector<u::UnitProfile> presets = u::predefinedProfiles();
+    check(presets.size() == 12);
+    check(u::resolvedUnit(presets.at(0), "volumetric_flow_rate") == "m3/h");
+    check(u::resolvedUnit(presets.at(1), "volumetric_flow_rate") == "m3/h");
+    check(u::resolvedUnit(presets.at(8), "link_diameter") == "in");
+    check(u::resolvedUnit(presets.at(8), "pressure") == "psi");
+    u::UnitProfile custom{"test", "Custom", {}, false};
+    check(u::setProfileUnit(custom, "pressure", "psi"));
+    check(u::resolvedUnit(custom, "pressure") == "psi");
+    check(!u::setProfileUnit(custom, "pressure", "ft"));
+    check(!u::setProfileUnit(presets.at(0), "pressure", "psi"));
+    check(u::setProfileUnit(custom, "pressure", "kPa"));
+    check(custom.overrides.empty());
+    u::UnitProfileCollection collection;
+    check(collection.profiles().size() == 12);
+    check(collection.activeId() == "canonical");
+    check(!collection.select("nonexistent"));
+    check(collection.add({"custom-1", "Field choice", {{"pressure", "psi"}}, false}));
+    check(!collection.add({"custom-1", "Duplicate", {}, false}));
+    check(!collection.add({"invalid", "Bad unit", {{"pressure", "ft"}}, false}));
+    check(collection.select("custom-1"));
+    check(collection.rename("custom-1", "Renamed choice"));
+    check(collection.setUnit("custom-1", "pressure", "bar"));
+    check(u::resolvedUnit(*collection.find("custom-1"), "pressure") == "bar");
+    check(!collection.setUnit("canonical", "pressure", "psi"));
+    check(!collection.remove("canonical"));
+    check(collection.remove("custom-1"));
+    check(collection.activeId() == "canonical");
     // Check every primitive and representative inverse conversions.
     check(near(u::feetToMillimetres(1.0), 304.8));
     check(near(u::acreFeetPerDayToCubicMetresPerHour(1.0),
