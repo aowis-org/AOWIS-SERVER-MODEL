@@ -14,7 +14,7 @@ struct CanonicalQuantity
     std::string_view unit;
 };
 
-inline constexpr std::array<CanonicalQuantity, 76> canonical_quantities = {{
+inline constexpr std::array<CanonicalQuantity, 83> canonical_quantities = {{
     {"length", "m"},
     {"elevation", "m"},
     {"altitude", "m"},
@@ -31,13 +31,19 @@ inline constexpr std::array<CanonicalQuantity, 76> canonical_quantities = {{
     {"local_y", "m"},
     {"area", "m2"},
     {"volume", "m3"},
+    {"tank_minimum_volume", "m3"},
     {"volumetric_flow_rate", "m3/h"},
+    {"base_demand_flow_rate", "m3/h"},
+    {"customer_demand_flow_rate", "m3/h"},
     {"velocity", "m/s"},
     {"molecular_diffusivity", "m2/s"},
     {"longitudinal_dispersion_coefficient", "m2/s"},
     {"hydraulic_head", "m"},
     {"pressure_head", "m"},
     {"water_level", "m"},
+    {"tank_initial_level", "m"},
+    {"tank_minimum_level", "m"},
+    {"tank_maximum_level", "m"},
     {"head_gain", "m"},
     {"head_loss", "m"},
     {"head_loss_gradient", "m/km"},
@@ -75,6 +81,7 @@ inline constexpr std::array<CanonicalQuantity, 76> canonical_quantities = {{
     {"leakage_loss_percentage", "%"},
     {"first_order_bulk_reaction_coefficient", "/d"},
     {"first_order_wall_reaction_coefficient", "m/d"},
+    {"zero_order_wall_reaction_coefficient", "mg/m2/d"},
     {"leak_area_per_100m_pipe_length", "mm2/(100.m)"},
     {"leak_area_expansion_per_pressure_head", "mm2/m"},
     {"chemical_mass_concentration", "mg/L"},

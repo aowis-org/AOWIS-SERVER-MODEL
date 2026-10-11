@@ -18,15 +18,15 @@ struct UnitField {
     std::string_view choices; // Semicolon-separated UCUM/display identifiers.
 };
 
-inline constexpr std::array<UnitField, 76> unit_fields = {{
+inline constexpr std::array<UnitField, 83> unit_fields = {{
     {"Lengths and geometry", "length", "m;ft;km;mi"},
     {"Lengths and geometry", "elevation", "m;ft"},
     {"Lengths and geometry", "altitude", "m;ft"},
     {"Lengths and geometry", "distance", "m;ft;km;mi"},
     {"Lengths and geometry", "vertical_offset", "m;ft"},
-    {"Lengths and geometry", "link_diameter", "mm;in;cm;m"},
+    {"Lengths and geometry", "link_diameter", "mm;in;cm;m;ft"},
     {"Lengths and geometry", "tank_diameter", "m;ft"},
-    {"Lengths and geometry", "darcy_weisbach_roughness_height", "mm;in;millift"},
+    {"Lengths and geometry", "darcy_weisbach_roughness_height", "mm;in;millift;ft"},
     {"Coordinates", "latitude", "deg"},
     {"Coordinates", "longitude", "deg"},
     {"Coordinates", "projected_easting", "m;ft"},
@@ -35,13 +35,19 @@ inline constexpr std::array<UnitField, 76> unit_fields = {{
     {"Coordinates", "local_y", "m;ft"},
     {"Area and volume", "area", "m2;ft2;ha;acre"},
     {"Area and volume", "volume", "m3;L;ft3;US gal;Imp gal"},
+    {"Area and volume", "tank_minimum_volume", "m3;L;ft3;US gal;Imp gal"},
     {"Flow and transport", "volumetric_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
+    {"Flow and transport", "base_demand_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
+    {"Flow and transport", "customer_demand_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
     {"Flow and transport", "velocity", "m/s;ft/s"},
     {"Flow and transport", "molecular_diffusivity", "m2/s;cm2/s"},
     {"Flow and transport", "longitudinal_dispersion_coefficient", "m2/s;cm2/s"},
     {"Hydraulics and pressure", "hydraulic_head", "m;ft"},
     {"Hydraulics and pressure", "pressure_head", "m;ft"},
     {"Hydraulics and pressure", "water_level", "m;ft"},
+    {"Hydraulics and pressure", "tank_initial_level", "m;ft"},
+    {"Hydraulics and pressure", "tank_minimum_level", "m;ft"},
+    {"Hydraulics and pressure", "tank_maximum_level", "m;ft"},
     {"Hydraulics and pressure", "head_gain", "m;ft"},
     {"Hydraulics and pressure", "head_loss", "m;ft"},
     {"Hydraulics and pressure", "head_loss_gradient", "m/km;ft/1000ft"},
@@ -79,6 +85,7 @@ inline constexpr std::array<UnitField, 76> unit_fields = {{
     {"Percentages", "leakage_loss_percentage", "%;1"},
     {"Reactions and leakage", "first_order_bulk_reaction_coefficient", "/d;/h;/s"},
     {"Reactions and leakage", "first_order_wall_reaction_coefficient", "m/d;ft/d"},
+    {"Reactions and leakage", "zero_order_wall_reaction_coefficient", "mg/m2/d;mg/m2/h;mg/m2/s;g/m2/d"},
     {"Reactions and leakage", "leak_area_per_100m_pipe_length", "mm2/(100.m);in2/(100.ft)"},
     {"Reactions and leakage", "leak_area_expansion_per_pressure_head", "mm2/m;in2/ft"},
     {"Water quality", "chemical_mass_concentration", "mg/L;g/m3;ug/L"},
@@ -87,7 +94,7 @@ inline constexpr std::array<UnitField, 76> unit_fields = {{
     {"Water quality", "chemical_surface_amount_density", "mmol/m2;mol/m2"},
     {"Water quality", "chemical_mass_flow_rate", "mg/min;g/min;g/h"},
     {"Water quality", "chemical_amount_flow_rate", "mmol/min;mol/min"},
-    {"Water quality", "water_age", "h;d;min"},
+    {"Water quality", "water_age", "h;d;min;s"},
     {"Power and electrical", "power", "kW;W;hp"},
     {"Power and electrical", "energy", "kW.h;J;MJ"},
     {"Power and electrical", "energy_intensity", "kW.h/m3;kW.h/ft3"},
@@ -143,18 +150,38 @@ struct UnitProfile {
     return result;
 }
 
+// Legacy profiles predate these independently configurable display quantities.
+// Missing overrides inherit their corresponding general presentation choice.
+// Explicit overrides (including the canonical unit) always take precedence.
+[[nodiscard]] constexpr std::string_view inheritedUnitQuantity(std::string_view quantity) noexcept
+{
+    if (quantity == "base_demand_flow_rate" || quantity == "customer_demand_flow_rate")
+        return "volumetric_flow_rate";
+    if (quantity == "tank_initial_level" || quantity == "tank_minimum_level"
+        || quantity == "tank_maximum_level")
+        return "water_level";
+    if (quantity == "tank_minimum_volume") return "volume";
+    return {};
+}
+
 [[nodiscard]] inline std::string_view resolvedUnit(const UnitProfile &profile, std::string_view quantity)
 {
-    const auto it = profile.overrides.find(quantity);
+    const UnitSelections::const_iterator it = profile.overrides.find(quantity);
     if (it != profile.overrides.end() && isAllowedUnit(quantity, it->second)) return it->second;
+    const std::string_view inherited = inheritedUnitQuantity(quantity);
+    if (!inherited.empty()) return resolvedUnit(profile, inherited);
     return canonicalUnit(quantity);
 }
 
 [[nodiscard]] inline bool setProfileUnit(UnitProfile &profile, std::string_view quantity, std::string_view unit)
 {
     if (profile.builtin || !isAllowedUnit(quantity, unit)) return false;
-    if (canonicalUnit(quantity) == unit) profile.overrides.erase(std::string(quantity));
-    else profile.overrides[std::string(quantity)] = std::string(unit);
+    // A derived display choice must be able to explicitly select canonical units,
+    // even if its legacy fallback is noncanonical (e.g. flow L/s, demand m3/h).
+    if (canonicalUnit(quantity) == unit && inheritedUnitQuantity(quantity).empty())
+        profile.overrides.erase(std::string(quantity));
+    else
+        profile.overrides[std::string(quantity)] = std::string(unit);
     return true;
 }
 
@@ -179,6 +206,8 @@ struct UnitProfile {
                 result.overrides.emplace(field.key, "ft");
         }
         result.overrides["link_diameter"] = "in";
+        // EPANET's US Darcy-Weisbach roughness convention is 0.001 ft.
+        result.overrides["darcy_weisbach_roughness_height"] = "millift";
         result.overrides["pressure"] = "psi";
         result.overrides["power"] = "hp";
     }

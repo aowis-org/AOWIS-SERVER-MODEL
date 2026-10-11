@@ -1,6 +1,11 @@
 #ifndef AOWIS_MODEL_UNITS_CONVERSION_H
 #define AOWIS_MODEL_UNITS_CONVERSION_H
 
+#include "unit_profile.h"
+#include <cmath>
+#include <optional>
+#include <string_view>
+
 // Physical unit definitions only. Source-format interpretation belongs in adapters.
 // Decimal definitions below are exact by international agreement; floating-point
 // evaluation is subject to ordinary IEEE-754 rounding.
@@ -121,6 +126,172 @@ inline constexpr double cubic_metres_per_acre_foot =
 {
     return pressure_pascals / (density_kg_per_m3 * gravity_m_per_s2);
 }
+
+// Each scale converts a unit to the common physical reference for its dimension.
+// Quantity validation is essential: the same scale does not make unrelated
+// quantities interchangeable (e.g. length and hydraulic head).
+struct UnitScale {
+    std::string_view unit;
+    double to_reference;
+};
+inline constexpr UnitScale unit_scales[] = {
+    {"m", 1.0},
+    {"ft", metres_per_international_foot},
+    {"km", 1000.0},
+    {"mi", 1609.344},
+    {"mm", 0.001},
+    {"cm", 0.01},
+    {"in", metres_per_inch},
+    {"millift", 0.0003048},
+    {"deg", 1.0},
+    {"m2", 1.0},
+    {"ft2", metres_per_international_foot * metres_per_international_foot},
+    {"ha", 10000.0},
+    {"acre", 4046.8564224},
+    {"m3", 1.0},
+    {"L", 0.001},
+    {"ft3", cubic_metres_per_cubic_foot},
+    {"US gal", cubic_metres_per_us_gallon},
+    {"Imp gal", cubic_metres_per_imperial_gallon},
+    {"m3/h", 1.0 / seconds_per_hour},
+    {"L/s", 0.001},
+    {"L/min", 0.001 / seconds_per_minute},
+    {"ML/d", 1000.0 / seconds_per_day},
+    {"m3/d", 1.0 / seconds_per_day},
+    {"m3/s", 1.0},
+    {"ft3/s", cubic_metres_per_cubic_foot},
+    {"US gal/min", cubic_metres_per_us_gallon / seconds_per_minute},
+    {"MUSgal/d", 1000000.0 * cubic_metres_per_us_gallon / seconds_per_day},
+    {"MImpgal/d", 1000000.0 * cubic_metres_per_imperial_gallon / seconds_per_day},
+    {"acre.ft/d", cubic_metres_per_acre_foot / seconds_per_day},
+    {"m/s", 1.0},
+    {"ft/s", metres_per_international_foot},
+    {"m2/s", 1.0},
+    {"cm2/s", 0.0001},
+    {"m/km", 0.001},
+    {"ft/1000ft", 0.001},
+    {"kPa", 1000.0},
+    {"Pa", 1.0},
+    {"bar", pascals_per_bar},
+    {"psi", pascals_per_psi},
+    {"MPa", 1000000.0},
+    {"s", 1.0},
+    {"min", seconds_per_minute},
+    {"h", seconds_per_hour},
+    {"d", seconds_per_day},
+    {"1", 1.0},
+    {"%", 0.01},
+    {"/d", 1.0 / seconds_per_day},
+    {"/h", 1.0 / seconds_per_hour},
+    {"/s", 1.0},
+    {"m/d", 1.0 / seconds_per_day},
+    {"ft/d", metres_per_international_foot / seconds_per_day},
+    // Zero-order wall reactions: mass per surface area per time, NOT length/time.
+    {"mg/m2/d", 0.000001 / seconds_per_day},
+    {"mg/m2/h", 0.000001 / seconds_per_hour},
+    {"mg/m2/s", 0.000001},
+    {"g/m2/d", 0.001 / seconds_per_day},
+    {"mm2/(100.m)", 0.001 * 0.001 / 100.0},
+    {"in2/(100.ft)", metres_per_inch * metres_per_inch / (100.0 * metres_per_international_foot)},
+    {"mm2/m", 0.001 * 0.001},
+    {"in2/ft", metres_per_inch * metres_per_inch / metres_per_international_foot},
+    {"mg/L", 0.001},
+    {"g/m3", 0.001},
+    {"ug/L", 0.000001},
+    {"mmol/L", 1.0},
+    {"mol/m3", 1.0},
+    {"mg/m2", 0.000001},
+    {"g/m2", 0.001},
+    {"mmol/m2", 0.001},
+    {"mol/m2", 1.0},
+    {"mg/min", 0.000001 / seconds_per_minute},
+    {"g/min", 0.001 / seconds_per_minute},
+    {"g/h", 0.001 / seconds_per_hour},
+    {"mmol/min", 0.001 / seconds_per_minute},
+    {"mol/min", 1.0 / seconds_per_minute},
+    {"kW", 1000.0},
+    {"W", 1.0},
+    {"hp", kilowatts_per_mechanical_horsepower * 1000.0},
+    {"kW.h", 3600000.0},
+    {"J", 1.0},
+    {"MJ", 1000000.0},
+    {"kW.h/m3", 3600000.0},
+    {"kW.h/ft3", 3600000.0 / cubic_metres_per_cubic_foot},
+    {"A", 1.0},
+    {"mA", 0.001},
+    {"V", 1.0},
+    {"mV", 0.001},
+    {"kV", 1000.0},
+    {"Ohm", 1.0},
+    {"kOhm", 1000.0},
+    {"F", 1.0},
+    {"uF", 0.000001},
+};
+
+[[nodiscard]] constexpr std::optional<double> unitScale(std::string_view unit) noexcept
+{
+    for (const UnitScale &entry : unit_scales)
+        if (entry.unit == unit) return entry.to_reference;
+    return std::nullopt;
+}
+
+// Returns nullopt for unsupported quantities/units and non-finite results.
+// Units must be explicitly allowed for the given registered quantity.
+[[nodiscard]] inline std::optional<double> convert(
+    std::string_view quantity, double value,
+    std::string_view from_unit, std::string_view to_unit) noexcept
+{
+    if (!isAllowedUnit(quantity, from_unit) || !isAllowedUnit(quantity, to_unit)
+        || !std::isfinite(value)) return std::nullopt;
+    if (from_unit == to_unit) return value;
+    const auto from = unitScale(from_unit);
+    const auto to = unitScale(to_unit);
+    if (!from || !to || *to == 0.0) return std::nullopt;
+    const double result = (value * *from) / *to;
+    if (!std::isfinite(result)) return std::nullopt;
+    return result;
+}
+
+[[nodiscard]] inline std::optional<double> toCanonical(
+    std::string_view quantity, double value, std::string_view source_unit) noexcept
+{
+    return convert(quantity, value, source_unit, canonicalUnit(quantity));
+}
+
+[[nodiscard]] inline std::optional<double> fromCanonical(
+    std::string_view quantity, double value, std::string_view destination_unit) noexcept
+{
+    return convert(quantity, value, canonicalUnit(quantity), destination_unit);
+}
+
+[[nodiscard]] inline std::optional<double> fromCanonical(
+    std::string_view quantity, double value, const UnitProfile &profile) noexcept
+{
+    return fromCanonical(quantity, value, resolvedUnit(profile, quantity));
+}
+
+[[nodiscard]] inline std::optional<double> toCanonical(
+    std::string_view quantity, double value, const UnitProfile &profile) noexcept
+{
+    return toCanonical(quantity, value, resolvedUnit(profile, quantity));
+}
+
+// Compile-time guard: additions to the selectable-unit catalog must have scales.
+[[nodiscard]] constexpr bool allProfileUnitsConvertible() noexcept
+{
+    for (const UnitField &field : unit_fields) {
+        std::string_view choices = field.choices;
+        while (!choices.empty()) {
+            const auto end = choices.find(';');
+            if (!unitScale(choices.substr(0, end))) return false;
+            if (end == std::string_view::npos) break;
+            choices.remove_prefix(end + 1);
+        }
+    }
+    return true;
+}
+static_assert(allProfileUnitsConvertible(), "Unmapped selectable unit in AOWIS registry");
+
 }
 
 #endif
