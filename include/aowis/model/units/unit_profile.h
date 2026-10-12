@@ -18,91 +18,91 @@ struct UnitField {
     std::string_view choices; // Semicolon-separated UCUM/display identifiers.
 };
 
-inline constexpr std::array<UnitField, 83> unit_fields = {{
-    {"Lengths and geometry", "length", "m;ft;km;mi"},
-    {"Lengths and geometry", "elevation", "m;ft"},
-    {"Lengths and geometry", "altitude", "m;ft"},
-    {"Lengths and geometry", "distance", "m;ft;km;mi"},
-    {"Lengths and geometry", "vertical_offset", "m;ft"},
-    {"Lengths and geometry", "link_diameter", "mm;in;cm;m;ft"},
-    {"Lengths and geometry", "tank_diameter", "m;ft"},
-    {"Lengths and geometry", "darcy_weisbach_roughness_height", "mm;in;millift;ft"},
-    {"Coordinates", "latitude", "deg"},
-    {"Coordinates", "longitude", "deg"},
-    {"Coordinates", "projected_easting", "m;ft"},
-    {"Coordinates", "projected_northing", "m;ft"},
-    {"Coordinates", "local_x", "m;ft"},
-    {"Coordinates", "local_y", "m;ft"},
-    {"Area and volume", "area", "m2;ft2;ha;acre"},
-    {"Area and volume", "volume", "m3;L;ft3;US gal;Imp gal"},
-    {"Area and volume", "tank_minimum_volume", "m3;L;ft3;US gal;Imp gal"},
-    {"Flow and transport", "volumetric_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
-    {"Flow and transport", "base_demand_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
-    {"Flow and transport", "customer_demand_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
-    {"Flow and transport", "velocity", "m/s;ft/s"},
-    {"Flow and transport", "molecular_diffusivity", "m2/s;cm2/s"},
-    {"Flow and transport", "longitudinal_dispersion_coefficient", "m2/s;cm2/s"},
-    {"Hydraulics and pressure", "hydraulic_head", "m;ft"},
-    {"Hydraulics and pressure", "pressure_head", "m;ft"},
-    {"Hydraulics and pressure", "water_level", "m;ft"},
-    {"Hydraulics and pressure", "tank_initial_level", "m;ft"},
-    {"Hydraulics and pressure", "tank_minimum_level", "m;ft"},
-    {"Hydraulics and pressure", "tank_maximum_level", "m;ft"},
-    {"Hydraulics and pressure", "head_gain", "m;ft"},
-    {"Hydraulics and pressure", "head_loss", "m;ft"},
-    {"Hydraulics and pressure", "head_loss_gradient", "m/km;ft/1000ft"},
-    {"Hydraulics and pressure", "pressure", "kPa;Pa;bar;psi"},
-    {"Hydraulics and pressure", "stress", "MPa;kPa;psi"},
-    {"Time", "elapsed_time", "s;min;h;d"},
-    {"Time", "duration", "s;min;h;d"},
-    {"Time", "time_of_day", "s;min;h"},
-    {"Dimensionless", "hazen_williams_roughness_coefficient", "1"},
-    {"Dimensionless", "chezy_manning_roughness_coefficient", "1"},
-    {"Dimensionless", "minor_loss_coefficient", "1"},
-    {"Dimensionless", "darcy_weisbach_friction_factor", "1"},
-    {"Dimensionless", "pump_speed_ratio", "1"},
-    {"Dimensionless", "pattern_multiplier", "1"},
-    {"Dimensionless", "demand_multiplier", "1"},
-    {"Dimensionless", "pressure_exponent", "1"},
-    {"Dimensionless", "emitter_exponent", "1"},
-    {"Dimensionless", "reaction_order", "1"},
-    {"Dimensionless", "specific_gravity", "1"},
-    {"Dimensionless", "relative_viscosity", "1"},
-    {"Dimensionless", "relative_diffusivity", "1"},
-    {"Dimensionless", "peclet_number", "1"},
-    {"Dimensionless", "mixing_fraction", "1"},
-    {"Dimensionless", "hydraulic_accuracy", "1"},
-    {"Dimensionless", "hydraulic_damping_limit", "1"},
-    {"Dimensionless", "relative_error", "1"},
-    {"Dimensionless", "flow_balance_ratio", "1"},
-    {"Dimensionless", "quality_mass_balance_ratio", "1"},
-    {"Percentages", "efficiency", "%;1"},
-    {"Percentages", "relative_flow", "%;1"},
-    {"Percentages", "valve_position", "%;1"},
-    {"Percentages", "source_trace_percentage", "%;1"},
-    {"Percentages", "operating_time_percentage", "%;1"},
-    {"Percentages", "demand_reduction_percentage", "%;1"},
-    {"Percentages", "leakage_loss_percentage", "%;1"},
-    {"Reactions and leakage", "first_order_bulk_reaction_coefficient", "/d;/h;/s"},
-    {"Reactions and leakage", "first_order_wall_reaction_coefficient", "m/d;ft/d"},
-    {"Reactions and leakage", "zero_order_wall_reaction_coefficient", "mg/m2/d;mg/m2/h;mg/m2/s;g/m2/d"},
-    {"Reactions and leakage", "leak_area_per_100m_pipe_length", "mm2/(100.m);in2/(100.ft)"},
-    {"Reactions and leakage", "leak_area_expansion_per_pressure_head", "mm2/m;in2/ft"},
-    {"Water quality", "chemical_mass_concentration", "mg/L;g/m3;ug/L"},
-    {"Water quality", "chemical_amount_concentration", "mmol/L;mol/m3"},
-    {"Water quality", "chemical_surface_mass_density", "mg/m2;g/m2"},
-    {"Water quality", "chemical_surface_amount_density", "mmol/m2;mol/m2"},
-    {"Water quality", "chemical_mass_flow_rate", "mg/min;g/min;g/h"},
-    {"Water quality", "chemical_amount_flow_rate", "mmol/min;mol/min"},
-    {"Water quality", "water_age", "h;d;min;s"},
-    {"Power and electrical", "power", "kW;W;hp"},
-    {"Power and electrical", "energy", "kW.h;J;MJ"},
-    {"Power and electrical", "energy_intensity", "kW.h/m3;kW.h/ft3"},
-    {"Power and electrical", "electric_current", "A;mA"},
-    {"Power and electrical", "voltage", "V;mV;kV"},
-    {"Power and electrical", "electrical_resistance", "Ohm;kOhm"},
-    {"Power and electrical", "capacitance", "F;uF"},
-}};
+inline constexpr std::array unit_fields = {
+    UnitField{"Lengths and geometry", "length", "m;ft;km;mi"},
+    UnitField{"Lengths and geometry", "elevation", "m;ft"},
+    UnitField{"Lengths and geometry", "altitude", "m;ft"},
+    UnitField{"Lengths and geometry", "distance", "m;ft;km;mi"},
+    UnitField{"Lengths and geometry", "vertical_offset", "m;ft"},
+    UnitField{"Lengths and geometry", "link_diameter", "mm;in;cm;m;ft"},
+    UnitField{"Lengths and geometry", "tank_diameter", "m;ft"},
+    UnitField{"Lengths and geometry", "darcy_weisbach_roughness_height", "mm;in;millift;ft"},
+    UnitField{"Lengths and geometry", "area", "m2;ft2;ha;acre"},
+    UnitField{"Lengths and geometry", "volume", "m3;L;ft3;US gal;Imp gal"},
+    UnitField{"Lengths and geometry", "tank_minimum_volume", "m3;L;ft3;US gal;Imp gal"},
+    UnitField{"Coordinates", "latitude", "deg"},
+    UnitField{"Coordinates", "longitude", "deg"},
+    UnitField{"Coordinates", "projected_easting", "m;ft"},
+    UnitField{"Coordinates", "projected_northing", "m;ft"},
+    UnitField{"Coordinates", "local_x", "m;ft"},
+    UnitField{"Coordinates", "local_y", "m;ft"},
+    UnitField{"Flow and transport", "volumetric_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
+    UnitField{"Flow and transport", "base_demand_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
+    UnitField{"Flow and transport", "customer_demand_flow_rate", "m3/h;L/s;L/min;ML/d;m3/d;m3/s;ft3/s;US gal/min;MUSgal/d;MImpgal/d;acre.ft/d"},
+    UnitField{"Flow and transport", "velocity", "m/s;ft/s"},
+    UnitField{"Flow and transport", "molecular_diffusivity", "m2/s;cm2/s"},
+    UnitField{"Flow and transport", "longitudinal_dispersion_coefficient", "m2/s;cm2/s"},
+    UnitField{"Hydraulics and pressure", "hydraulic_head", "m;ft"},
+    UnitField{"Hydraulics and pressure", "pressure_head", "m;ft;kPa;Pa;bar;psi"},
+    UnitField{"Hydraulics and pressure", "water_level", "m;ft"},
+    UnitField{"Hydraulics and pressure", "tank_initial_level", "m;ft"},
+    UnitField{"Hydraulics and pressure", "tank_minimum_level", "m;ft"},
+    UnitField{"Hydraulics and pressure", "tank_maximum_level", "m;ft"},
+    UnitField{"Hydraulics and pressure", "head_gain", "m;ft"},
+    UnitField{"Hydraulics and pressure", "head_loss", "m;ft"},
+    UnitField{"Hydraulics and pressure", "head_loss_gradient", "m/km;ft/1000ft"},
+    UnitField{"Hydraulics and pressure", "pressure", "kPa;Pa;bar;psi"},
+    UnitField{"Hydraulics and pressure", "stress", "MPa;kPa;psi"},
+    UnitField{"Time", "elapsed_time", "s;min;h;d"},
+    UnitField{"Time", "duration", "s;min;h;d"},
+    UnitField{"Time", "time_of_day", "s;min;h"},
+    UnitField{"Dimensionless", "hazen_williams_roughness_coefficient", "1"},
+    UnitField{"Dimensionless", "chezy_manning_roughness_coefficient", "1"},
+    UnitField{"Dimensionless", "minor_loss_coefficient", "1"},
+    UnitField{"Dimensionless", "darcy_weisbach_friction_factor", "1"},
+    UnitField{"Dimensionless", "pump_speed_ratio", "1"},
+    UnitField{"Dimensionless", "pattern_multiplier", "1"},
+    UnitField{"Dimensionless", "demand_multiplier", "1"},
+    UnitField{"Dimensionless", "pressure_exponent", "1"},
+    UnitField{"Dimensionless", "emitter_exponent", "1"},
+    UnitField{"Dimensionless", "reaction_order", "1"},
+    UnitField{"Dimensionless", "specific_gravity", "1"},
+    UnitField{"Dimensionless", "relative_viscosity", "1"},
+    UnitField{"Dimensionless", "relative_diffusivity", "1"},
+    UnitField{"Dimensionless", "peclet_number", "1"},
+    UnitField{"Dimensionless", "mixing_fraction", "1"},
+    UnitField{"Dimensionless", "hydraulic_accuracy", "1"},
+    UnitField{"Dimensionless", "hydraulic_damping_limit", "1"},
+    UnitField{"Dimensionless", "relative_error", "1"},
+    UnitField{"Dimensionless", "flow_balance_ratio", "1"},
+    UnitField{"Dimensionless", "quality_mass_balance_ratio", "1"},
+    UnitField{"Percentages", "efficiency", "%;1"},
+    UnitField{"Percentages", "relative_flow", "%;1"},
+    UnitField{"Percentages", "valve_position", "%;1"},
+    UnitField{"Percentages", "source_trace_percentage", "%;1"},
+    UnitField{"Percentages", "operating_time_percentage", "%;1"},
+    UnitField{"Percentages", "demand_reduction_percentage", "%;1"},
+    UnitField{"Percentages", "leakage_loss_percentage", "%;1"},
+    UnitField{"Reactions and leakage", "first_order_bulk_reaction_coefficient", "/d;/h;/s"},
+    UnitField{"Reactions and leakage", "first_order_wall_reaction_coefficient", "m/d;ft/d"},
+    UnitField{"Reactions and leakage", "zero_order_wall_reaction_coefficient", "mg/m2/d;mg/m2/h;mg/m2/s;g/m2/d"},
+    UnitField{"Reactions and leakage", "leak_area_per_100m_pipe_length", "mm2/(100.m);in2/(100.ft)"},
+    UnitField{"Reactions and leakage", "leak_area_expansion_per_pressure_head", "mm2/m;in2/ft"},
+    UnitField{"Water quality", "chemical_mass_concentration", "mg/L;g/m3;ug/L"},
+    UnitField{"Water quality", "chemical_amount_concentration", "mmol/L;mol/m3"},
+    UnitField{"Water quality", "chemical_surface_mass_density", "mg/m2;g/m2"},
+    UnitField{"Water quality", "chemical_surface_amount_density", "mmol/m2;mol/m2"},
+    UnitField{"Water quality", "chemical_mass_flow_rate", "mg/min;g/min;g/h"},
+    UnitField{"Water quality", "chemical_amount_flow_rate", "mmol/min;mol/min"},
+    UnitField{"Water quality", "water_age", "h;d;min;s"},
+    UnitField{"Power and electrical", "power", "kW;W;hp"},
+    UnitField{"Power and electrical", "energy", "kW.h;J;MJ"},
+    UnitField{"Power and electrical", "energy_intensity", "kW.h/m3;kW.h/ft3"},
+    UnitField{"Power and electrical", "electric_current", "A;mA"},
+    UnitField{"Power and electrical", "voltage", "V;mV;kV"},
+    UnitField{"Power and electrical", "electrical_resistance", "Ohm;kOhm"},
+    UnitField{"Power and electrical", "capacitance", "F;uF"},
+};
 
 inline constexpr std::array<std::string_view, 11> flow_template_names = {{
     "CMH", "LPS", "LPM", "MLD", "CMD", "CMS", "CFS", "GPM", "MGD", "IMGD", "AFD"
@@ -166,6 +166,17 @@ struct UnitProfile {
 
 [[nodiscard]] inline std::string_view resolvedUnit(const UnitProfile &profile, std::string_view quantity)
 {
+    // Minimum tank volume is a volume measurement, not a separate display
+    // preference. Ignore any legacy override while retaining its registry key
+    // for imported source metadata and persisted-profile compatibility.
+    if (quantity == "tank_minimum_volume") return resolvedUnit(profile, "volume");
+    // Older imported profiles placed pressure preferences in the unused
+    // physical-pressure field. Honor them until explicitly overridden.
+    if (quantity == "pressure_head" && profile.overrides.find("pressure_head") == profile.overrides.end()) {
+        const UnitSelections::const_iterator legacy = profile.overrides.find("pressure");
+        if (legacy != profile.overrides.end() && isAllowedUnit("pressure_head", legacy->second))
+            return legacy->second;
+    }
     const UnitSelections::const_iterator it = profile.overrides.find(quantity);
     if (it != profile.overrides.end() && isAllowedUnit(quantity, it->second)) return it->second;
     const std::string_view inherited = inheritedUnitQuantity(quantity);
@@ -178,7 +189,12 @@ struct UnitProfile {
     if (profile.builtin || !isAllowedUnit(quantity, unit)) return false;
     // A derived display choice must be able to explicitly select canonical units,
     // even if its legacy fallback is noncanonical (e.g. flow L/s, demand m3/h).
-    if (canonicalUnit(quantity) == unit && inheritedUnitQuantity(quantity).empty())
+    // Legacy physical-pressure overrides act as a fallback for pressure head;
+    // an explicit canonical-metre selection must still defeat that fallback.
+    const bool legacy_pressure = quantity == "pressure_head"
+        && profile.overrides.find("pressure") != profile.overrides.end();
+    if (canonicalUnit(quantity) == unit && inheritedUnitQuantity(quantity).empty()
+        && !legacy_pressure)
         profile.overrides.erase(std::string(quantity));
     else
         profile.overrides[std::string(quantity)] = std::string(unit);
@@ -197,19 +213,46 @@ struct UnitProfile {
     result.id = std::string(flow_template_names[index]);
     result.name = result.id;
     result.builtin = true;
-    const auto flow = flow_template_units[index];
+    const std::string_view flow = flow_template_units[index];
     if (flow != canonicalUnit("volumetric_flow_rate"))
         result.overrides.emplace("volumetric_flow_rate", flow);
     if (index >= 6) {
-        for (const UnitField &field : unit_fields) {
-            if (isAllowedUnit(field.key, "ft") && canonicalUnit(field.key) != "ft")
-                result.overrides.emplace(field.key, "ft");
-        }
-        result.overrides["link_diameter"] = "in";
-        // EPANET's US Darcy-Weisbach roughness convention is 0.001 ft.
-        result.overrides["darcy_weisbach_roughness_height"] = "millift";
-        result.overrides["pressure"] = "psi";
-        result.overrides["power"] = "hp";
+        // US/Imperial hydraulic display choices, not a blanket conversion of
+        // every quantity that happens to permit international feet.
+        // Projected/local coordinate units come from their CRS, which can
+        // specify US survey feet rather than international feet.
+        constexpr std::pair<std::string_view, std::string_view> imperial_units[] = {
+            {"length", "ft"},
+            {"elevation", "ft"},
+            {"distance", "ft"},
+            {"vertical_offset", "ft"},
+            {"link_diameter", "in"},
+            {"tank_diameter", "ft"},
+            // EPANET's US Darcy-Weisbach roughness convention is 0.001 ft.
+            {"darcy_weisbach_roughness_height", "millift"},
+            {"area", "ft2"},
+            {"volume", "ft3"},
+            {"tank_minimum_volume", "ft3"},
+            {"velocity", "ft/s"},
+            {"hydraulic_head", "ft"},
+            {"pressure_head", "psi"},
+            {"water_level", "ft"},
+            {"tank_initial_level", "ft"},
+            {"tank_minimum_level", "ft"},
+            {"tank_maximum_level", "ft"},
+            {"head_gain", "ft"},
+            {"head_loss", "ft"},
+            {"head_loss_gradient", "ft/1000ft"},
+            {"pressure", "psi"},
+            {"stress", "psi"},
+            {"first_order_wall_reaction_coefficient", "ft/d"},
+            {"leak_area_per_100m_pipe_length", "in2/(100.ft)"},
+            {"leak_area_expansion_per_pressure_head", "in2/ft"},
+            {"power", "hp"},
+            {"energy_intensity", "kW.h/ft3"},
+        };
+        for (const std::pair<std::string_view, std::string_view> &choice : imperial_units)
+            result.overrides.emplace(choice.first, choice.second);
     }
     return result;
 }
@@ -244,8 +287,8 @@ public:
             return false;
         for (const UnitProfile &existing : this->profiles_)
             if (existing.name == profile.name) return false;
-        for (const auto &[key, unit] : profile.overrides)
-            if (!isAllowedUnit(key, unit)) return false;
+        for (const UnitSelections::value_type &selection : profile.overrides)
+            if (!isAllowedUnit(selection.first, selection.second)) return false;
         this->profiles_.push_back(std::move(profile));
         return true;
     }
@@ -261,7 +304,8 @@ public:
         return false;
     }
     [[nodiscard]] bool remove(std::string_view id) {
-        for (auto it = this->profiles_.begin(); it != this->profiles_.end(); ++it) {
+        for (std::vector<UnitProfile>::iterator it = this->profiles_.begin();
+             it != this->profiles_.end(); ++it) {
             if (it->id != id || it->builtin) continue;
             this->profiles_.erase(it);
             if (this->active_id_ == id) this->active_id_ = "canonical";

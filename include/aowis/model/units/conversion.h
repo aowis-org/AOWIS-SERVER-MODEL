@@ -239,15 +239,30 @@ inline constexpr UnitScale unit_scales[] = {
 // Units must be explicitly allowed for the given registered quantity.
 [[nodiscard]] inline std::optional<double> convert(
     std::string_view quantity, double value,
-    std::string_view from_unit, std::string_view to_unit) noexcept
+    std::string_view from_unit, std::string_view to_unit,
+    double specific_gravity = 1.0) noexcept
 {
     if (!isAllowedUnit(quantity, from_unit) || !isAllowedUnit(quantity, to_unit)
         || !std::isfinite(value)) return std::nullopt;
+    if (quantity == "pressure_head" &&
+        (!std::isfinite(specific_gravity) || specific_gravity <= 0.0)) return std::nullopt;
     if (from_unit == to_unit) return value;
-    const auto from = unitScale(from_unit);
-    const auto to = unitScale(to_unit);
+    const std::optional<double> from = unitScale(from_unit);
+    const std::optional<double> to = unitScale(to_unit);
     if (!from || !to || *to == 0.0) return std::nullopt;
-    const double result = (value * *from) / *to;
+    // Hydraulic head is stored in metres, but may be *presented* as physical
+    // pressure. Convert using fluid density and standard gravity, never by
+    // mixing the length and pressure dimensions' reference scales directly.
+    double from_scale = *from;
+    double to_scale = *to;
+    if (quantity == "pressure_head") {
+        const double metres_per_pascal = pascalsToMetresHead(
+            1.0, specific_gravity * reference_water_density_kg_per_m3,
+            standard_gravity_m_per_s2);
+        if (from_unit != "m" && from_unit != "ft") from_scale *= metres_per_pascal;
+        if (to_unit != "m" && to_unit != "ft") to_scale *= metres_per_pascal;
+    }
+    const double result = (value * from_scale) / to_scale;
     if (!std::isfinite(result)) return std::nullopt;
     return result;
 }
@@ -276,13 +291,27 @@ inline constexpr UnitScale unit_scales[] = {
     return toCanonical(quantity, value, resolvedUnit(profile, quantity));
 }
 
+// The presentation fields must correspond exactly to canonical quantities,
+// and every canonical unit must remain selectable in its field.
+[[nodiscard]] constexpr bool allProfileFieldsMatchCanonicalRegistry() noexcept
+{
+    if (unit_fields.size() != canonical_quantities.size()) return false;
+    for (std::size_t index = 0; index < unit_fields.size(); ++index) {
+        const UnitField &field = unit_fields[index];
+        const CanonicalQuantity &canonical = canonical_quantities[index];
+        if (field.key != canonical.quantity || !isAllowedUnit(field.key, canonical.unit))
+            return false;
+    }
+    return true;
+}
+
 // Compile-time guard: additions to the selectable-unit catalog must have scales.
 [[nodiscard]] constexpr bool allProfileUnitsConvertible() noexcept
 {
     for (const UnitField &field : unit_fields) {
         std::string_view choices = field.choices;
         while (!choices.empty()) {
-            const auto end = choices.find(';');
+            const std::size_t end = choices.find(';');
             if (!unitScale(choices.substr(0, end))) return false;
             if (end == std::string_view::npos) break;
             choices.remove_prefix(end + 1);
@@ -290,6 +319,8 @@ inline constexpr UnitScale unit_scales[] = {
     }
     return true;
 }
+static_assert(allProfileFieldsMatchCanonicalRegistry(),
+              "Unit-profile fields must match the canonical registry and offer their canonical units");
 static_assert(allProfileUnitsConvertible(), "Unmapped selectable unit in AOWIS registry");
 
 }
