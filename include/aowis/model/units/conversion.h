@@ -19,6 +19,25 @@ inline constexpr double cubic_metres_per_imperial_gallon = 0.00454609;
 inline constexpr double pascals_per_psi = 6894.757293168361; // Derived from exact lbf/in² definitions.
 inline constexpr double pascals_per_kilopascal = 1000.0;
 inline constexpr double pascals_per_bar = 100000.0;
+// EPANET 2.3 src/types.h hydraulic pressure factors (historically rounded). These are
+// intentionally distinct from the exact SI physical pressure unit definitions
+// above. Use only for presenting/interpreting hydraulic head, not for general
+// physical pressure conversions.
+inline constexpr double epanet_psi_per_foot = 0.4333;
+inline constexpr double epanet_kpa_per_psi = 6.895;
+inline constexpr double epanet_bar_per_psi = 0.068948;
+
+// EPANET reports pressure per foot of fluid head, scaled by specific gravity.
+// Pa is derived from EPANET's kPa factor so Pa and kPa remain coherent.
+[[nodiscard]] constexpr std::optional<double> epanetPressureUnitsPerFoot(
+    std::string_view unit) noexcept
+{
+    if (unit == "psi") return epanet_psi_per_foot;
+    if (unit == "kPa") return epanet_psi_per_foot * epanet_kpa_per_psi;
+    if (unit == "Pa") return epanet_psi_per_foot * epanet_kpa_per_psi * 1000.0;
+    if (unit == "bar") return epanet_psi_per_foot * epanet_bar_per_psi;
+    return std::nullopt;
+}
 inline constexpr double seconds_per_minute = 60.0;
 inline constexpr double minutes_per_hour = 60.0;
 inline constexpr double hours_per_day = 24.0;
@@ -250,17 +269,19 @@ inline constexpr UnitScale unit_scales[] = {
     const std::optional<double> from = unitScale(from_unit);
     const std::optional<double> to = unitScale(to_unit);
     if (!from || !to || *to == 0.0) return std::nullopt;
-    // Hydraulic head is stored in metres, but may be *presented* as physical
-    // pressure. Convert using fluid density and standard gravity, never by
-    // mixing the length and pressure dimensions' reference scales directly.
+    // Hydraulic head is stored in metres. Match EPANET 2.3's rounded
+    // pressure/head factors in both directions so an imported EPANET value
+    // displays as the same pressure in the same source units. Ordinary
+    // pressure quantities retain the exact physical SI scales above.
     double from_scale = *from;
     double to_scale = *to;
     if (quantity == "pressure_head") {
-        const double metres_per_pascal = pascalsToMetresHead(
-            1.0, specific_gravity * reference_water_density_kg_per_m3,
-            standard_gravity_m_per_s2);
-        if (from_unit != "m" && from_unit != "ft") from_scale *= metres_per_pascal;
-        if (to_unit != "m" && to_unit != "ft") to_scale *= metres_per_pascal;
+        const std::optional<double> from_pressure = epanetPressureUnitsPerFoot(from_unit);
+        const std::optional<double> to_pressure = epanetPressureUnitsPerFoot(to_unit);
+        if (from_pressure)
+            from_scale = metres_per_international_foot / (*from_pressure * specific_gravity);
+        if (to_pressure)
+            to_scale = metres_per_international_foot / (*to_pressure * specific_gravity);
     }
     const double result = (value * from_scale) / to_scale;
     if (!std::isfinite(result)) return std::nullopt;
@@ -279,16 +300,22 @@ inline constexpr UnitScale unit_scales[] = {
     return convert(quantity, value, canonicalUnit(quantity), destination_unit);
 }
 
+// A profile may select a pressure unit for hydraulic head. Require callers to
+// supply the project's specific gravity rather than silently assuming 1.0.
 [[nodiscard]] inline std::optional<double> fromCanonical(
-    std::string_view quantity, double value, const UnitProfile &profile) noexcept
+    std::string_view quantity, double value, const UnitProfile &profile,
+    double specific_gravity) noexcept
 {
-    return fromCanonical(quantity, value, resolvedUnit(profile, quantity));
+    return convert(quantity, value, canonicalUnit(quantity),
+                   resolvedUnit(profile, quantity), specific_gravity);
 }
 
 [[nodiscard]] inline std::optional<double> toCanonical(
-    std::string_view quantity, double value, const UnitProfile &profile) noexcept
+    std::string_view quantity, double value, const UnitProfile &profile,
+    double specific_gravity) noexcept
 {
-    return toCanonical(quantity, value, resolvedUnit(profile, quantity));
+    return convert(quantity, value, resolvedUnit(profile, quantity),
+                   canonicalUnit(quantity), specific_gravity);
 }
 
 // The presentation fields must correspond exactly to canonical quantities,
