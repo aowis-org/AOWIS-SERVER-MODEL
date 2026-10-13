@@ -45,6 +45,29 @@ int main()
     check(u::resolvedUnit(u::flowTemplateProfile(6),
                           "darcy_weisbach_roughness_height") == "millift");
     check(near(u::mechanicalHorsepowerToKilowatts(1.0), 0.7456998715822702));
+    // EPANET compatibility constants are distinct from exact SI conversions.
+    check(u::epanet_kw_per_hp == 0.7457);
+    check(u::epanet_kw_per_hp != u::kilowatts_per_mechanical_horsepower);
+    check(u::epanet_psi_per_foot == 0.4333);
+    check(u::epanet_kpa_per_psi == 6.895);
+    check(u::epanet_bar_per_psi == 0.068948);
+    // One CFS expressed in each of EPANET's ten other flow units.
+    check(near(u::epanet_gallons_per_minute_per_cfs, 448.8311688311688));
+    check(near(u::epanet_acre_feet_per_day_per_cfs, 1.9834710743801653));
+    check(near(u::epanet_million_gallons_per_day_per_cfs, 0.6463168831168831));
+    check(near(u::epanet_imperial_million_gallons_per_day_per_cfs, 0.5381713836613002));
+    check(near(u::epanet_litres_per_second_per_cfs, 28.316846592));
+    check(near(u::epanet_litres_per_minute_per_cfs, 1699.01079552));
+    check(near(u::epanet_cubic_metres_per_second_per_cfs, 0.028316846592));
+    check(near(u::epanet_cubic_metres_per_hour_per_cfs, 101.9406477312));
+    check(near(u::epanet_cubic_metres_per_day_per_cfs, 2446.5755455488));
+    check(near(u::epanet_million_litres_per_day_per_cfs, 2.4465755455488));
+    // The backend's source-to-canonical ratio must equal the Model conversion.
+    check(near(u::epanet_cubic_metres_per_hour_per_cfs / u::epanet_gallons_per_minute_per_cfs,
+               u::usGallonsPerMinuteToCubicMetresPerHour(1.0)));
+    check(near(u::epanet_cubic_metres_per_hour_per_cfs / u::epanet_acre_feet_per_day_per_cfs,
+               u::acreFeetPerDayToCubicMetresPerHour(1.0)));
+
     // Unit-profile metadata is canonical, complete, and Qt independent.
     check(u::unit_fields.size() == u::canonical_quantities.size());
     check(u::allProfileFieldsMatchCanonicalRegistry());

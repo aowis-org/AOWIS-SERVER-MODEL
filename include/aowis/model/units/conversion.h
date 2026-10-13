@@ -45,6 +45,9 @@ inline constexpr double standard_gravity_m_per_s2 = 9.80665;
 inline constexpr double reference_water_density_kg_per_m3 = 1000.0;
 // Mechanical horsepower (international): 550 ft*lbf/s, expressed in kW.
 inline constexpr double kilowatts_per_mechanical_horsepower = 0.7456998715822702;
+// EPANET 2.3 pump POWER input uses the historical rounded kW/hp factor.
+// Keep it separate from the exact mechanical horsepower conversion.
+inline constexpr double epanet_kw_per_hp = 0.7457;
 inline constexpr double seconds_per_hour = 3600.0;
 inline constexpr double seconds_per_day = 86400.0;
 inline constexpr double cubic_metres_per_cubic_foot =
@@ -145,6 +148,30 @@ inline constexpr double cubic_metres_per_acre_foot =
 {
     return pressure_pascals / (density_kg_per_m3 * gravity_m_per_s2);
 }
+
+// EPANET INP flow units expressed per 1 cubic foot/second. Derive all of these
+// from the Model's physical volume and time definitions rather than carrying
+// a separate table of approximate factors in the EPANET adapter.
+inline constexpr double epanet_cubic_metres_per_hour_per_cfs =
+    cubicFeetPerSecondToCubicMetresPerHour(1.0);
+inline constexpr double epanet_gallons_per_minute_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / usGallonsPerMinuteToCubicMetresPerHour(1.0);
+inline constexpr double epanet_acre_feet_per_day_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / acreFeetPerDayToCubicMetresPerHour(1.0);
+inline constexpr double epanet_million_gallons_per_day_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / millionUsGallonsPerDayToCubicMetresPerHour(1.0);
+inline constexpr double epanet_imperial_million_gallons_per_day_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / millionImperialGallonsPerDayToCubicMetresPerHour(1.0);
+inline constexpr double epanet_litres_per_second_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / litresPerSecondToCubicMetresPerHour(1.0);
+inline constexpr double epanet_litres_per_minute_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / litresPerMinuteToCubicMetresPerHour(1.0);
+inline constexpr double epanet_cubic_metres_per_second_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / cubicMetresPerSecondToCubicMetresPerHour(1.0);
+inline constexpr double epanet_cubic_metres_per_day_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / cubicMetresPerDayToCubicMetresPerHour(1.0);
+inline constexpr double epanet_million_litres_per_day_per_cfs =
+    epanet_cubic_metres_per_hour_per_cfs / millionLitresPerDayToCubicMetresPerHour(1.0);
 
 // Each scale converts a unit to the common physical reference for its dimension.
 // Quantity validation is essential: the same scale does not make unrelated
