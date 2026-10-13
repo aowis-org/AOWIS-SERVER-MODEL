@@ -14,6 +14,11 @@ namespace aowis::units
 inline constexpr double metres_per_international_foot = 0.3048;
 inline constexpr double metres_per_us_survey_foot = 1200.0 / 3937.0;
 inline constexpr double metres_per_inch = 0.0254;
+inline constexpr double metres_per_centimetre = 0.01;
+inline constexpr double square_metres_per_square_foot =
+    metres_per_international_foot * metres_per_international_foot;
+inline constexpr double square_metres_per_square_centimetre =
+    metres_per_centimetre * metres_per_centimetre;
 inline constexpr double cubic_metres_per_us_gallon = 0.003785411784;
 inline constexpr double cubic_metres_per_imperial_gallon = 0.00454609;
 inline constexpr double pascals_per_psi = 6894.757293168361; // Derived from exact lbf/in² definitions.
@@ -191,7 +196,7 @@ inline constexpr UnitScale unit_scales[] = {
     {"millift", 0.0003048},
     {"deg", 1.0},
     {"m2", 1.0},
-    {"ft2", metres_per_international_foot * metres_per_international_foot},
+    {"ft2", square_metres_per_square_foot},
     {"ha", 10000.0},
     {"acre", 4046.8564224},
     {"m3", 1.0},
@@ -213,7 +218,7 @@ inline constexpr UnitScale unit_scales[] = {
     {"m/s", 1.0},
     {"ft/s", metres_per_international_foot},
     {"m2/s", 1.0},
-    {"cm2/s", 0.0001},
+    {"cm2/s", square_metres_per_square_centimetre},
     {"m/km", 0.001},
     {"ft/1000ft", 0.001},
     {"kPa", 1000.0},

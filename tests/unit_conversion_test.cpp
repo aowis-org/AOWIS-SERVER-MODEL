@@ -22,6 +22,8 @@ int main()
     };
     check(near(u::feetToMetres(1.0), 0.3048));
     check(near(u::inchesToMillimetres(1.0), 25.4));
+    check(near(u::square_metres_per_square_foot, 0.09290304));
+    check(near(u::square_metres_per_square_centimetre, 0.0001));
     check(near(u::cubicFeetToCubicMetres(1.0), 0.028316846592));
     check(near(u::usGallonsToCubicMetres(1.0), 0.003785411784));
     check(near(u::millionUsGallonsPerDayToCubicMetresPerHour(1.0), 157.725491));
