@@ -245,7 +245,7 @@ int main()
             check(preset.overrides.find(coordinate) == preset.overrides.end());
             check(u::resolvedUnit(preset, coordinate) == "m");
         }
-        check(preset.overrides.find("altitude") == preset.overrides.end());
+        check(u::resolvedUnit(preset, "altitude") == "ft");
     }
     // Metric flow presets must not acquire Imperial geometry or stress.
     for (std::size_t index = 0; index < 6; ++index) {

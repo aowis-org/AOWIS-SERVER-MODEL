@@ -224,6 +224,7 @@ struct UnitProfile {
         constexpr std::pair<std::string_view, std::string_view> imperial_units[] = {
             {"length", "ft"},
             {"elevation", "ft"},
+            {"altitude", "ft"},
             {"distance", "ft"},
             {"vertical_offset", "ft"},
             {"link_diameter", "in"},
