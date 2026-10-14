@@ -249,8 +249,8 @@ int main()
         {"tank_minimum_volume", "ft3"},
         {"head_loss_gradient", "ft/1000ft"},
         {"first_order_wall_reaction_coefficient", "ft/d"},
-        {"leak_area_per_100m_pipe_length", "in2/(100.ft)"},
-        {"leak_area_expansion_per_pressure_head", "in2/ft"},
+        {"leak_area_per_100m_pipe_length", "mm2/(100.ft)"},
+        {"leak_area_expansion_per_pressure_head", "mm2/ft"},
         {"energy_intensity", "kW.h/ft3"},
         {"stress", "psi"},
     };
@@ -296,6 +296,34 @@ int main()
     check(near(*u::convert("leak_area_per_100m_pipe_length", 1.0,
                            "in2/(100.ft)", "mm2/(100.m)"),
                645.16 / 0.3048));
+    // EPANET's US leakage units retain mm² for area, using ft for lengths.
+    // Canonical leakage storage remains mm²/(100 m) and mm²/m.
+    check(u::isAllowedUnit("leak_area_per_100m_pipe_length", "mm2/(100.ft)"));
+    check(u::isAllowedUnit("leak_area_expansion_per_pressure_head", "mm2/ft"));
+    check(near(*u::convert("leak_area_per_100m_pipe_length", 1.0,
+                           "mm2/(100.ft)", "mm2/(100.m)"),
+               1.0 / u::metres_per_international_foot));
+    check(near(*u::convert("leak_area_per_100m_pipe_length", 1.0,
+                           "mm2/(100.m)", "mm2/(100.ft)"),
+               u::metres_per_international_foot));
+    check(near(*u::convert("leak_area_expansion_per_pressure_head", 1.0,
+                           "mm2/ft", "mm2/m"),
+               1.0 / u::metres_per_international_foot));
+    check(near(*u::convert("leak_area_expansion_per_pressure_head", 1.0,
+                           "mm2/m", "mm2/ft"),
+               u::metres_per_international_foot));
+    // Keep previously stored custom inch-area choices valid and convertible.
+    check(u::isAllowedUnit("leak_area_per_100m_pipe_length", "in2/(100.ft)"));
+    check(u::isAllowedUnit("leak_area_expansion_per_pressure_head", "in2/ft"));
+    check(near(*u::convert("leak_area_per_100m_pipe_length", 1.0,
+                           "in2/(100.ft)", "mm2/(100.ft)"), 645.16));
+    check(near(*u::convert("leak_area_expansion_per_pressure_head", 1.0,
+                           "in2/ft", "mm2/ft"), 645.16));
+    for (std::size_t index = 6; index < u::flow_template_names.size(); ++index) {
+        const u::UnitProfile imperial = u::flowTemplateProfile(index);
+        check(u::resolvedUnit(imperial, "leak_area_per_100m_pipe_length") == "mm2/(100.ft)");
+        check(u::resolvedUnit(imperial, "leak_area_expansion_per_pressure_head") == "mm2/ft");
+    }
     check(!u::convert("pressure", 1.0, "m", "kPa"));
     check(!u::convert("missing", 1.0, "m", "m"));
     check(!u::convert("pressure", std::numeric_limits<double>::infinity(), "kPa", "psi"));

@@ -243,8 +243,11 @@ inline constexpr UnitScale unit_scales[] = {
     {"mg/m2/s", 0.000001},
     {"g/m2/d", 0.001 / seconds_per_day},
     {"mm2/(100.m)", 0.001 * 0.001 / 100.0},
+    // EPANET US leakage still measures area in mm², but length in feet.
+    {"mm2/(100.ft)", 0.001 * 0.001 / (100.0 * metres_per_international_foot)},
     {"in2/(100.ft)", metres_per_inch * metres_per_inch / (100.0 * metres_per_international_foot)},
     {"mm2/m", 0.001 * 0.001},
+    {"mm2/ft", 0.001 * 0.001 / metres_per_international_foot},
     {"in2/ft", metres_per_inch * metres_per_inch / metres_per_international_foot},
     {"mg/L", 0.001},
     {"g/m3", 0.001},
