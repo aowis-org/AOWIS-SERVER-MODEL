@@ -97,7 +97,25 @@ int main()
     // EPANET-compatible hydraulic-head presentation must invert import
     // exactly (including specific gravity). Physical pressure stays exact SI.
     const double one_metre_psi = 0.4333 / 0.3048;
-    check(near(*u::convert("pressure_head", 1.0, "m", "psi"), one_metre_psi));
+    // Omitted specific gravity must never silently mean 1.0 for hydraulic head.
+    check(!u::convert("pressure_head", 1.0, "m", "psi"));
+    check(!u::convert("pressure_head", 1.0, "m", "ft"));
+    check(!u::convert("pressure_head", 1.0, "m", "m"));
+    check(!u::toCanonical("pressure_head", one_metre_psi, "psi"));
+    check(!u::fromCanonical("pressure_head", 1.0, "psi"));
+    check(!u::toCanonical("pressure_head", 1.0, "m"));
+    check(!u::fromCanonical("pressure_head", 1.0, "m"));
+    check(near(*u::convert("pressure_head", 1.0, "m", "psi", 1.0), one_metre_psi));
+    check(near(*u::fromCanonical("pressure_head", 1.0, "psi", 1.2), one_metre_psi * 1.2));
+    check(near(*u::toCanonical("pressure_head", one_metre_psi * 1.2, "psi", 1.2), 1.0));
+    check(near(*u::fromCanonical("pressure_head", 1.0, "ft", 1.2),
+               1.0 / u::metres_per_international_foot));
+    check(!u::fromCanonical("pressure_head", 1.0, "psi", 0.0));
+    check(!u::toCanonical("pressure_head", one_metre_psi, "psi", -1.0));
+    // The no-SG convenience paths still work for non-pressure quantities.
+    check(near(*u::convert("pressure", 1.0, "bar", "kPa"), 100.0));
+    check(near(*u::toCanonical("length", 1.0, "ft"), 0.3048));
+    check(near(*u::fromCanonical("length", 1.0, "ft"), 1.0 / 0.3048));
     check(near(*u::convert("pressure_head", 1.0, "m", "psi", 1.2), one_metre_psi * 1.2));
     // Profile-based conversions must use the supplied project-specific gravity.
     const u::UnitProfile pressure_profile = u::flowTemplateProfile(8);
@@ -118,9 +136,9 @@ int main()
     check(near(*u::convert("pressure_head", 1.0, "ft", "kPa", 1.2),
                0.4333 * 6.895 * 1.2));
     check(near(*u::convert("pressure_head", 1.0, "psi", "bar", 1.2), 0.068948));
-    check(near(*u::convert("pressure_head", 1.0, "psi", "kPa"), 6.895));
-    check(near(*u::convert("pressure_head", 1.0, "bar", "psi"), 1.0 / 0.068948));
-    check(near(*u::convert("pressure_head", 1.0, "kPa", "Pa"), 1000.0));
+    check(near(*u::convert("pressure_head", 1.0, "psi", "kPa", 1.0), 6.895));
+    check(near(*u::convert("pressure_head", 1.0, "bar", "psi", 1.0), 1.0 / 0.068948));
+    check(near(*u::convert("pressure_head", 1.0, "kPa", "Pa", 1.0), 1000.0));
     for (const std::string_view unit : {"psi", "kPa", "bar", "Pa"}) {
         for (const double sg : {1.0, 1.2}) {
             const double head = *u::convert("pressure_head", 60.0, unit, "m", sg);
@@ -182,9 +200,13 @@ int main()
         while (!choices.empty()) {
             const std::size_t end = choices.find(';');
             const std::string_view unit = choices.substr(0, end);
-            const std::optional<double> forward = u::fromCanonical(field.key, 123.456789, unit);
+            const std::optional<double> forward = field.key == "pressure_head"
+                ? u::fromCanonical(field.key, 123.456789, unit, 1.2)
+                : u::fromCanonical(field.key, 123.456789, unit);
             check(forward.has_value());
-            const std::optional<double> reverse = u::toCanonical(field.key, *forward, unit);
+            const std::optional<double> reverse = field.key == "pressure_head"
+                ? u::toCanonical(field.key, *forward, unit, 1.2)
+                : u::toCanonical(field.key, *forward, unit);
             check(reverse.has_value() && near(*reverse, 123.456789));
             if (end == std::string_view::npos) break;
             choices.remove_prefix(end + 1);

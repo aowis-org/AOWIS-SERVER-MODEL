@@ -294,7 +294,7 @@ inline constexpr UnitScale unit_scales[] = {
 [[nodiscard]] inline std::optional<double> convert(
     std::string_view quantity, double value,
     std::string_view from_unit, std::string_view to_unit,
-    double specific_gravity = 1.0) noexcept
+    double specific_gravity) noexcept
 {
     if (!isAllowedUnit(quantity, from_unit) || !isAllowedUnit(quantity, to_unit)
         || !std::isfinite(value)) return std::nullopt;
@@ -323,6 +323,17 @@ inline constexpr UnitScale unit_scales[] = {
     return result;
 }
 
+// The convenience API is for quantities whose conversions do not depend on
+// fluid density. Hydraulic head requires the caller to supply specific gravity
+// explicitly, even when only converting between length units.
+[[nodiscard]] inline std::optional<double> convert(
+    std::string_view quantity, double value,
+    std::string_view from_unit, std::string_view to_unit) noexcept
+{
+    if (quantity == "pressure_head") return std::nullopt;
+    return convert(quantity, value, from_unit, to_unit, 1.0);
+}
+
 [[nodiscard]] inline std::optional<double> toCanonical(
     std::string_view quantity, double value, std::string_view source_unit) noexcept
 {
@@ -333,6 +344,21 @@ inline constexpr UnitScale unit_scales[] = {
     std::string_view quantity, double value, std::string_view destination_unit) noexcept
 {
     return convert(quantity, value, canonicalUnit(quantity), destination_unit);
+}
+
+// Explicit-SG plain-unit overloads are also valid for non-pressure quantities.
+[[nodiscard]] inline std::optional<double> toCanonical(
+    std::string_view quantity, double value, std::string_view source_unit,
+    double specific_gravity) noexcept
+{
+    return convert(quantity, value, source_unit, canonicalUnit(quantity), specific_gravity);
+}
+
+[[nodiscard]] inline std::optional<double> fromCanonical(
+    std::string_view quantity, double value, std::string_view destination_unit,
+    double specific_gravity) noexcept
+{
+    return convert(quantity, value, canonicalUnit(quantity), destination_unit, specific_gravity);
 }
 
 // A profile may select a pressure unit for hydraulic head. Require callers to
