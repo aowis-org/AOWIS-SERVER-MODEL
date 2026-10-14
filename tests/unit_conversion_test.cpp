@@ -1,4 +1,5 @@
 #include <aowis/model/units/conversion.h>
+#include <aowis/model/units/quantity.h>
 #include <aowis/model/units/unit_profile.h>
 #include <algorithm>
 #include <cstdlib>
@@ -8,6 +9,10 @@
 #include <functional>
 
 namespace u = aowis::units;
+
+static_assert(aowis::units::Quantity{"pressure_head"}.view() == "pressure_head");
+static_assert(aowis::units::Quantity{"volumetric_flow_rate"}.view() == "volumetric_flow_rate");
+static_assert(std::string_view(AOWIS_QUANTITY("altitude")) == "altitude");
 
 int main()
 {
