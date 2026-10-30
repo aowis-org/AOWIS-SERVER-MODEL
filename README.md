@@ -164,3 +164,9 @@ Changes to the wiki specification that affect the concrete data model should be 
 ## License
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE).
+
+## Canonical serialization and offline editing
+
+The canonical typed binary entity codec, validation and model-level merge logic live
+in MODEL, alongside [reversible editing transactions](docs/edit-transactions.md).
+See [serialization ownership and pre-release format policy](docs/model-serialization.md).

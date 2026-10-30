@@ -14,6 +14,9 @@ add_library(aowis-server-model STATIC
     src/uuid.cpp
     src/hydraulic_pipe_materials.cpp
     src/model_edit_transaction.cpp
+    src/model_codec.cpp
+    src/model_validation.cpp
+    src/model_value_validation.cpp
 
     include/aowis/model/units/canonical_registry.h
     include/aowis/model/units/quantity.h
@@ -25,6 +28,9 @@ add_library(aowis-server-model STATIC
     include/aowis/model/revision.h
     include/aowis/model/uuid.h
     include/aowis/model/edit/model_edit_transaction.h
+    include/aowis/model/serialization/model_codec.h
+    include/aowis/model/serialization/model_validation.h
+    include/aowis/model/serialization/model_field_merge.h
 
     include/aowis/model/hydraulic/hydraulic_controls.h
     include/aowis/model/hydraulic/hydraulic_curves.h
@@ -44,6 +50,38 @@ add_library(aowis-server-model STATIC
 
     include/aowis/model/measurement/water_meter.h
 )
+
+# MODEL owns its schema manifest and checks. Every model consumer sees the
+# same typed codec and value rules; no dependent repository generates them.
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(AOWIS_MODEL_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(GLOB_RECURSE AOWIS_MODEL_SCHEMA_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/aowis/model/*.h")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    ${AOWIS_MODEL_SCHEMA_HEADERS}
+    "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_model_codec.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/model_codec_fields.json"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/model_codec.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/model_value_validation.cpp")
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_model_codec.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/aowis/model"
+        "${CMAKE_CURRENT_SOURCE_DIR}/docs/model_codec_fields.json"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/model_codec.cpp"
+        --value-rules "${CMAKE_CURRENT_SOURCE_DIR}/src/model_value_validation.cpp"
+        --emit-enums "${AOWIS_MODEL_GENERATED_DIR}/model_enum_values.inc"
+    RESULT_VARIABLE AOWIS_MODEL_CODEC_SCHEMA_RESULT
+    OUTPUT_VARIABLE AOWIS_MODEL_CODEC_SCHEMA_OUTPUT
+    ERROR_VARIABLE AOWIS_MODEL_CODEC_SCHEMA_ERROR)
+if(NOT AOWIS_MODEL_CODEC_SCHEMA_RESULT EQUAL 0)
+    message(FATAL_ERROR "Model serializer schema mismatch:\n${AOWIS_MODEL_CODEC_SCHEMA_ERROR}")
+endif()
+message(STATUS "AOWIS MODEL codec: ${AOWIS_MODEL_CODEC_SCHEMA_OUTPUT}")
+target_include_directories(aowis-server-model PRIVATE "${AOWIS_MODEL_GENERATED_DIR}")
+# Used only by existing downstream enum-verification regression tests.
+set_property(TARGET aowis-server-model PROPERTY
+    AOWIS_MODEL_ENUM_DIR "${AOWIS_MODEL_GENERATED_DIR}")
 
 add_library(AOWIS::ServerModel ALIAS aowis-server-model)
 add_library(AOWIS::Model ALIAS aowis-server-model)
@@ -106,4 +144,13 @@ if(BUILD_TESTING)
     target_compile_features(aowis-model-edit-transaction-test PRIVATE cxx_std_20)
     target_link_libraries(aowis-model-edit-transaction-test PRIVATE AOWIS::Model)
     add_test(NAME aowis-model-edit-transaction COMMAND aowis-model-edit-transaction-test)
+
+    add_executable(aowis-model-canonical-codec-test tests/model_canonical_codec_test.cpp)
+    target_compile_features(aowis-model-canonical-codec-test PRIVATE cxx_std_20)
+    target_link_libraries(aowis-model-canonical-codec-test PRIVATE AOWIS::Model)
+    add_test(NAME aowis-model-canonical-codec COMMAND aowis-model-canonical-codec-test)
+
+    add_test(NAME aowis-model-codec-schema-check
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/check_model_codec_tests.py"
+            "${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
