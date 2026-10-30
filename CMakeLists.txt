@@ -13,6 +13,7 @@ add_library(aowis-server-model STATIC
     src/model.cpp
     src/uuid.cpp
     src/hydraulic_pipe_materials.cpp
+    src/model_edit_transaction.cpp
 
     include/aowis/model/units/canonical_registry.h
     include/aowis/model/units/quantity.h
@@ -23,6 +24,7 @@ add_library(aowis-server-model STATIC
     include/aowis/model/project.h
     include/aowis/model/revision.h
     include/aowis/model/uuid.h
+    include/aowis/model/edit/model_edit_transaction.h
 
     include/aowis/model/hydraulic/hydraulic_controls.h
     include/aowis/model/hydraulic/hydraulic_curves.h
@@ -90,10 +92,18 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/AOWISServerModel
 )
 
+# Standalone MODEL builds must register their own tests as well.
+include(CTest)
+
 # Lightweight dependency-free unit conversion regression test.
 if(BUILD_TESTING)
     add_executable(aowis-model-unit-conversion-test tests/unit_conversion_test.cpp)
     target_compile_features(aowis-model-unit-conversion-test PRIVATE cxx_std_20)
     target_include_directories(aowis-model-unit-conversion-test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
     add_test(NAME aowis-model-unit-conversion COMMAND aowis-model-unit-conversion-test)
+
+    add_executable(aowis-model-edit-transaction-test tests/model_edit_transaction_test.cpp)
+    target_compile_features(aowis-model-edit-transaction-test PRIVATE cxx_std_20)
+    target_link_libraries(aowis-model-edit-transaction-test PRIVATE AOWIS::Model)
+    add_test(NAME aowis-model-edit-transaction COMMAND aowis-model-edit-transaction-test)
 endif()

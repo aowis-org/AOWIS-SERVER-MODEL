@@ -36,6 +36,7 @@ The canonical units and quantity identifiers are defined by the AOWIS measuremen
 
 ```text
 include/aowis/model/
+├── edit/              Logical reversible model-edit transactions
 ├── electric/          Reserved for electrical domain models
 ├── hydraulic/        Hydraulic network and simulation-domain models
 ├── measurement/      Measurement-device models
@@ -45,6 +46,16 @@ include/aowis/model/
 ```
 
 The public headers under `include/aowis/model` form the consumable model API.
+
+## Offline-first editing transactions
+
+`include/aowis/model/edit/model_edit_transaction.h` defines atomic, reversible
+model-edit events with a compact deterministic binary envelope and SHA-256
+integrity check. See [docs/edit-transactions.md](docs/edit-transactions.md) for
+format and offline queue semantics. The authoritative typed entity codec is
+currently being moved out of DVMDB into MODEL; until then this new envelope
+accepts already encoded entity images and does not duplicate entity encoding.
+
 
 ## Solver-Neutral Boundary
 
