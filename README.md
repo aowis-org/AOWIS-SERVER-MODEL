@@ -165,6 +165,29 @@ Changes to the wiki specification that affect the concrete data model should be 
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE).
 
+## Source ZIPs and development patches
+
+From the root of `AOWIS-SERVER-MODEL`, create a complete source snapshot for
+sharing and review (by default written next to the repository as `model.zip`):
+
+```bash
+./tools/zip_model.sh
+```
+
+Apply a patch ZIP and automatically refresh that source snapshot:
+
+```bash
+./tools/apply_patch.sh ~/Downloads/aowis-server-model-<description>.zip
+```
+
+Only patch filenames beginning with `aowis-server-model-` are accepted. Patch
+entries must be rooted at `AOWIS-SERVER-MODEL/`; patches contain only changed
+or added files. Optional `.aowis-patch-delete.txt` lists obsolete relative paths
+to remove, one per line. The patch script refreshes modified-file timestamps so
+incremental CMake/Ninja builds see the changes. A source snapshot includes
+tracked and non-ignored new files, but excludes Git metadata and ignored build
+outputs. MODEL can use the same scripts when checked out as a Git submodule.
+
 ## Canonical serialization and offline editing
 
 The canonical typed binary entity codec, validation and model-level merge logic live

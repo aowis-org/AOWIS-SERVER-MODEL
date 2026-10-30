@@ -150,6 +150,10 @@ if(BUILD_TESTING)
     target_link_libraries(aowis-model-canonical-codec-test PRIVATE AOWIS::Model)
     add_test(NAME aowis-model-canonical-codec COMMAND aowis-model-canonical-codec-test)
 
+    add_test(NAME aowis-model-patch-tooling
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/model_patch_tooling_test.py"
+            "${CMAKE_CURRENT_SOURCE_DIR}")
+
     add_test(NAME aowis-model-codec-schema-check
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/check_model_codec_tests.py"
             "${CMAKE_CURRENT_SOURCE_DIR}")
