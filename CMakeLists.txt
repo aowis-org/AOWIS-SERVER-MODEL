@@ -28,6 +28,7 @@ add_library(aowis-server-model STATIC
     include/aowis/model/revision.h
     include/aowis/model/uuid.h
     include/aowis/model/edit/model_edit_transaction.h
+    include/aowis/model/edit/hydraulic_root_edit.h
     include/aowis/model/serialization/model_codec.h
     include/aowis/model/serialization/model_validation.h
     include/aowis/model/serialization/model_field_merge.h
