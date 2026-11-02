@@ -14,7 +14,7 @@ namespace aowis::model {
 
 struct ModelEntityEdit final
 {
-    QUuid entityId;
+    QUuid entityId;      // Model key: any non-null UUID (imported entities are UUIDv5).
     QString entityType;
     std::optional<QByteArray> before;
     std::optional<QByteArray> after;

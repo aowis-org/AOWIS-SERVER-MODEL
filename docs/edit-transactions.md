@@ -7,7 +7,9 @@ revision-control Commit. A model is materialized by applying its edits in order.
 ## Canonical transaction envelope (`AOWE`, version 1)
 
 The MODEL library owns this wire format. All integers are unsigned big-endian;
-UUIDs are the 16 RFC 4122 bytes of UUIDv7. Strings are UTF-8, length-prefixed
+UUIDs are 16 RFC 4122 bytes. The transaction UUID is a UUIDv7; entity UUIDs
+are model keys and may be any non-null UUID (EPANET imports use deterministic
+UUIDv5 keys; editor-created entities use UUIDv7). Strings are UTF-8, length-prefixed
 with a 16-bit byte count. Every transaction is encoded deterministically:
 
 ```
@@ -19,8 +21,8 @@ payload:
   operation name   u16 length + UTF-8 (max 128 bytes; ASCII identifier)
   description      u16 length + UTF-8 (max 512 bytes; display only)
   edit count       u16 (1..4096)
-  edits, canonically sorted ascending by UUIDv7, unique:
-    entity UUID     16 bytes
+  edits, canonically sorted ascending by entity UUID bytes, unique:
+    entity UUID     16 bytes (non-null; any version)
     entity type     u16 length + UTF-8 (max 128 bytes; ASCII identifier)
     before image    u32 length + bytes, or 0xffffffff for absent
     after image     u32 length + bytes, or 0xffffffff for absent

@@ -90,6 +90,43 @@ int main()
     transaction.transactionId = id("000000000003");
     transaction.edits[0].after = QByteArray(1024 * 1024 + 1, 'x');
     require(ModelEditTransactionCodec::encode(transaction).isEmpty(), "oversized entity payload rejected");
+    transaction.edits[0].after = QByteArray("new", 3);
+
+    // Imported EPANET entities carry deterministic UUIDv5 model keys and
+    // older MODEL data may carry UUIDv4: editing them must be representable.
+    ModelEditTransaction imported;
+    imported.transactionId = id("000000000010");
+    imported.operation = QStringLiteral("hydraulic.pipe.diameter");
+    imported.edits = {
+        ModelEntityEdit{QUuid(QStringLiteral("6f1c2d3e-4b5a-5c6d-9e8f-0a1b2c3d4e5f")),
+                        QStringLiteral("HydraulicLinkPipe"), QByteArray("d100", 4), QByteArray("d150", 4)},
+        ModelEntityEdit{QUuid(QStringLiteral("1b2c3d4e-5f60-4172-8a93-b4c5d6e7f809")),
+                        QStringLiteral("HydraulicNodeJunction"), QByteArray("n", 1), std::nullopt}
+    };
+    const QByteArray imported_frame = ModelEditTransactionCodec::encode(imported, &error);
+    require(!imported_frame.isEmpty() && error.isEmpty(), "UUIDv5/UUIDv4 entity keys encode");
+    const std::optional<ModelEditTransaction> imported_decoded =
+        ModelEditTransactionCodec::decode(imported_frame, &error);
+    require(imported_decoded.has_value() && error.isEmpty() &&
+            imported_decoded->edits.size() == 2 &&
+            ModelEditTransactionCodec::encode(*imported_decoded) == imported_frame,
+            "UUIDv5/UUIDv4 entity keys round-trip byte-exactly");
+    imported.edits[1].entityId = QUuid();
+    require(ModelEditTransactionCodec::encode(imported).isEmpty(), "null entity UUID rejected");
+    imported.edits[1].entityId = QUuid(QStringLiteral("1b2c3d4e-5f60-4172-8a93-b4c5d6e7f809"));
+    imported.transactionId = QUuid(QStringLiteral("6f1c2d3e-4b5a-5c6d-9e8f-0a1b2c3d4e5f"));
+    require(ModelEditTransactionCodec::encode(imported).isEmpty(),
+            "transaction UUID must still be UUIDv7");
+
+    // A frame with a null entity UUID is rejected by decode, too.
+    QByteArray null_entity = frame;
+    // payload: 16 transaction + (2 + operation) + (2 + description) + 2 count
+    const qsizetype first_entity = 9 + 16 + 2 + QByteArray("hydraulic.pipe.split").size() + 2 +
+        QString::fromUtf8("Split pipe – Prüfstelle").toUtf8().size() + 2;
+    null_entity.replace(first_entity, 16, QByteArray(16, '\0'));
+    seal(null_entity);
+    require(!ModelEditTransactionCodec::decode(null_entity).has_value(), "null entity UUID rejected on decode");
+
     std::cout << "Model edit transaction codec checks passed\n";
     return EXIT_SUCCESS;
 }

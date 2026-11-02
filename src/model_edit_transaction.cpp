@@ -37,6 +37,18 @@ bool uuidV7(const QUuid &uuid)
         ((static_cast<unsigned char>(value.at(8)) & 0xc0u) == 0x80u);
 }
 
+// Entity identities are model keys, not editor-generated event identities.
+// Networks imported from EPANET carry deterministic UUIDv5 entity keys (and
+// older MODEL data may carry other versions); DVMDB and the GUI accept any
+// non-null canonical UUID as a model key. Requiring UUIDv7 here made every
+// edit of such an entity fail at capture time. The transaction UUID, which
+// the editor creates for each event and DVMDB uses as its retry key, stays
+// UUIDv7.
+bool entityUuid(const QUuid &uuid)
+{
+    return !uuid.isNull();
+}
+
 bool asciiIdentifier(const QString &name)
 {
     if (name.isEmpty()) return false;
@@ -175,10 +187,10 @@ QByteArray ModelEditTransactionCodec::encode(const ModelEditTransaction &transac
     QByteArray lastId;
     for (const ModelEntityEdit &edit : edits) {
         const QByteArray id = edit.entityId.toRfc4122();
-        if (!uuidV7(edit.entityId) || (!lastId.isEmpty() && id <= lastId) ||
+        if (!entityUuid(edit.entityId) || (!lastId.isEmpty() && id <= lastId) ||
             !asciiIdentifier(edit.entityType) || (!edit.before && !edit.after) ||
             (edit.before && edit.after && *edit.before == *edit.after)) {
-            failure(error, QStringLiteral("Entity edits must be valid, changed and have unique UUIDv7"));
+            failure(error, QStringLiteral("Entity edits must be valid, changed and have unique non-null UUIDs"));
             return {};
         }
         lastId = id;
@@ -241,7 +253,7 @@ std::optional<ModelEditTransaction> ModelEditTransactionCodec::decode(const QByt
             if (!reader.readBytes(16, currentId) || (!lastId.isEmpty() && currentId <= lastId)) goto invalid;
             lastId = currentId;
             edit.entityId = QUuid::fromRfc4122(currentId);
-            if (!uuidV7(edit.entityId) || !readUtf8(reader, maxTypeBytes, edit.entityType) ||
+            if (!entityUuid(edit.entityId) || !readUtf8(reader, maxTypeBytes, edit.entityType) ||
                 !asciiIdentifier(edit.entityType) || !readImage(reader, edit.before) ||
                 !readImage(reader, edit.after) || (!edit.before && !edit.after) ||
                 (edit.before && edit.after && *edit.before == *edit.after)) goto invalid;
