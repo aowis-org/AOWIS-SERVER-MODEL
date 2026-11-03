@@ -54,16 +54,51 @@ Only before+after root updates are permitted. The network UUID cannot
 change; its human-readable `id` may be renamed (subject to validation). The server verifies the before-image against its current native
 manifest, validates the resulting complete network and creates the native
 manifest record **itself** under the ordinary working-copy lease/generation
-fence. The GUI sends a single root-only event with an empty `changes` array,
-never native manifest bytes or membership intents. DVMDB appends the event and
-persists the manifest as one atomic candidate update, retaining all native
-membership chunks. A replay uses the logical-request fingerprint and journal
+fence. The GUI may include a root edit in a single MODEL event with ordinary typed
+entity edits and membership intents; the server remains responsible for
+materializing the manifest. A root-only event has empty `changes` and
+`membership` arrays. DVMDB appends the event and persists the final manifest
+as one atomic candidate update, retaining all native membership chunks. A replay uses the logical-request fingerprint and journal
 identity for confirmation. The event does not create a revision; Commit does.
 
 The GUI captures root changes using the same durable event queue as entity
 edits. Editing controls must use `HydraulicData::setNetworkRootMetadata` (or a
 specialized setter such as `setSimulationHeadlossFormula`); direct mutation of
 the in-memory root without capturing an event is not an accepted private edit.
+
+### HIST-01: Canonical inverse and redo events
+
+The production library exposes `aowis/model/edit/model_edit_history.h`:
+
+- `ModelEditHistory::inverse(original, newTransactionUuidV7)` produces a new
+  `history.undo` event with every before/after image exchanged. A creation
+  becomes a deletion, a deletion becomes a creation and an update swaps its
+  canonical images. The original event bytes are never modified.
+- `ModelEditHistory::redo(original, newTransactionUuidV7)` produces a new
+  `history.redo` event with the original forward images. Its transaction UUID
+  must be fresh; it is **not** an idempotent resend of the original action.
+- `ModelEditHistory::apply(event, ModelHistoryImageMap&, error)` applies typed
+  canonical images to an in-memory map using strict before-image comparison
+  (including type identity and absent/present status). Either every edit
+  applies, or the input map stays unchanged; an already-applied event or stale
+  before-image is rejected. This helper is useful for deterministic MODEL
+  regression tests and future history navigation planning.
+
+Both generated events are encoded with the **existing** canonical `AOWE`
+version-1 frame and retain all source entity identities, including imported
+UUIDv4/UUIDv5 model keys. Only new transaction IDs require UUIDv7.
+Transaction metadata references to the original action, cursor position and
+Commit checkpoints belong to the future DVMDB history journal; this API does
+not invent a history archive or enable GUI Undo/Redo by itself.
+
+**Important validation boundary:** `apply` works with already validated
+canonical image bytes. It does not decode every MODEL type, enforce hydraulic
+reference consistency, update DVMDB membership chunks, or provide a durable
+fenced Save. Callers must still pass generated events through the existing
+model-specific validation and the normal DVMDB Save pipeline. Model-level
+regressions cover all 18 hydraulic entity types, root metadata and mixed
+create/update/delete actions, along with exact inverse/redo and atomic
+failure behavior. Full GUI/DVMDB integration remains future HIST work.
 
 ### Poor connectivity
 

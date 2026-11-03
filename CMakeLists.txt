@@ -14,6 +14,7 @@ add_library(aowis-server-model STATIC
     src/uuid.cpp
     src/hydraulic_pipe_materials.cpp
     src/model_edit_transaction.cpp
+    src/model_edit_history.cpp
     src/model_codec.cpp
     src/model_validation.cpp
     src/model_value_validation.cpp
@@ -28,6 +29,7 @@ add_library(aowis-server-model STATIC
     include/aowis/model/revision.h
     include/aowis/model/uuid.h
     include/aowis/model/edit/model_edit_transaction.h
+    include/aowis/model/edit/model_edit_history.h
     include/aowis/model/edit/hydraulic_root_edit.h
     include/aowis/model/serialization/model_codec.h
     include/aowis/model/serialization/model_validation.h
@@ -145,6 +147,11 @@ if(BUILD_TESTING)
     target_compile_features(aowis-model-edit-transaction-test PRIVATE cxx_std_20)
     target_link_libraries(aowis-model-edit-transaction-test PRIVATE AOWIS::Model)
     add_test(NAME aowis-model-edit-transaction COMMAND aowis-model-edit-transaction-test)
+
+    add_executable(aowis-model-edit-history-test tests/model_edit_history_test.cpp)
+    target_compile_features(aowis-model-edit-history-test PRIVATE cxx_std_20)
+    target_link_libraries(aowis-model-edit-history-test PRIVATE AOWIS::Model)
+    add_test(NAME aowis-model-edit-history COMMAND aowis-model-edit-history-test)
 
     add_executable(aowis-model-canonical-codec-test tests/model_canonical_codec_test.cpp)
     target_compile_features(aowis-model-canonical-codec-test PRIVATE cxx_std_20)
