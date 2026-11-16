@@ -28,7 +28,27 @@ Configure-time `tools/check_model_codec.py` verifies fields and numeric rules.
 `NetworkHydraulic::presentation_units` (`NetworkPresentationUnits`, empty by
 default) stores the network's presentation units: a name, the informational
 id of the profile it was copied from, and a sorted list of
-`{quantity, unit}` choices. It is root metadata, so it is versioned, committed,
-transferred and merged with the network root exactly like titles and
-simulation options. It is a self-contained copy, never a profile reference,
+`{quantity, unit}` choices. It is root metadata, so it is versioned, committed and
+transferred with the network root, and merged **per quantity** (see below). It is a self-contained copy, never a profile reference,
 and it never alters a stored value: every measurement stays canonical.
+
+## Network-root field merge
+
+`mergeModelFields(uuid, "hydraulic.network_root", base, left, right, choices)`
+merges three network-root metadata images (collections are never part of a
+root image; their membership merges separately in DVMDB). Independent changes
+combine; only a field changed differently on both branches conflicts, and an
+explicit choice for exactly that field name resolves it.
+
+| Part | Conflict granularity (field name) |
+|---|---|
+| Scalar root fields | each field (`title_line_1`, `duration_s`, `report_statistic`, …) |
+| `options_hydraulic`, `options_reaction`, `options_energy`, `options_report`, `map_backdrop` | each field of the group (`options_hydraulic.accuracy`, `map_backdrop.file`, …) |
+| `multi_species` | the whole group (its lists have no stable per-field identity) |
+| Project units | `presentation_units.name`, `presentation_units.derived_from_profile`, each quantity `presentation_units.units.<quantity>`; adding/removing the whole set while the other branch changed it: `presentation_units` |
+
+A quantity removed on one branch and unchanged on the other is removed;
+quantities added on both branches combine. `tools/check_model_codec.py` fails
+the build if a root field, or a field of a decomposed group, is missing from
+`mergeNetworkRootFields()`. A merged root is still revalidated as a whole
+network before DVMDB publishes it.

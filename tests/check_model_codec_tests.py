@@ -13,11 +13,11 @@ import sys
 import tempfile
 
 
-def run(source, *arguments, model=None, rules=None):
+def run(source, *arguments, model=None, rules=None, codec=None):
     command = [sys.executable, str(source / 'tools/check_model_codec.py'),
                str(model or source / 'include/aowis/model'),
                str(source / 'docs/model_codec_fields.json'),
-               str(source / 'src/model_codec.cpp'),
+               str(codec or source / 'src/model_codec.cpp'),
                '--value-rules', str(rules or source / 'src/model_value_validation.cpp')]
     command.extend(arguments)
     return subprocess.run(command, capture_output=True, text=True)
@@ -56,6 +56,22 @@ def main():
         result = run(source, rules=missing_field)
         expect(result.returncode == 1 and 'leak_area_mm2_per_100m' in result.stderr,
                'unchecked numeric field accepted')
+
+        # A network-root field or decomposed option field missing from the
+        # root merge fails the build.
+        codec_text = (source / 'src/model_codec.cpp').read_text(encoding='utf-8')
+        for removed, name in (
+                ('&NetworkHydraulic::title_line_2, "title_line_2"', 'title_line_2'),
+                ('&HydraulicSolverOptions::accuracy, "accuracy"', 'accuracy'),
+                ('&NetworkHydraulic::presentation_units,', 'presentation_units')):
+            lines = [line for line in codec_text.splitlines(keepends=True) if removed not in line]
+            expect(len(lines) == len(codec_text.splitlines(keepends=True)) - 1,
+                   f'root merge line for {name} not found')
+            missing_merge = scratch / f'missing_merge_{name}.cpp'
+            missing_merge.write_text(''.join(lines), encoding='utf-8')
+            result = run(source, codec=missing_merge)
+            expect(result.returncode == 1 and name in result.stderr,
+                   f'root merge without {name} accepted')
 
         # A struct field holding numbers without a rule fails the build.
         missing_struct = scratch / 'missing_struct.cpp'
