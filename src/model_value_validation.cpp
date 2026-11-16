@@ -10,6 +10,7 @@
 // struct field containing numbers) is not referenced in its check() below,
 // so a new number can never be stored without a decided range.
 #include <aowis/model/serialization/model_validation.h>
+#include <aowis/model/units/unit_profile.h>
 
 #include <QString>
 
@@ -371,6 +372,37 @@ void check(Rules &rules, const QString &path, const HydraulicMapBackdrop &value)
     rules.between(field(path, "offset_latitude_deg"), value.offset_latitude_deg, -180.0, 180.0);
 }
 
+// Project units are a presentation choice; nothing here constrains a
+// hydraulic value. Stored in canonical form so equal choices encode equally.
+void check(Rules &rules, const QString &path, const NetworkPresentationUnits &value)
+{
+    constexpr qsizetype maximumTextLength = 128;
+    if (value.name.trimmed().isEmpty() || value.name.size() > maximumTextLength)
+        rules.issue(field(path, "name"),
+                    QStringLiteral("must be a nonempty name of at most %1 characters").arg(maximumTextLength));
+    if (value.derived_from_profile.size() > maximumTextLength)
+        rules.issue(field(path, "derived_from_profile"),
+                    QStringLiteral("must be at most %1 characters").arg(maximumTextLength));
+    if (value.units.size() > static_cast<qsizetype>(aowis::units::unit_fields.size()))
+        rules.issue(field(path, "units"), QStringLiteral("lists more quantities than exist"));
+    for (qsizetype index = 0; index < value.units.size(); ++index)
+    {
+        const NetworkPresentationUnit &choice = value.units.at(index);
+        const std::string quantity = choice.quantity.toStdString();
+        const std::string unit = choice.unit.toStdString();
+        if (aowis::units::findUnitField(quantity) == nullptr)
+            rules.issue(item(path, "units", index) + QStringLiteral(".quantity"),
+                        QStringLiteral("must be a known presentation quantity"));
+        else if (!aowis::units::isAllowedUnit(quantity, unit))
+            rules.issue(item(path, "units", index) + QStringLiteral(".unit"),
+                        QStringLiteral("must be one of the units allowed for %1").arg(choice.quantity));
+        if (index > 0 && QString::compare(value.units.at(index - 1).quantity, choice.quantity,
+                                          Qt::CaseSensitive) >= 0)
+            rules.issue(item(path, "units", index) + QStringLiteral(".quantity"),
+                        QStringLiteral("must be sorted by quantity without duplicates"));
+    }
+}
+
 void check(Rules &rules, const QString &path, const HydraulicMapLabel &value)
 {
     check(rules, field(path, "coordinate_wgs84"), value.coordinate_wgs84);
@@ -719,6 +751,8 @@ void check(Rules &rules, const QString &path, const NetworkHydraulic &value)
     checkEntities(rules, "control_rule", value.controls_rules);
     checkEntities(rules, "map_label", value.map_labels);
     check(rules, field(path, "map_backdrop"), value.map_backdrop);
+    if (value.presentation_units)
+        check(rules, field(path, "presentation_units"), *value.presentation_units);
 }
 
 template<typename T>

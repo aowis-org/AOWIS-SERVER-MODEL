@@ -6,6 +6,8 @@
 #include <QUuid>
 #include <QtGlobal>
 
+#include <optional>
+
 #include "hydraulic_controls.h"
 #include "hydraulic_curves.h"
 #include "hydraulic_demand_point.h"
@@ -14,6 +16,7 @@
 #include "hydraulic_pipe_materials.h"
 #include "hydraulic_nodes.h"
 #include "multi_species.h"
+#include "network_presentation_units.h"
 #include "hydraulic_simulation_options.h"
 #include "hydraulic_types.h"
 
@@ -74,6 +77,11 @@ struct NetworkHydraulic
 
     QList<HydraulicMapLabel> map_labels;
     HydraulicMapBackdrop map_backdrop;
+
+    // Project units: the presentation units stored with this network. Empty
+    // when the network stores none (viewers use their local unit profile).
+    // Root metadata: versioned, committed and merged with the network root.
+    std::optional<NetworkPresentationUnits> presentation_units;
 
 };
 

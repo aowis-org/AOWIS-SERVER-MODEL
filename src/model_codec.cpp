@@ -72,6 +72,10 @@ void writeStruct(QDataStream &stream, const HydraulicLinkValve &value);
 void readStruct(QDataStream &stream, HydraulicLinkValve &value);
 void writeStruct(QDataStream &stream, const HydraulicLinkVertex &value);
 void readStruct(QDataStream &stream, HydraulicLinkVertex &value);
+void writeStruct(QDataStream &stream, const NetworkPresentationUnit &value);
+void readStruct(QDataStream &stream, NetworkPresentationUnit &value);
+void writeStruct(QDataStream &stream, const NetworkPresentationUnits &value);
+void readStruct(QDataStream &stream, NetworkPresentationUnits &value);
 void writeStruct(QDataStream &stream, const HydraulicMapBackdrop &value);
 void readStruct(QDataStream &stream, HydraulicMapBackdrop &value);
 void writeStruct(QDataStream &stream, const HydraulicMapLabel &value);
@@ -858,6 +862,30 @@ void readStruct(QDataStream &stream, HydraulicMapBackdrop &value)
     readValue(stream, value.offset_latitude_deg);
 }
 
+void writeStruct(QDataStream &stream, const NetworkPresentationUnit &value)
+{
+    writeValue(stream, value.quantity);
+    writeValue(stream, value.unit);
+}
+void readStruct(QDataStream &stream, NetworkPresentationUnit &value)
+{
+    readValue(stream, value.quantity);
+    readValue(stream, value.unit);
+}
+
+void writeStruct(QDataStream &stream, const NetworkPresentationUnits &value)
+{
+    writeValue(stream, value.name);
+    writeValue(stream, value.derived_from_profile);
+    writeValue(stream, value.units);
+}
+void readStruct(QDataStream &stream, NetworkPresentationUnits &value)
+{
+    readValue(stream, value.name);
+    readValue(stream, value.derived_from_profile);
+    readValue(stream, value.units);
+}
+
 void writeStruct(QDataStream &stream, const HydraulicMapLabel &value)
 {
     writeValue(stream, value.id);
@@ -1537,6 +1565,7 @@ void writeStruct(QDataStream &stream, const NetworkHydraulic &value)
     writeValue(stream, value.controls_rules);
     writeValue(stream, value.map_labels);
     writeValue(stream, value.map_backdrop);
+    writeValue(stream, value.presentation_units);
 }
 void readStruct(QDataStream &stream, NetworkHydraulic &value)
 {
@@ -1579,6 +1608,7 @@ void readStruct(QDataStream &stream, NetworkHydraulic &value)
     readValue(stream, value.controls_rules);
     readValue(stream, value.map_labels);
     readValue(stream, value.map_backdrop);
+    readValue(stream, value.presentation_units);
 }
 
 void writeStruct(QDataStream &stream, const NetworkMultiSpecies &value)

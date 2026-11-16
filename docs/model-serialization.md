@@ -22,3 +22,13 @@ that is a refactor risk-management choice, not a guarantee about future formats.
 Configure-time `tools/check_model_codec.py` verifies fields and numeric rules.
 `docs/model_codec_fields.json` is the authoritative field manifest; the
 `model_enum_values.inc` table is generated for the current Model definitions.
+
+## Project units
+
+`NetworkHydraulic::presentation_units` (`NetworkPresentationUnits`, empty by
+default) stores the network's presentation units: a name, the informational
+id of the profile it was copied from, and a sorted list of
+`{quantity, unit}` choices. It is root metadata, so it is versioned, committed,
+transferred and merged with the network root exactly like titles and
+simulation options. It is a self-contained copy, never a profile reference,
+and it never alters a stored value: every measurement stays canonical.

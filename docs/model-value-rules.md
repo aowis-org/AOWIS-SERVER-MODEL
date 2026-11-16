@@ -25,6 +25,17 @@ Notation: *finite* means any finite number. *≥ 0* and *> 0* also require the v
 | `altitude_m` | finite |
 | Map backdrop: `offset_longitude_deg`, `offset_latitude_deg` | −360 … 360, −180 … 180 |
 
+### Project units (`presentation_units`)
+
+Optional network-root presentation units. They are display choices only and
+never constrain or change a hydraulic value.
+
+| Field | Rule |
+|---|---|
+| `name` | nonempty after trimming, at most 128 characters |
+| `derived_from_profile` | at most 128 characters (informational, never resolved) |
+| `units` | each `quantity` a known `aowis::units::unit_fields` key, each `unit` one of its allowed choices; sorted by `quantity`, no duplicates |
+
 ### Nodes
 
 | Field | Rule |

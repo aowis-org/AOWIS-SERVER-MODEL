@@ -50,6 +50,7 @@ add_library(aowis-server-model STATIC
     include/aowis/model/hydraulic/hydraulic_simulation_results.h
     include/aowis/model/hydraulic/water_quality_simulation_results.h
     include/aowis/model/hydraulic/network_hydraulic.h
+    include/aowis/model/hydraulic/network_presentation_units.h
 
     include/aowis/model/measurement/water_meter.h
 )
