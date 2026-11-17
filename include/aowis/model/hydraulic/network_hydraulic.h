@@ -1,10 +1,12 @@
-#ifndef AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_DISTRIBUTION_H
-#define AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_DISTRIBUTION_H
+#ifndef AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_H
+#define AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_H
 
 #include <QList>
 #include <QString>
 #include <QUuid>
 #include <QtGlobal>
+
+#include <optional>
 
 #include "hydraulic_controls.h"
 #include "hydraulic_curves.h"
@@ -14,10 +16,11 @@
 #include "hydraulic_pipe_materials.h"
 #include "hydraulic_nodes.h"
 #include "multi_species.h"
+#include "network_presentation_units.h"
 #include "hydraulic_simulation_options.h"
 #include "hydraulic_types.h"
 
-struct NetworkHydraulicDistribution
+struct NetworkHydraulic
 {
     QString id;
     QUuid uuid;
@@ -75,6 +78,11 @@ struct NetworkHydraulicDistribution
     QList<HydraulicMapLabel> map_labels;
     HydraulicMapBackdrop map_backdrop;
 
+    // Project units: the presentation units stored with this network. Empty
+    // when the network stores none (viewers use their local unit profile).
+    // Root metadata: versioned, committed and merged with the network root.
+    std::optional<NetworkPresentationUnits> presentation_units;
+
 };
 
-#endif // AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_DISTRIBUTION_H
+#endif // AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_H

@@ -9,7 +9,7 @@ Every hydraulic model value is checked before it is stored, and again when it is
 | Layer | What it enforces | Result |
 |---|---|---|
 | Codec (`src/model_codec.cpp`), encode and decode | Every enum holds a declared enumerator. Every `double` is finite (no NaN, no ±∞), in every field, list element and optional. | Encode returns empty bytes; decode fails ("…non-finite number or undeclared enumerator"). An HTTP payload is 400; a stored record is corruption. |
-| Value rules (`src/model_value_validation.cpp`) | The per-field ranges below, with a field path in the message. | DVMDB distribution-network save/edit paths (including indexed fast paths), merge validation and network loading: `InvalidInput`, HTTP 400. |
+| Value rules (`src/model_value_validation.cpp`) | The per-field ranges below, with a field path in the message. | `saveHydraulicNetwork`, every `editHydraulicNetwork` path (including all indexed fast paths), merge validation and network loading: `InvalidInput`, HTTP 400. |
 | Build (`tools/check_model_codec.py`) | Every numeric Model field, and every struct field containing numbers, is referenced by its rule function. The enumerator table is generated from the Model headers. | CMake configure fails when a new numeric field has no decided range, or when a persisted enum uses conditional enumerators. |
 
 ## Ranges
@@ -24,6 +24,17 @@ Notation: *finite* means any finite number. *≥ 0* and *> 0* also require the v
 | `latitude_deg` | −90 … 90 |
 | `altitude_m` | finite |
 | Map backdrop: `offset_longitude_deg`, `offset_latitude_deg` | −360 … 360, −180 … 180 |
+
+### Project units (`presentation_units`)
+
+Optional network-root presentation units. They are display choices only and
+never constrain or change a hydraulic value.
+
+| Field | Rule |
+|---|---|
+| `name` | nonempty after trimming, at most 128 characters |
+| `derived_from_profile` | at most 128 characters (informational, never resolved) |
+| `units` | each `quantity` a known `aowis::units::unit_fields` key, each `unit` one of its allowed choices; sorted by `quantity`, no duplicates |
 
 ### Nodes
 

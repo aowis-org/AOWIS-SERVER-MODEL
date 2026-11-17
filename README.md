@@ -2,7 +2,7 @@
 
 Shared C++ domain model for [AOWIS](https://aowis.org) applications, services, and infrastructure components.
 
-This repository provides common data structures and enums for representing AOWIS domain data. It currently covers projects, revisions, GIS coordinates, hydraulic distribution networks, solver-neutral simulation configuration, and hydraulic simulation results. Electrical model structures are planned under the existing `electric` directory.
+This repository provides common data structures and enums for representing AOWIS domain data. It currently covers projects, revisions, GIS coordinates, hydraulic networks, solver-neutral simulation configuration, and hydraulic simulation results. Electrical model structures are planned under the existing `electric` directory.
 
 The repository does not implement the AOWIS server, persistence, REST APIs, user interfaces, or a hydraulic simulation engine. Simulation engines and file-format adapters consume and translate the shared model defined here.
 
@@ -57,23 +57,9 @@ currently being moved out of DVMDB into MODEL; until then this new envelope
 accepts already encoded entity images and does not duplicate entity encoding.
 
 
-## Network domains
-
-The current concrete hydraulic network type is `NetworkHydraulicDistribution`,
-representing pressurized water-distribution systems. Its public header is
-`<aowis/model/hydraulic/network_hydraulic_distribution.h>`.
-
-`NetworkHydraulicDrainage` is the intended future name for a distinct drainage
-network model, potentially served by SWMM. It is **not** implemented or aliased
-in MODEL. Distribution and drainage will have separate concrete network
-structures; no generic `NetworkHydraulic` base or aggregate is required.
-
-Future electrical networks may use names such as `NetworkElectricalDistribution`.
-Network names identify both the engineering domain and function, not a solver.
-
 ## Solver-Neutral Boundary
 
-The current hydraulic distribution model uses hydraulic-domain terminology rather than the name of any specific simulation engine.
+The public model uses hydraulic-domain terminology rather than the name of any specific simulation engine.
 
 - Network entities use names such as `HydraulicNodeJunction`, `HydraulicLinkPipe`, and `HydraulicCurvePumpHead`.
 - Solver configuration uses names such as `HydraulicSolverOptions`, `WaterQualitySolverOptions`, and `HydraulicSimulationReportOptions`.
@@ -113,7 +99,7 @@ Headers can then be included directly:
 ```cpp
 #include <aowis/model/project.h>
 #include <aowis/model/gis.h>
-#include <aowis/model/hydraulic/network_hydraulic_distribution.h>
+#include <aowis/model/hydraulic/network_hydraulic.h>
 #include <aowis/model/hydraulic/hydraulic_simulation_results.h>
 ```
 
@@ -141,7 +127,7 @@ cmake --install build --prefix /desired/install/prefix
 
 Names are ordered from the broad shared group to the specific concept so related identifiers remain adjacent in autocomplete results.
 
-- Current hydraulic distribution topology types use the `HydraulicNode*`, `HydraulicLink*`, and `HydraulicCurve*` groups.
+- Hydraulic topology types use the `HydraulicNode*`, `HydraulicLink*`, and `HydraulicCurve*` groups.
 - Hydraulic controls use the `HydraulicControl*` group.
 - Simulation results and statuses use the `HydraulicSimulationResult*` and `HydraulicSimulationStatus*` groups.
 - Configuration types use their actual domain responsibility, for example `HydraulicSolverOptions`, `WaterQualityReactionOptions`, and `PumpEnergyOptions`.
@@ -158,7 +144,7 @@ QList<HydraulicLinkPipe> links_pipes;
 QList<HydraulicCurvePumpHead> curves_pump_head;
 ```
 
-`WaterQualitySolverOptions` describes one requested quality analysis rather than persistent network state. Solver execution requests carry those options alongside a `NetworkHydraulicDistribution`; the network itself stores quality inputs, sources, mixing, reactions, and shared simulation timing.
+`WaterQualitySolverOptions` describes one requested quality analysis rather than persistent network state. Solver execution requests carry those options alongside a `NetworkHydraulic`; the network itself stores quality inputs, sources, mixing, reactions, and shared simulation timing.
 
 ## Contributing
 

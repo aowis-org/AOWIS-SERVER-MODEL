@@ -1,5 +1,5 @@
 #include <aowis/model/edit/model_edit_transaction.h>
-#include <aowis/model/edit/hydraulic_distribution_root_edit.h>
+#include <aowis/model/edit/hydraulic_root_edit.h>
 
 #include <QCryptographicHash>
 #include <QByteArray>
@@ -128,40 +128,37 @@ int main()
     seal(null_entity);
     require(!ModelEditTransactionCodec::decode(null_entity).has_value(), "null entity UUID rejected on decode");
 
-    require(QString::fromLatin1(aowis::model::hydraulicDistributionRootEditType) ==
-                QStringLiteral("NetworkHydraulicDistributionRoot"),
-            "distribution root edit kind matches its public name");
-    NetworkHydraulicDistribution root;
+    NetworkHydraulic root;
     root.uuid = id("000000000019");
     root.id = QStringLiteral("water-network");
     root.title_line_1 = QStringLiteral("Original");
     HydraulicNodeJunction member;
     member.uuid = id("000000000020");
     root.nodes_junctions.append(member);
-    const QByteArray rootImage = aowis::model::hydraulicDistributionRootImage(root);
-    const std::optional<NetworkHydraulicDistribution> rootDecoded =
-        aowis::model::decodeHydraulicDistributionRootImage(rootImage);
+    const QByteArray rootImage = aowis::model::hydraulicRootImage(root);
+    const std::optional<NetworkHydraulic> rootDecoded =
+        aowis::model::decodeHydraulicRootImage(rootImage);
     require(rootDecoded && rootDecoded->nodes_junctions.isEmpty() &&
             rootDecoded->title_line_1 == root.title_line_1,
             "root metadata excludes all hydraulic collection members");
-    NetworkHydraulicDistribution changed = *rootDecoded;
+    NetworkHydraulic changed = *rootDecoded;
     changed.title_line_1 = QStringLiteral("Updated");
     changed.options_hydraulic.headloss_formula = HydraulicHeadlossFormula::DarcyWeisbach;
-    require(aowis::model::applyHydraulicDistributionRootMetadata(root, changed) &&
+    require(aowis::model::applyHydraulicRootMetadata(root, changed) &&
             root.nodes_junctions.size() == 1 &&
             root.nodes_junctions.first().uuid == member.uuid &&
             root.options_hydraulic.headloss_formula == HydraulicHeadlossFormula::DarcyWeisbach,
             "root metadata update preserves all collection members");
     changed.id = QStringLiteral("new-network-name");
-    require(aowis::model::applyHydraulicDistributionRootMetadata(root, changed) &&
+    require(aowis::model::applyHydraulicRootMetadata(root, changed) &&
             root.id == changed.id,
             "human-readable network ID can change without changing the UUID");
     changed.uuid = id("000000000021");
-    require(!aowis::model::applyHydraulicDistributionRootMetadata(root, changed),
+    require(!aowis::model::applyHydraulicRootMetadata(root, changed),
             "network-root edit cannot change the immutable root UUID");
-    NetworkHydraulicDistribution forbidden = root;
-    require(!aowis::model::decodeHydraulicDistributionRootImage(
-                aowis::model::ModelCodec<NetworkHydraulicDistribution>::encode(forbidden)),
+    NetworkHydraulic forbidden = root;
+    require(!aowis::model::decodeHydraulicRootImage(
+                aowis::model::ModelCodec<NetworkHydraulic>::encode(forbidden)),
             "root event cannot smuggle inline collection records");
     std::cout << "Model edit transaction codec checks passed\n";
     return EXIT_SUCCESS;

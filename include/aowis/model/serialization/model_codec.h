@@ -4,7 +4,7 @@
 #include <optional>
 #include <QByteArray>
 #include <QString>
-#include <aowis/model/hydraulic/network_hydraulic_distribution.h>
+#include <aowis/model/hydraulic/network_hydraulic.h>
 
 namespace aowis::model
 {
@@ -317,10 +317,10 @@ template<> struct ModelCodec<MultiSpeciesTerm> final
     static QByteArray encode(const MultiSpeciesTerm &value);
     static std::optional<MultiSpeciesTerm> decode(const QByteArray &bytes, QString *error = nullptr);
 };
-template<> struct ModelCodec<NetworkHydraulicDistribution> final
+template<> struct ModelCodec<NetworkHydraulic> final
 {
-    static QByteArray encode(const NetworkHydraulicDistribution &value);
-    static std::optional<NetworkHydraulicDistribution> decode(const QByteArray &bytes, QString *error = nullptr);
+    static QByteArray encode(const NetworkHydraulic &value);
+    static std::optional<NetworkHydraulic> decode(const QByteArray &bytes, QString *error = nullptr);
 };
 template<> struct ModelCodec<NetworkMultiSpecies> final
 {

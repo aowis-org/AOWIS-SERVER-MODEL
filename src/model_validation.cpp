@@ -19,12 +19,12 @@ namespace
 {
 using UuidSet = QSet<QUuid>;
 
-class DistributionNetworkReferenceValidator final
+class NetworkReferenceValidator final
 {
 public:
     enum class CollectionMode { None, Diagnostic, Compact };
 
-    explicit DistributionNetworkReferenceValidator(const NetworkHydraulicDistribution &network,
+    explicit NetworkReferenceValidator(const NetworkHydraulic &network,
                                        CollectionMode mode = CollectionMode::None)
         : network_(network), mode_(mode)
     {
@@ -178,7 +178,7 @@ public:
                 check(uuid, this->links_, QStringLiteral("network"), QStringLiteral("options_report.selection_links.uuids"));
         msx();
         // Physical value rules belong to the same canonical validation.
-        this->result_.issues.append(validateHydraulicDistributionValues(this->network_).issues);
+        this->result_.issues.append(validateHydraulicValues(this->network_).issues);
         return this->result_;
     }
 
@@ -290,7 +290,7 @@ private:
         return result;
     }
 
-    const NetworkHydraulicDistribution &network_;
+    const NetworkHydraulic &network_;
     ModelValidationReport result_;
     QVector<HydraulicReference> references_;
     QVector<HydraulicDependency> dependencies_;
@@ -301,22 +301,22 @@ private:
 };
 } // namespace
 
-ModelValidationReport validateHydraulicDistributionNetwork(const NetworkHydraulicDistribution &network)
+ModelValidationReport validateHydraulicNetwork(const NetworkHydraulic &network)
 {
-    return DistributionNetworkReferenceValidator(network).validate();
+    return NetworkReferenceValidator(network).validate();
 }
 
-QVector<HydraulicReference> hydraulicDistributionReferences(const NetworkHydraulicDistribution &network)
+QVector<HydraulicReference> hydraulicReferences(const NetworkHydraulic &network)
 {
-    DistributionNetworkReferenceValidator validator(network, DistributionNetworkReferenceValidator::CollectionMode::Diagnostic);
+    NetworkReferenceValidator validator(network, NetworkReferenceValidator::CollectionMode::Diagnostic);
     validator.validate(); // Same traversal as canonical reference validation.
     return validator.takeReferences();
 }
 
-HydraulicDependencyValidation validateHydraulicDistributionNetworkWithDependencies(
-    const NetworkHydraulicDistribution &network)
+HydraulicDependencyValidation validateHydraulicNetworkWithDependencies(
+    const NetworkHydraulic &network)
 {
-    DistributionNetworkReferenceValidator validator(network, DistributionNetworkReferenceValidator::CollectionMode::Compact);
+    NetworkReferenceValidator validator(network, NetworkReferenceValidator::CollectionMode::Compact);
     HydraulicDependencyValidation result;
     result.report = validator.validate();
     result.dependencies = validator.takeDependencies();

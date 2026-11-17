@@ -57,22 +57,21 @@ def main():
         expect(result.returncode == 1 and 'leak_area_mm2_per_100m' in result.stderr,
                'unchecked numeric field accepted')
 
-        # The codec schema guard must reject missing fields in both the
-        # network root and its nested hydraulic solver options. This checker
-        # validates codec field coverage; it does not inspect merge code.
+        # A network-root field or decomposed option field missing from the
+        # root merge fails the build.
         codec_text = (source / 'src/model_codec.cpp').read_text(encoding='utf-8')
-        for removed, name, field in (
-                ('    writeValue(stream, value.title_line_2);\n', 'title_line_2_write', 'title_line_2'),
-                ('    readValue(stream, value.title_line_2);\n', 'title_line_2_read', 'title_line_2'),
-                ('    writeValue(stream, value.options_hydraulic);\n', 'options_hydraulic', 'options_hydraulic'),
-                ('    writeValue(stream, value.accuracy);\n', 'accuracy', 'accuracy')):
-            expect(codec_text.count(removed) == 1,
-                   f'codec field line for {name} not found exactly once')
-            missing_codec = scratch / f'missing_codec_{name}.cpp'
-            missing_codec.write_text(codec_text.replace(removed, '', 1), encoding='utf-8')
-            result = run(source, codec=missing_codec)
-            expect(result.returncode == 1 and field in result.stderr,
-                   f'codec without {name} accepted: {result.stderr}')
+        for removed, name in (
+                ('&NetworkHydraulic::title_line_2, "title_line_2"', 'title_line_2'),
+                ('&HydraulicSolverOptions::accuracy, "accuracy"', 'accuracy'),
+                ('&NetworkHydraulic::presentation_units,', 'presentation_units')):
+            lines = [line for line in codec_text.splitlines(keepends=True) if removed not in line]
+            expect(len(lines) == len(codec_text.splitlines(keepends=True)) - 1,
+                   f'root merge line for {name} not found')
+            missing_merge = scratch / f'missing_merge_{name}.cpp'
+            missing_merge.write_text(''.join(lines), encoding='utf-8')
+            result = run(source, codec=missing_merge)
+            expect(result.returncode == 1 and name in result.stderr,
+                   f'root merge without {name} accepted')
 
         # A struct field holding numbers without a rule fails the build.
         missing_struct = scratch / 'missing_struct.cpp'
