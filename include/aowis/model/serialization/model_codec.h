@@ -168,11 +168,6 @@ template<> struct ModelCodec<HydraulicMapBackdrop> final
     static QByteArray encode(const HydraulicMapBackdrop &value);
     static std::optional<HydraulicMapBackdrop> decode(const QByteArray &bytes, QString *error = nullptr);
 };
-template<> struct ModelCodec<HydraulicMapLabel> final
-{
-    static QByteArray encode(const HydraulicMapLabel &value);
-    static std::optional<HydraulicMapLabel> decode(const QByteArray &bytes, QString *error = nullptr);
-};
 template<> struct ModelCodec<HydraulicNodeJunction> final
 {
     static QByteArray encode(const HydraulicNodeJunction &value);

@@ -33,7 +33,6 @@ inline void clearHydraulicDistributionRootCollections(NetworkHydraulicDistributi
     network.links_valves.clear();
     network.controls_simple.clear();
     network.controls_rules.clear();
-    network.map_labels.clear();
 }
 
 inline NetworkHydraulicDistribution hydraulicDistributionRootMetadata(const NetworkHydraulicDistribution &network)
@@ -86,7 +85,6 @@ inline bool applyHydraulicDistributionRootMetadata(NetworkHydraulicDistribution 
     updated.links_valves = network.links_valves;
     updated.controls_simple = network.controls_simple;
     updated.controls_rules = network.controls_rules;
-    updated.map_labels = network.map_labels;
     network = std::move(updated);
     return true;
 }

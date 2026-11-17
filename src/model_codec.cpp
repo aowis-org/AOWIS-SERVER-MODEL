@@ -20,7 +20,8 @@ namespace aowis::model
 namespace
 {
 constexpr quint32 codec_magic = 0x414d4435; // AMD5
-constexpr quint32 codec_format = 1;
+// Pre-release breaking change: old hydraulic map-label records are unsupported.
+constexpr quint32 codec_format = 2;
 constexpr quint32 maximum_list_length = 1000000;
 
 void writeStruct(QDataStream &stream, const MapAnnotation &value);
@@ -89,8 +90,6 @@ void writeStruct(QDataStream &stream, const NetworkPresentationUnits &value);
 void readStruct(QDataStream &stream, NetworkPresentationUnits &value);
 void writeStruct(QDataStream &stream, const HydraulicMapBackdrop &value);
 void readStruct(QDataStream &stream, HydraulicMapBackdrop &value);
-void writeStruct(QDataStream &stream, const HydraulicMapLabel &value);
-void readStruct(QDataStream &stream, HydraulicMapLabel &value);
 void writeStruct(QDataStream &stream, const HydraulicNodeJunction &value);
 void readStruct(QDataStream &stream, HydraulicNodeJunction &value);
 void writeStruct(QDataStream &stream, const HydraulicNodeJunctionEmitter &value);
@@ -952,23 +951,6 @@ void readStruct(QDataStream &stream, NetworkPresentationUnits &value)
     readValue(stream, value.units);
 }
 
-void writeStruct(QDataStream &stream, const HydraulicMapLabel &value)
-{
-    writeValue(stream, value.id);
-    writeValue(stream, value.uuid);
-    writeValue(stream, value.coordinate_wgs84);
-    writeValue(stream, value.text);
-    writeValue(stream, value.anchor_node_uuid);
-}
-void readStruct(QDataStream &stream, HydraulicMapLabel &value)
-{
-    readValue(stream, value.id);
-    readValue(stream, value.uuid);
-    readValue(stream, value.coordinate_wgs84);
-    readValue(stream, value.text);
-    readValue(stream, value.anchor_node_uuid);
-}
-
 void writeStruct(QDataStream &stream, const HydraulicNodeJunction &value)
 {
     writeValue(stream, value.id);
@@ -1629,7 +1611,6 @@ void writeStruct(QDataStream &stream, const NetworkHydraulicDistribution &value)
     writeValue(stream, value.links_valves);
     writeValue(stream, value.controls_simple);
     writeValue(stream, value.controls_rules);
-    writeValue(stream, value.map_labels);
     writeValue(stream, value.map_backdrop);
     writeValue(stream, value.presentation_units);
 }
@@ -1672,7 +1653,6 @@ void readStruct(QDataStream &stream, NetworkHydraulicDistribution &value)
     readValue(stream, value.links_valves);
     readValue(stream, value.controls_simple);
     readValue(stream, value.controls_rules);
-    readValue(stream, value.map_labels);
     readValue(stream, value.map_backdrop);
     readValue(stream, value.presentation_units);
 }
@@ -2050,14 +2030,6 @@ QByteArray ModelCodec<HydraulicMapBackdrop>::encode(const HydraulicMapBackdrop &
 std::optional<HydraulicMapBackdrop> ModelCodec<HydraulicMapBackdrop>::decode(const QByteArray &bytes, QString *error)
 {
     return decodeTyped<HydraulicMapBackdrop>(bytes, QStringLiteral("HydraulicMapBackdrop"), error);
-}
-QByteArray ModelCodec<HydraulicMapLabel>::encode(const HydraulicMapLabel &value)
-{
-    return encodeTyped(value, QStringLiteral("HydraulicMapLabel"));
-}
-std::optional<HydraulicMapLabel> ModelCodec<HydraulicMapLabel>::decode(const QByteArray &bytes, QString *error)
-{
-    return decodeTyped<HydraulicMapLabel>(bytes, QStringLiteral("HydraulicMapLabel"), error);
 }
 QByteArray ModelCodec<HydraulicNodeJunction>::encode(const HydraulicNodeJunction &value)
 {
@@ -3150,35 +3122,6 @@ template<> std::optional<ModelFieldMerge> mergeFieldsForType<HydraulicControlRul
     }
     return result;
 }
-template<> std::optional<ModelFieldMerge> mergeFieldsForType<HydraulicMapLabel>(
-    const QUuid &object_uuid, const QByteArray &baseline_bytes,
-    const QByteArray &left_bytes, const QByteArray &right_bytes,
-    const QMap<QString, bool> &field_choices)
-{
-    const std::optional<HydraulicMapLabel> baseline = ModelCodec<HydraulicMapLabel>::decode(baseline_bytes);
-    const std::optional<HydraulicMapLabel> left = ModelCodec<HydraulicMapLabel>::decode(left_bytes);
-    const std::optional<HydraulicMapLabel> right = ModelCodec<HydraulicMapLabel>::decode(right_bytes);
-    if (!baseline || !left || !right || baseline->uuid != object_uuid ||
-        left->uuid != object_uuid || right->uuid != object_uuid ||
-        ModelCodec<HydraulicMapLabel>::encode(*baseline) != baseline_bytes ||
-        ModelCodec<HydraulicMapLabel>::encode(*left) != left_bytes ||
-        ModelCodec<HydraulicMapLabel>::encode(*right) != right_bytes)
-        return std::nullopt;
-    HydraulicMapLabel merged = *left;
-    ModelFieldMerge result;
-    chooseMergeField(*baseline, *left, *right, merged, &HydraulicMapLabel::id, "id", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &HydraulicMapLabel::uuid, "uuid", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &HydraulicMapLabel::coordinate_wgs84, "coordinate_wgs84", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &HydraulicMapLabel::text, "text", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &HydraulicMapLabel::anchor_node_uuid, "anchor_node_uuid", result.conflicting_fields, field_choices);
-    if (result.conflicting_fields.isEmpty())
-    {
-        result.content = ModelCodec<HydraulicMapLabel>::encode(merged);
-        if (result.content.isEmpty())
-            return std::nullopt;
-    }
-    return result;
-}
 // Network-root metadata merges field by field, so independent changes on two
 // branches combine instead of conflicting as one record:
 //  * scalar root fields (titles, durations, time steps, report statistic);
@@ -3438,8 +3381,6 @@ std::optional<ModelFieldMerge> mergeModelFields(const QUuid &object_uuid,
         return mergeFieldsForType<HydraulicControlSimple>(object_uuid, base, left, right, field_choices);
     if (kind == QStringLiteral("hydraulic.control_rule"))
         return mergeFieldsForType<HydraulicControlRule>(object_uuid, base, left, right, field_choices);
-    if (kind == QStringLiteral("hydraulic.map_label"))
-        return mergeFieldsForType<HydraulicMapLabel>(object_uuid, base, left, right, field_choices);
     if (kind == QStringLiteral("hydraulic.network_root"))
         return mergeNetworkRootFields(object_uuid, base, left, right, field_choices);
     return std::nullopt;

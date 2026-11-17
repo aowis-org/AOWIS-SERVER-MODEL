@@ -1,14 +1,12 @@
 # Map annotations — canonical MODEL contract (A1)
 
-**Status:** A2 MODEL data and merge implementation complete (native Qt/C++
-verification required after this boundary correction). Independent annotation
-types, canonical codecs, strict validation, schema manifest and field-aware
-merges are implemented. Geodesic calculations and annotation placement actions
-are intentionally **outside MODEL**; a common geospatial service is required
-before DVMDB integration.
-DVMDB persistence integration remains phase B.
-The legacy `NetworkHydraulicDistribution::map_labels` and its codec remain
-until A3, so existing MODEL consumers are not broken in the middle of A2.
+**Status:** A1–A3 MODEL architecture complete; native Qt/C++ regression
+verification is required for A3. Independent annotation types, canonical
+codecs, strict validation, schema manifest and field-aware merges are
+implemented. A3 removed the legacy hydraulic label model and collection.
+Geodesic calculations and annotation placement actions remain **outside MODEL**.
+DVMDB persistence integration remains phase B; geographic calculations are
+only necessary for attachment resolution, not for storing free-standing notes.
 The corresponding native-storage design is in DVMDB's
 `docs/map-annotation-persistence-design.md`.
 
@@ -193,10 +191,11 @@ assumptions have been generalized or safely extended for annotation records.
   foundation for GUI/Render and DVMDB. Move annotation placement/anchor
   transformation and its geodesic tests to the appropriate shared service.
   The native MODEL build must not link a renderer to perform geo calculations.
-- A3: delete `HydraulicMapLabel`, `NetworkHydraulicDistribution::map_labels`,
-  old reference/codec/merge/field-manifest/history support and their obsolete
-  tests. Hydraulic map backdrops and generated labels are **not** annotations
-  and are unaffected.
+- A3 (complete): deleted the hydraulic `HydraulicMapLabel` collection and all
+  related MODEL codec, validation, merge, root-image and history references.
+  The typed MODEL codec envelope advances from format 1 to format 2 to reject
+  obsolete pre-release payloads. Hydraulic map backdrops and automatically
+  generated entity labels are **not** annotations and are unaffected.
 - B1–B4: introduce the separate native layer, adapt draft/HTTP/history/merge,
   test immutable snapshots, deletion and reference closure, fail-closed unknown
   record kinds, crash/power loss and deterministic replay.
@@ -204,8 +203,10 @@ assumptions have been generalized or safely extended for annotation records.
   drainage scoped layer. No duplicated per-domain annotation UI code.
 
 No migration reader or compatibility shim for unpublished `HydraulicMapLabel`
-records is required. Reject obsolete formats explicitly; developers must
-recreate incompatible test repositories. **A1 changed documentation only; A2 changes MODEL code and tests.**
+records is provided. The MODEL typed codec rejects all format-1 payloads;
+developers must recreate incompatible test repositories. Dependent GUI and
+DVMDB builds using the removed hydraulic label API must be updated before
+integration; the standalone layer storage is implemented in phase B.
 
 ## Geographic separation correction (after A2)
 

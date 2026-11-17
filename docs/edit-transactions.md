@@ -47,7 +47,7 @@ fields; it remains usable by all model domains.
 `NetworkHydraulicDistributionRoot` is the special edit type for a network's root metadata
 (title lines, timing, hydraulic/reaction/energy/report options, multi-species
 settings and backdrop). Its edit UUID is **the network UUID**. Each image is a
-canonical `ModelCodec<NetworkHydraulicDistribution>` payload with **all 18 entity lists
+canonical `ModelCodec<NetworkHydraulicDistribution>` payload with **all 17 hydraulic entity lists
 empty**; lists are not moved, duplicated or replaced by root edits.
 
 Only before+after root updates are permitted. The network UUID cannot
@@ -96,7 +96,7 @@ canonical image bytes. It does not decode every MODEL type, enforce hydraulic
 reference consistency, update DVMDB membership chunks, or provide a durable
 fenced Save. Callers must still pass generated events through the existing
 model-specific validation and the normal DVMDB Save pipeline. Model-level
-regressions cover all 18 hydraulic entity types, root metadata and mixed
+regressions cover all 17 hydraulic entity types, root metadata and mixed
 create/update/delete actions, along with exact inverse/redo and atomic
 failure behavior. Full GUI/DVMDB integration remains future HIST work.
 

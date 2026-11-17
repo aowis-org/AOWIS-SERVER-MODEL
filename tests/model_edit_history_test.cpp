@@ -53,7 +53,12 @@ ModelHistoryImageMap startingState(const QUuid &networkId, const QByteArray &roo
     state.insert(junctionId, {QStringLiteral("HydraulicNodeJunction"), junctionImage});
     state.insert(pipeId, {QStringLiteral("HydraulicLinkPipe"), pipeImage});
     // An untouched entity must survive every transition unchanged.
-    state.insert(uuid(700), {QStringLiteral("HydraulicMapLabel"), QByteArray("untouched")});
+    MapAnnotation annotation;
+    annotation.uuid = uuid(700);
+    annotation.text = QStringLiteral("Unrelated distribution annotation");
+    const QByteArray annotationBytes = aowis::model::ModelCodec<MapAnnotation>::encode(annotation);
+    require(!annotationBytes.isEmpty(), "standalone annotation has canonical bytes");
+    state.insert(annotation.uuid, {QStringLiteral("MapAnnotation"), annotationBytes});
     return state;
 }
 } // namespace
@@ -117,16 +122,15 @@ int main()
     ADD_HYDRAULIC_CREATE(HydraulicLinkValve)
     ADD_HYDRAULIC_CREATE(HydraulicControlSimple)
     ADD_HYDRAULIC_CREATE(HydraulicControlRule)
-    ADD_HYDRAULIC_CREATE(HydraulicMapLabel)
 #undef ADD_HYDRAULIC_CREATE
-    require(nextIdentity == 19, "all 18 hydraulic entity collections participate");
+    require(nextIdentity == 18, "all 17 hydraulic entity collections participate");
     action.edits.append(ModelEntityEdit{rootBefore.uuid,
         QString::fromLatin1(aowis::model::hydraulicDistributionRootEditType), beforeRoot, afterRoot});
     action.edits.append(ModelEntityEdit{importedJunction,
         QStringLiteral("HydraulicNodeJunction"), oldJunction, newJunction});
     action.edits.append(ModelEntityEdit{removedPipe.uuid,
         QStringLiteral("HydraulicLinkPipe"), oldPipe, std::nullopt});
-    require(action.edits.size() == 21, "one logical transaction groups 21 typed edits");
+    require(action.edits.size() == 20, "one logical transaction groups 20 typed edits");
 
     QString error;
     const QByteArray originalBytes = ModelEditTransactionCodec::encode(action, &error);
@@ -141,12 +145,12 @@ int main()
     require(ModelEditHistory::apply(*decoded, state, &error) && error.isEmpty(),
             "mixed forward action should atomically apply");
     const ModelHistoryImageMap after = state;
-    require(after.size() == before.size() + 18 - 1,
+    require(after.size() == before.size() + 17 - 1,
             "create and delete counts must match the resulting state");
     require(after.value(rootBefore.uuid).bytes == afterRoot &&
             after.value(importedJunction).bytes == newJunction &&
             !after.contains(removedPipe.uuid) &&
-            after.value(uuid(700)).bytes == QByteArray("untouched"),
+            after.value(uuid(700)).bytes == before.value(uuid(700)).bytes,
             "canonical mixed action changed only requested images");
 
     const std::optional<ModelEditTransaction> inverse =
@@ -159,7 +163,7 @@ int main()
             ModelEditTransactionCodec::decode(inverseBytes).has_value(),
             "inverse is transportable in the unchanged AOWE codec");
     require(ModelEditHistory::apply(*inverse, state, &error) && state == before,
-            "all 18 creates, root metadata, update and delete undo byte-exactly");
+            "all 17 creates, root metadata, update and delete undo byte-exactly");
 
     const std::optional<ModelEditTransaction> redo =
         ModelEditHistory::redo(*decoded, uuid(502), &error);

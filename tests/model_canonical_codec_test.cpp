@@ -33,6 +33,13 @@ int main()
     const QByteArray encodedNetwork = aowis::model::ModelCodec<NetworkHydraulicDistribution>::encode(network);
     const std::optional<NetworkHydraulicDistribution> decodedNetwork =
         aowis::model::ModelCodec<NetworkHydraulicDistribution>::decode(encodedNetwork);
+    // A3 deliberately rejects the previous pre-release canonical envelope.
+    QByteArray obsoleteFormat = encodedNetwork;
+    if (obsoleteFormat.size() < 8)
+        return EXIT_FAILURE;
+    obsoleteFormat[7] = '\x01'; // big-endian codec format 1, rather than 2
+    if (aowis::model::ModelCodec<NetworkHydraulicDistribution>::decode(obsoleteFormat))
+        return EXIT_FAILURE;
     if (encodedNetwork.isEmpty() || !decodedNetwork ||
         decodedNetwork->nodes_junctions.size() != 1 ||
         decodedNetwork->nodes_junctions.first().uuid != junction.uuid)

@@ -6,6 +6,11 @@ owns a competing implementation. Model schema manifest, enum generation,
 field-aware comparisons and numeric value rules live here. DVMDB only supplies
 storage-specific record envelopes, revisions, working-copy state and HTTP.
 
+The typed canonical codec envelope is **format 2** since A3: format 1
+(pre-release, with `HydraulicMapLabel` in the hydraulic network) is rejected
+without migration. Old development repositories must be recreated; all MODEL
+consumers must use matching codecs before exchanging payloads.
+
 The canonical entity payload uses deterministic binary `QDataStream` fields,
 not ZIP-compressed JSON. Small logical editing transactions are kept as
 uncompressed, bounded binary frames with integrity checks. Use compression on

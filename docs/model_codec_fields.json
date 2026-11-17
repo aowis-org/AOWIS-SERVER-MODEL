@@ -741,28 +741,6 @@
       "offset_latitude_deg"
     ]
   ],
-  "HydraulicMapLabel": [
-    [
-      "QString",
-      "id"
-    ],
-    [
-      "QUuid",
-      "uuid"
-    ],
-    [
-      "CoordinateWGS84",
-      "coordinate_wgs84"
-    ],
-    [
-      "QString",
-      "text"
-    ],
-    [
-      "QUuid",
-      "anchor_node_uuid"
-    ]
-  ],
   "HydraulicNodeJunction": [
     [
       "QString",
@@ -1825,10 +1803,6 @@
     [
       "QList<HydraulicControlRule>",
       "controls_rules"
-    ],
-    [
-      "QList<HydraulicMapLabel>",
-      "map_labels"
     ],
     [
       "HydraulicMapBackdrop",

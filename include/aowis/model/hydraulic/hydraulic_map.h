@@ -2,19 +2,8 @@
 #define AOWIS_MODEL_HYDRAULIC_MAP_H
 
 #include <QString>
-#include <QUuid>
 
 #include "../gis.h"
-
-struct HydraulicMapLabel
-{
-    QString id;
-    QUuid uuid;
-
-    CoordinateWGS84 coordinate_wgs84;
-    QString text;
-    QUuid anchor_node_uuid;
-};
 
 struct HydraulicMapBackdrop
 {

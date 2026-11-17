@@ -415,11 +415,6 @@ void check(Rules &rules, const QString &path, const NetworkPresentationUnits &va
     }
 }
 
-void check(Rules &rules, const QString &path, const HydraulicMapLabel &value)
-{
-    check(rules, field(path, "coordinate_wgs84"), value.coordinate_wgs84);
-}
-
 void check(Rules &rules, const QString &path, const HydraulicNodeJunctionEmitter &value)
 {
     rules.atLeast(field(path, "coefficient"), value.coefficient, 0.0);
@@ -761,7 +756,6 @@ void check(Rules &rules, const QString &path, const NetworkHydraulicDistribution
     checkEntities(rules, "valve", value.links_valves);
     checkEntities(rules, "control_simple", value.controls_simple);
     checkEntities(rules, "control_rule", value.controls_rules);
-    checkEntities(rules, "map_label", value.map_labels);
     check(rules, field(path, "map_backdrop"), value.map_backdrop);
     if (value.presentation_units)
         check(rules, field(path, "presentation_units"), *value.presentation_units);
@@ -819,7 +813,5 @@ ModelValidationReport validateHydraulicEntityValues(const HydraulicControlSimple
 { return entityReport("control_simple", entity); }
 ModelValidationReport validateHydraulicEntityValues(const HydraulicControlRule &entity)
 { return entityReport("control_rule", entity); }
-ModelValidationReport validateHydraulicEntityValues(const HydraulicMapLabel &entity)
-{ return entityReport("map_label", entity); }
 
 } // namespace aowis::model

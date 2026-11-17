@@ -87,7 +87,6 @@ ModelValidationReport validateHydraulicEntityValues(const HydraulicLinkPump &ent
 ModelValidationReport validateHydraulicEntityValues(const HydraulicLinkValve &entity);
 ModelValidationReport validateHydraulicEntityValues(const HydraulicControlSimple &entity);
 ModelValidationReport validateHydraulicEntityValues(const HydraulicControlRule &entity);
-ModelValidationReport validateHydraulicEntityValues(const HydraulicMapLabel &entity);
 
 } // namespace aowis::model
 #endif // AOWIS_MODEL_SERIALIZATION_MODEL_VALIDATION_H

@@ -162,11 +162,6 @@ public:
             for (const HydraulicControlRuleAction &action : rule.actions_else)
                 check(action.link_uuid, this->links_, path, QStringLiteral("actions_else.link_uuid"));
         }
-        for (const HydraulicMapLabel &label : this->network_.map_labels)
-        {
-            this->current_source_ = label.uuid;
-            check(label.anchor_node_uuid, this->nodes_, context(QStringLiteral("map_label"), label.uuid), QStringLiteral("anchor_node_uuid"));
-        }
         this->current_source_ = this->network_.uuid;
         check(this->network_.options_hydraulic.default_demand_pattern_uuid, this->patterns_, QStringLiteral("network"), QStringLiteral("options_hydraulic.default_demand_pattern_uuid"));
         check(this->network_.options_energy.global_energy_price_pattern_uuid, this->patterns_, QStringLiteral("network"), QStringLiteral("options_energy.global_energy_price_pattern_uuid"));

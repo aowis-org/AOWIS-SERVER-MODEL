@@ -57,8 +57,9 @@ validation and field-aware merge for `map.annotation` and
 placement/attachment operations deliberately do **not** live in MODEL: their
 implementation belongs to shared AOWIS geospatial services (see the
 contract's geodesy integration gate).
-The historical hydraulic `HydraulicMapLabel` remains until A3; the
-independent DVMDB record graph is implemented in phase B.
+The obsolete hydraulic map-label collection was removed in A3. Annotations
+are standalone MODEL records and do not belong inside the hydraulic network.
+Independent DVMDB layer persistence remains phase B.
 
 ## Offline-first editing transactions
 

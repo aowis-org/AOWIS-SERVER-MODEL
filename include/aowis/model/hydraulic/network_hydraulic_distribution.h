@@ -75,7 +75,6 @@ struct NetworkHydraulicDistribution
     QList<HydraulicControlSimple> controls_simple;
     QList<HydraulicControlRule> controls_rules;
 
-    QList<HydraulicMapLabel> map_labels;
     HydraulicMapBackdrop map_backdrop;
 
     // Project units: the presentation units stored with this network. Empty
