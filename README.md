@@ -99,7 +99,7 @@ Headers can then be included directly:
 ```cpp
 #include <aowis/model/project.h>
 #include <aowis/model/gis.h>
-#include <aowis/model/hydraulic/network_hydraulic.h>
+#include <aowis/model/hydraulic/network_hydraulic_distribution.h>
 #include <aowis/model/hydraulic/hydraulic_simulation_results.h>
 ```
 
@@ -144,7 +144,7 @@ QList<HydraulicLinkPipe> links_pipes;
 QList<HydraulicCurvePumpHead> curves_pump_head;
 ```
 
-`WaterQualitySolverOptions` describes one requested quality analysis rather than persistent network state. Solver execution requests carry those options alongside a `NetworkHydraulic`; the network itself stores quality inputs, sources, mixing, reactions, and shared simulation timing.
+`WaterQualitySolverOptions` describes one requested quality analysis rather than persistent network state. Solver execution requests carry those options alongside a `NetworkHydraulicDistribution`; the network itself stores quality inputs, sources, mixing, reactions, and shared simulation timing.
 
 ## Contributing
 
@@ -193,3 +193,7 @@ outputs. MODEL can use the same scripts when checked out as a Git submodule.
 The canonical typed binary entity codec, validation and model-level merge logic live
 in MODEL, alongside [reversible editing transactions](docs/edit-transactions.md).
 See [serialization ownership and pre-release format policy](docs/model-serialization.md).
+
+### Hydraulic network specialization
+
+`NetworkHydraulicDistribution` represents the existing pressurized water distribution model. `NetworkHydraulicDrainage` is reserved as the name of a future drainage network model; it is not currently implemented. There is no generic `NetworkHydraulic` base class.

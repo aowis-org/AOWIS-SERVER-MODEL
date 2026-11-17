@@ -716,7 +716,7 @@ void checkEntities(Rules &rules, const char *kind, const QList<T> &list)
         check(rules, entityPath(kind, entity.uuid), entity);
 }
 
-void check(Rules &rules, const QString &path, const NetworkHydraulic &value)
+void check(Rules &rules, const QString &path, const NetworkHydraulicDistribution &value)
 {
     rules.unbounded(field(path, "duration_s"), value.duration_s);
     rules.positiveDuration(field(path, "timestep_hydraulic_s"), value.timestep_hydraulic_s);
@@ -765,7 +765,7 @@ ModelValidationReport entityReport(const char *kind, const T &entity)
 }
 } // namespace
 
-ModelValidationReport validateHydraulicValues(const NetworkHydraulic &network)
+ModelValidationReport validateHydraulicDistributionValues(const NetworkHydraulicDistribution &network)
 {
     ModelValidationReport report;
     Rules rules(report);

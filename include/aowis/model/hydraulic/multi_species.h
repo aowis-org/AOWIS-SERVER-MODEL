@@ -252,7 +252,7 @@ struct MultiSpeciesRunOptions
     QList<QUuid> output_species_uuids;
 };
 
-// The full multi-species reaction model attached to a NetworkHydraulic. An
+// The full multi-species reaction model attached to a NetworkHydraulicDistribution. An
 // empty species list means no multi-species model is defined for this
 // network, mirroring how an empty patterns_time list means no time patterns
 // are defined.

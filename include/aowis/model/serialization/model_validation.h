@@ -1,7 +1,7 @@
 #ifndef AOWIS_MODEL_SERIALIZATION_MODEL_VALIDATION_H
 #define AOWIS_MODEL_SERIALIZATION_MODEL_VALIDATION_H
 
-#include <aowis/model/hydraulic/network_hydraulic.h>
+#include <aowis/model/hydraulic/network_hydraulic_distribution.h>
 
 #include <QString>
 #include <QUuid>
@@ -31,11 +31,11 @@ struct HydraulicReference
     QString field;
 };
 
-QVector<HydraulicReference> hydraulicReferences(const NetworkHydraulic &network);
+QVector<HydraulicReference> hydraulicDistributionReferences(const NetworkHydraulicDistribution &network);
 
 // Compact dependency edges for persistence. Unlike HydraulicReference these
 // carry no diagnostic field strings, and are produced during the *same*
-// canonical validation pass. Keep hydraulicReferences() for diagnostic users.
+// canonical validation pass. Keep hydraulicDistributionReferences() for diagnostic users.
 struct HydraulicDependency
 {
     QUuid source_uuid;
@@ -48,22 +48,22 @@ struct HydraulicDependencyValidation
     QVector<HydraulicDependency> dependencies;
 };
 
-HydraulicDependencyValidation validateHydraulicNetworkWithDependencies(
-    const NetworkHydraulic &network);
+HydraulicDependencyValidation validateHydraulicDistributionNetworkWithDependencies(
+    const NetworkHydraulicDistribution &network);
 
 // Validates present (non-null) UUID references and graph relationships, and
 // the physical value rules below. Deliberately permits NULL references while
 // constructing incomplete drafts. Does not perform hydraulic solver
 // feasibility or attachment file validation.
-ModelValidationReport validateHydraulicNetwork(const NetworkHydraulic &network);
+ModelValidationReport validateHydraulicDistributionNetwork(const NetworkHydraulicDistribution &network);
 
 // Physical value rules (docs/model-value-rules.md): every number finite,
 // plus per-field ranges. Impossible values are rejected (negative lengths,
 // efficiencies above 100 %, inverted tank levels, unordered curves); zero or
 // empty "not yet set" values of a draft are accepted. Part of every
-// validateHydraulicNetwork* result; the entity overloads check one edited
+// validateHydraulicDistributionNetwork* result; the entity overloads check one edited
 // entity before any edit path stores it.
-ModelValidationReport validateHydraulicValues(const NetworkHydraulic &network);
+ModelValidationReport validateHydraulicDistributionValues(const NetworkHydraulicDistribution &network);
 ModelValidationReport validateHydraulicEntityValues(const HydraulicPipeMaterial &entity);
 ModelValidationReport validateHydraulicEntityValues(const HydraulicPatternTime &entity);
 ModelValidationReport validateHydraulicEntityValues(const HydraulicCurveTankVolume &entity);

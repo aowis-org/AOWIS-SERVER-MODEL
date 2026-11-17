@@ -61,9 +61,9 @@ def main():
         # root merge fails the build.
         codec_text = (source / 'src/model_codec.cpp').read_text(encoding='utf-8')
         for removed, name in (
-                ('&NetworkHydraulic::title_line_2, "title_line_2"', 'title_line_2'),
+                ('&NetworkHydraulicDistribution::title_line_2, "title_line_2"', 'title_line_2'),
                 ('&HydraulicSolverOptions::accuracy, "accuracy"', 'accuracy'),
-                ('&NetworkHydraulic::presentation_units,', 'presentation_units')):
+                ('&NetworkHydraulicDistribution::presentation_units,', 'presentation_units')):
             lines = [line for line in codec_text.splitlines(keepends=True) if removed not in line]
             expect(len(lines) == len(codec_text.splitlines(keepends=True)) - 1,
                    f'root merge line for {name} not found')

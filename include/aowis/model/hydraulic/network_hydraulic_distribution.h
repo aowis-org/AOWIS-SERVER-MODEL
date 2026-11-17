@@ -1,5 +1,5 @@
-#ifndef AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_H
-#define AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_H
+#ifndef AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_DISTRIBUTION_H
+#define AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_DISTRIBUTION_H
 
 #include <QList>
 #include <QString>
@@ -20,7 +20,7 @@
 #include "hydraulic_simulation_options.h"
 #include "hydraulic_types.h"
 
-struct NetworkHydraulic
+struct NetworkHydraulicDistribution
 {
     QString id;
     QUuid uuid;
@@ -85,4 +85,4 @@ struct NetworkHydraulic
 
 };
 
-#endif // AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_H
+#endif // AOWIS_MODEL_HYDRAULIC_NETWORK_HYDRAULIC_DISTRIBUTION_H

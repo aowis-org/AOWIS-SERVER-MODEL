@@ -14,7 +14,7 @@ namespace aowis::model
 // the kind/payload cannot be safely merged and must retain entity-level
 // conflict handling. EntityMetadata is merged by its seven subfields; other nested values and collections are atomic fields.
 // Kind "hydraulic.network_root" merges network-root metadata images
-// (aowis::model::hydraulicRootImage): every scalar root field separately, the
+// (aowis::model::hydraulicDistributionRootImage): every scalar root field separately, the
 // option groups and map backdrop by their fields ("options_hydraulic.accuracy"),
 // multi_species as one field, and the project units by name, source profile
 // and per quantity ("presentation_units.units.<quantity>"); adding/removing

@@ -1,6 +1,6 @@
 #include <aowis/model/serialization/model_codec.h>
 #include <aowis/model/serialization/model_field_merge.h>
-#include <aowis/model/edit/hydraulic_root_edit.h>
+#include <aowis/model/edit/hydraulic_distribution_root_edit.h>
 
 #include <QDataStream>
 #include <QIODevice>
@@ -148,8 +148,8 @@ void writeStruct(QDataStream &stream, const MultiSpeciesSpecies &value);
 void readStruct(QDataStream &stream, MultiSpeciesSpecies &value);
 void writeStruct(QDataStream &stream, const MultiSpeciesTerm &value);
 void readStruct(QDataStream &stream, MultiSpeciesTerm &value);
-void writeStruct(QDataStream &stream, const NetworkHydraulic &value);
-void readStruct(QDataStream &stream, NetworkHydraulic &value);
+void writeStruct(QDataStream &stream, const NetworkHydraulicDistribution &value);
+void readStruct(QDataStream &stream, NetworkHydraulicDistribution &value);
 void writeStruct(QDataStream &stream, const NetworkMultiSpecies &value);
 void readStruct(QDataStream &stream, NetworkMultiSpecies &value);
 void writeStruct(QDataStream &stream, const PumpEnergyOptions &value);
@@ -1526,7 +1526,7 @@ void readStruct(QDataStream &stream, MultiSpeciesTerm &value)
     readValue(stream, value.expression);
 }
 
-void writeStruct(QDataStream &stream, const NetworkHydraulic &value)
+void writeStruct(QDataStream &stream, const NetworkHydraulicDistribution &value)
 {
     writeValue(stream, value.id);
     writeValue(stream, value.uuid);
@@ -1569,7 +1569,7 @@ void writeStruct(QDataStream &stream, const NetworkHydraulic &value)
     writeValue(stream, value.map_backdrop);
     writeValue(stream, value.presentation_units);
 }
-void readStruct(QDataStream &stream, NetworkHydraulic &value)
+void readStruct(QDataStream &stream, NetworkHydraulicDistribution &value)
 {
     readValue(stream, value.id);
     readValue(stream, value.uuid);
@@ -2211,13 +2211,13 @@ std::optional<MultiSpeciesTerm> ModelCodec<MultiSpeciesTerm>::decode(const QByte
 {
     return decodeTyped<MultiSpeciesTerm>(bytes, QStringLiteral("MultiSpeciesTerm"), error);
 }
-QByteArray ModelCodec<NetworkHydraulic>::encode(const NetworkHydraulic &value)
+QByteArray ModelCodec<NetworkHydraulicDistribution>::encode(const NetworkHydraulicDistribution &value)
 {
-    return encodeTyped(value, QStringLiteral("NetworkHydraulic"));
+    return encodeTyped(value, QStringLiteral("NetworkHydraulicDistribution"));
 }
-std::optional<NetworkHydraulic> ModelCodec<NetworkHydraulic>::decode(const QByteArray &bytes, QString *error)
+std::optional<NetworkHydraulicDistribution> ModelCodec<NetworkHydraulicDistribution>::decode(const QByteArray &bytes, QString *error)
 {
-    return decodeTyped<NetworkHydraulic>(bytes, QStringLiteral("NetworkHydraulic"), error);
+    return decodeTyped<NetworkHydraulicDistribution>(bytes, QStringLiteral("NetworkHydraulicDistribution"), error);
 }
 QByteArray ModelCodec<NetworkMultiSpecies>::encode(const NetworkMultiSpecies &value)
 {
@@ -3011,9 +3011,9 @@ template<> std::optional<ModelFieldMerge> mergeFieldsForType<HydraulicMapLabel>(
 namespace
 {
 template<typename Group, typename Member>
-void chooseRootGroupField(const NetworkHydraulic &base, const NetworkHydraulic &left,
-    const NetworkHydraulic &right, NetworkHydraulic &merged,
-    Group NetworkHydraulic::*group, const char *group_name, Member Group::*member,
+void chooseRootGroupField(const NetworkHydraulicDistribution &base, const NetworkHydraulicDistribution &left,
+    const NetworkHydraulicDistribution &right, NetworkHydraulicDistribution &merged,
+    Group NetworkHydraulicDistribution::*group, const char *group_name, Member Group::*member,
     const char *name, QStringList &conflicts, const QMap<QString, bool> &field_choices)
 {
     const QByteArray full_name = QByteArray(group_name) + '.' + name;
@@ -3042,9 +3042,9 @@ QMap<QString, QString> presentationUnitMap(const std::optional<NetworkPresentati
 // while the other branch changed it is one decision ("presentation_units");
 // otherwise name, source profile and every quantity merge independently. A
 // quantity removed on one branch and unchanged on the other is removed.
-void mergePresentationUnits(const NetworkHydraulic &base, const NetworkHydraulic &left,
-    const NetworkHydraulic &right, NetworkHydraulic &merged,
-    std::optional<NetworkPresentationUnits> NetworkHydraulic::*member,
+void mergePresentationUnits(const NetworkHydraulicDistribution &base, const NetworkHydraulicDistribution &left,
+    const NetworkHydraulicDistribution &right, NetworkHydraulicDistribution &merged,
+    std::optional<NetworkPresentationUnits> NetworkHydraulicDistribution::*member,
     QStringList &conflicts, const QMap<QString, bool> &field_choices)
 {
     const std::optional<NetworkPresentationUnits> &ancestor = base.*member;
@@ -3127,79 +3127,79 @@ std::optional<ModelFieldMerge> mergeNetworkRootFields(const QUuid &object_uuid,
     const QByteArray &baseline_bytes, const QByteArray &left_bytes,
     const QByteArray &right_bytes, const QMap<QString, bool> &field_choices)
 {
-    const std::optional<NetworkHydraulic> baseline = decodeHydraulicRootImage(baseline_bytes);
-    const std::optional<NetworkHydraulic> left = decodeHydraulicRootImage(left_bytes);
-    const std::optional<NetworkHydraulic> right = decodeHydraulicRootImage(right_bytes);
+    const std::optional<NetworkHydraulicDistribution> baseline = decodeHydraulicDistributionRootImage(baseline_bytes);
+    const std::optional<NetworkHydraulicDistribution> left = decodeHydraulicDistributionRootImage(left_bytes);
+    const std::optional<NetworkHydraulicDistribution> right = decodeHydraulicDistributionRootImage(right_bytes);
     if (!baseline || !left || !right || baseline->uuid != object_uuid ||
         left->uuid != object_uuid || right->uuid != object_uuid)
         return std::nullopt;
-    NetworkHydraulic merged = *left;
+    NetworkHydraulicDistribution merged = *left;
     ModelFieldMerge result;
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::id, "id", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::uuid, "uuid", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::title_line_1, "title_line_1", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::title_line_2, "title_line_2", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::title_line_3, "title_line_3", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::duration_s, "duration_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_hydraulic_s, "timestep_hydraulic_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_quality_s, "timestep_quality_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_pattern_s, "timestep_pattern_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::start_pattern_s, "start_pattern_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_report_s, "timestep_report_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::start_report_s, "start_report_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_rule_s, "timestep_rule_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::start_time_of_day_s, "start_time_of_day_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::report_statistic, "report_statistic", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::headloss_formula, "headloss_formula", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::demand_model, "demand_model", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::minimum_pressure_head_m, "minimum_pressure_head_m", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::required_pressure_head_m, "required_pressure_head_m", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::pressure_exponent, "pressure_exponent", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_trials, "maximum_trials", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::accuracy, "accuracy", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::unbalanced_action, "unbalanced_action", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::unbalanced_extra_trials, "unbalanced_extra_trials", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::check_frequency, "check_frequency", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_check, "maximum_check", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::damping_limit, "damping_limit", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_head_error_m, "maximum_head_error_m", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_flow_change_m3_per_h, "maximum_flow_change_m3_per_h", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::demand_multiplier, "demand_multiplier", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::default_demand_pattern_uuid, "default_demand_pattern_uuid", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::emitters_can_backflow, "emitters_can_backflow", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::specific_gravity, "specific_gravity", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::relative_viscosity, "relative_viscosity", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_pipe_bulk_reaction, "global_pipe_bulk_reaction", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_pipe_wall_reaction, "global_pipe_wall_reaction", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_tank_bulk_reaction, "global_tank_bulk_reaction", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::limiting_concentration_mg_per_l, "limiting_concentration_mg_per_l", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::roughness_reaction_factor, "roughness_reaction_factor", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::currency_iso4217, "currency_iso4217", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::global_pump_efficiency_percent, "global_pump_efficiency_percent", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::global_energy_price_per_kw_h, "global_energy_price_per_kw_h", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::global_energy_price_pattern_uuid, "global_energy_price_pattern_uuid", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::demand_charge_per_kw, "demand_charge_per_kw", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::page_size, "page_size", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::status, "status", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::summary, "summary", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::messages, "messages", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::energy, "energy", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::selection_nodes, "selection_nodes", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::selection_links, "selection_links", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::fields_node, "fields_node", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::fields_link, "fields_link", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::backend_commands, "backend_commands", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::multi_species, "multi_species", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::enabled, "enabled", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::lower_left_wgs84, "lower_left_wgs84", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::upper_right_wgs84, "upper_right_wgs84", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::file, "file", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::offset_longitude_deg, "offset_longitude_deg", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::offset_latitude_deg, "offset_latitude_deg", result.conflicting_fields, field_choices);
-    mergePresentationUnits(*baseline, *left, *right, merged, &NetworkHydraulic::presentation_units, result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::id, "id", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::uuid, "uuid", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::title_line_1, "title_line_1", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::title_line_2, "title_line_2", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::title_line_3, "title_line_3", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::duration_s, "duration_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::timestep_hydraulic_s, "timestep_hydraulic_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::timestep_quality_s, "timestep_quality_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::timestep_pattern_s, "timestep_pattern_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::start_pattern_s, "start_pattern_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::timestep_report_s, "timestep_report_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::start_report_s, "start_report_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::timestep_rule_s, "timestep_rule_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::start_time_of_day_s, "start_time_of_day_s", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::report_statistic, "report_statistic", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::headloss_formula, "headloss_formula", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::demand_model, "demand_model", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::minimum_pressure_head_m, "minimum_pressure_head_m", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::required_pressure_head_m, "required_pressure_head_m", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::pressure_exponent, "pressure_exponent", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_trials, "maximum_trials", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::accuracy, "accuracy", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::unbalanced_action, "unbalanced_action", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::unbalanced_extra_trials, "unbalanced_extra_trials", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::check_frequency, "check_frequency", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_check, "maximum_check", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::damping_limit, "damping_limit", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_head_error_m, "maximum_head_error_m", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_flow_change_m3_per_h, "maximum_flow_change_m3_per_h", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::demand_multiplier, "demand_multiplier", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::default_demand_pattern_uuid, "default_demand_pattern_uuid", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::emitters_can_backflow, "emitters_can_backflow", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::specific_gravity, "specific_gravity", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::relative_viscosity, "relative_viscosity", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_pipe_bulk_reaction, "global_pipe_bulk_reaction", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_pipe_wall_reaction, "global_pipe_wall_reaction", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_tank_bulk_reaction, "global_tank_bulk_reaction", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_reaction, "options_reaction", &WaterQualityReactionOptions::limiting_concentration_mg_per_l, "limiting_concentration_mg_per_l", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_reaction, "options_reaction", &WaterQualityReactionOptions::roughness_reaction_factor, "roughness_reaction_factor", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_energy, "options_energy", &PumpEnergyOptions::currency_iso4217, "currency_iso4217", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_energy, "options_energy", &PumpEnergyOptions::global_pump_efficiency_percent, "global_pump_efficiency_percent", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_energy, "options_energy", &PumpEnergyOptions::global_energy_price_per_kw_h, "global_energy_price_per_kw_h", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_energy, "options_energy", &PumpEnergyOptions::global_energy_price_pattern_uuid, "global_energy_price_pattern_uuid", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_energy, "options_energy", &PumpEnergyOptions::demand_charge_per_kw, "demand_charge_per_kw", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::page_size, "page_size", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::status, "status", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::summary, "summary", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::messages, "messages", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::energy, "energy", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::selection_nodes, "selection_nodes", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::selection_links, "selection_links", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::fields_node, "fields_node", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::fields_link, "fields_link", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::options_report, "options_report", &HydraulicSimulationReportOptions::backend_commands, "backend_commands", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::multi_species, "multi_species", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::enabled, "enabled", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::lower_left_wgs84, "lower_left_wgs84", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::upper_right_wgs84, "upper_right_wgs84", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::file, "file", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::offset_longitude_deg, "offset_longitude_deg", result.conflicting_fields, field_choices);
+    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::offset_latitude_deg, "offset_latitude_deg", result.conflicting_fields, field_choices);
+    mergePresentationUnits(*baseline, *left, *right, merged, &NetworkHydraulicDistribution::presentation_units, result.conflicting_fields, field_choices);
     if (result.conflicting_fields.isEmpty())
     {
-        result.content = hydraulicRootImage(merged);
+        result.content = hydraulicDistributionRootImage(merged);
         if (result.content.isEmpty())
             return std::nullopt;
     }

@@ -70,7 +70,7 @@ def inspect(root):
         reached[type_name] = models[type_name]
         for field_type, _ in models[type_name]:
             visit(element_type(field_type))
-    visit('NetworkHydraulic')
+    visit('NetworkHydraulicDistribution')
     return dict(sorted(reached.items()))
 
 
@@ -123,7 +123,7 @@ def check_codec(expected, codec):
 
 
 def check_root_merge(expected, codec):
-    """Every non-collection NetworkHydraulic field, and every non-list field of
+    """Every non-collection NetworkHydraulicDistribution field, and every non-list field of
     each struct whose members the root merge names (&Type::field), must be
     merged explicitly, so a new root field can never be silently dropped."""
     matches = re.findall(r'std::optional<ModelFieldMerge> mergeNetworkRootFields\(.*?\{(.*?)\n\}',
@@ -133,12 +133,12 @@ def check_root_merge(expected, codec):
         return False
     body = matches[0]
     named = set(re.findall(r'&(\w+)::(\w+)', body))
-    types = {type_name for type_name, _ in named} | {'NetworkHydraulic'}
+    types = {type_name for type_name, _ in named} | {'NetworkHydraulicDistribution'}
     for type_name in sorted(types):
         if type_name not in expected:
             continue
         for field_type, name in expected[type_name]:
-            if field_type.startswith('QList<') and type_name == 'NetworkHydraulic':
+            if field_type.startswith('QList<') and type_name == 'NetworkHydraulicDistribution':
                 continue  # collections merge through membership chunks
             if field_type.startswith('QList<'):
                 continue

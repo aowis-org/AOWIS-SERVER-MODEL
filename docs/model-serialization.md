@@ -25,7 +25,7 @@ Configure-time `tools/check_model_codec.py` verifies fields and numeric rules.
 
 ## Project units
 
-`NetworkHydraulic::presentation_units` (`NetworkPresentationUnits`, empty by
+`NetworkHydraulicDistribution::presentation_units` (`NetworkPresentationUnits`, empty by
 default) stores the network's presentation units: a name, the informational
 id of the profile it was copied from, and a sorted list of
 `{quantity, unit}` choices. It is root metadata, so it is versioned, committed and

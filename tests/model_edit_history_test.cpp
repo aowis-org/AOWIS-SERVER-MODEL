@@ -1,5 +1,5 @@
 #include <aowis/model/edit/model_edit_history.h>
-#include <aowis/model/edit/hydraulic_root_edit.h>
+#include <aowis/model/edit/hydraulic_distribution_root_edit.h>
 #include <aowis/model/serialization/model_codec.h>
 
 #include <QByteArray>
@@ -49,7 +49,7 @@ ModelHistoryImageMap startingState(const QUuid &networkId, const QByteArray &roo
                                    const QUuid &pipeId, const QByteArray &pipeImage)
 {
     ModelHistoryImageMap state;
-    state.insert(networkId, {QString::fromLatin1(aowis::model::hydraulicRootEditType), rootImage});
+    state.insert(networkId, {QString::fromLatin1(aowis::model::hydraulicDistributionRootEditType), rootImage});
     state.insert(junctionId, {QStringLiteral("HydraulicNodeJunction"), junctionImage});
     state.insert(pipeId, {QStringLiteral("HydraulicLinkPipe"), pipeImage});
     // An untouched entity must survive every transition unchanged.
@@ -60,17 +60,17 @@ ModelHistoryImageMap startingState(const QUuid &networkId, const QByteArray &roo
 
 int main()
 {
-    NetworkHydraulic rootBefore;
+    NetworkHydraulicDistribution rootBefore;
     rootBefore.uuid = uuid(100);
     rootBefore.id = QStringLiteral("Distribution");
     rootBefore.title_line_1 = QStringLiteral("Before");
     rootBefore.duration_s = 3600;
-    NetworkHydraulic rootAfter = rootBefore;
+    NetworkHydraulicDistribution rootAfter = rootBefore;
     rootAfter.title_line_1 = QStringLiteral("After");
     rootAfter.duration_s = 7200;
     rootAfter.map_backdrop.file = QStringLiteral("history.png");
-    const QByteArray beforeRoot = aowis::model::hydraulicRootImage(rootBefore);
-    const QByteArray afterRoot = aowis::model::hydraulicRootImage(rootAfter);
+    const QByteArray beforeRoot = aowis::model::hydraulicDistributionRootImage(rootBefore);
+    const QByteArray afterRoot = aowis::model::hydraulicDistributionRootImage(rootAfter);
     require(!beforeRoot.isEmpty() && !afterRoot.isEmpty() && beforeRoot != afterRoot,
             "network root metadata images must be distinct canonical bytes");
 
@@ -121,7 +121,7 @@ int main()
 #undef ADD_HYDRAULIC_CREATE
     require(nextIdentity == 19, "all 18 hydraulic entity collections participate");
     action.edits.append(ModelEntityEdit{rootBefore.uuid,
-        QString::fromLatin1(aowis::model::hydraulicRootEditType), beforeRoot, afterRoot});
+        QString::fromLatin1(aowis::model::hydraulicDistributionRootEditType), beforeRoot, afterRoot});
     action.edits.append(ModelEntityEdit{importedJunction,
         QStringLiteral("HydraulicNodeJunction"), oldJunction, newJunction});
     action.edits.append(ModelEntityEdit{removedPipe.uuid,

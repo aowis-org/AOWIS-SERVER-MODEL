@@ -24,7 +24,7 @@ class NetworkReferenceValidator final
 public:
     enum class CollectionMode { None, Diagnostic, Compact };
 
-    explicit NetworkReferenceValidator(const NetworkHydraulic &network,
+    explicit NetworkReferenceValidator(const NetworkHydraulicDistribution &network,
                                        CollectionMode mode = CollectionMode::None)
         : network_(network), mode_(mode)
     {
@@ -178,7 +178,7 @@ public:
                 check(uuid, this->links_, QStringLiteral("network"), QStringLiteral("options_report.selection_links.uuids"));
         msx();
         // Physical value rules belong to the same canonical validation.
-        this->result_.issues.append(validateHydraulicValues(this->network_).issues);
+        this->result_.issues.append(validateHydraulicDistributionValues(this->network_).issues);
         return this->result_;
     }
 
@@ -290,7 +290,7 @@ private:
         return result;
     }
 
-    const NetworkHydraulic &network_;
+    const NetworkHydraulicDistribution &network_;
     ModelValidationReport result_;
     QVector<HydraulicReference> references_;
     QVector<HydraulicDependency> dependencies_;
@@ -301,20 +301,20 @@ private:
 };
 } // namespace
 
-ModelValidationReport validateHydraulicNetwork(const NetworkHydraulic &network)
+ModelValidationReport validateHydraulicDistributionNetwork(const NetworkHydraulicDistribution &network)
 {
     return NetworkReferenceValidator(network).validate();
 }
 
-QVector<HydraulicReference> hydraulicReferences(const NetworkHydraulic &network)
+QVector<HydraulicReference> hydraulicDistributionReferences(const NetworkHydraulicDistribution &network)
 {
     NetworkReferenceValidator validator(network, NetworkReferenceValidator::CollectionMode::Diagnostic);
     validator.validate(); // Same traversal as canonical reference validation.
     return validator.takeReferences();
 }
 
-HydraulicDependencyValidation validateHydraulicNetworkWithDependencies(
-    const NetworkHydraulic &network)
+HydraulicDependencyValidation validateHydraulicDistributionNetworkWithDependencies(
+    const NetworkHydraulicDistribution &network)
 {
     NetworkReferenceValidator validator(network, NetworkReferenceValidator::CollectionMode::Compact);
     HydraulicDependencyValidation result;
