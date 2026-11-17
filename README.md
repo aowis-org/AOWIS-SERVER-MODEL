@@ -47,6 +47,13 @@ include/aowis/model/
 
 The public headers under `include/aowis/model` form the consumable model API.
 
+## Map annotations (planned)
+
+The [map annotation MODEL contract](docs/map-annotations-contract.md) defines
+a future domain-neutral, revisioned annotation layer for Distribution and
+Drainage. This is an **architecture specification only** (A1); the current
+MODEL still contains legacy `HydraulicMapLabel` until A2/A3.
+
 ## Offline-first editing transactions
 
 `include/aowis/model/edit/model_edit_transaction.h` defines atomic, reversible
