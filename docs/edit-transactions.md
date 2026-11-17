@@ -42,12 +42,12 @@ The per-entity codec must validate embedded entity identifiers and types before
 applying the event. The transaction codec intentionally does not decode model
 fields; it remains usable by all model domains.
 
-### Hydraulic network-root metadata edits
+### Hydraulic distribution network-root metadata edits
 
-`NetworkHydraulicRoot` is the special edit type for a network's root metadata
+`NetworkHydraulicDistributionRoot` is the special edit type for a hydraulic distribution network's root metadata
 (title lines, timing, hydraulic/reaction/energy/report options, multi-species
 settings and backdrop). Its edit UUID is **the network UUID**. Each image is a
-canonical `ModelCodec<NetworkHydraulic>` payload with **all 18 entity lists
+canonical `ModelCodec<NetworkHydraulicDistribution>` payload with **all 18 entity lists
 empty**; lists are not moved, duplicated or replaced by root edits.
 
 Only before+after root updates are permitted. The network UUID cannot

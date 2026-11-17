@@ -10,15 +10,10 @@
 
 namespace aowis::model
 {
-// Internal, schema-aware top-level field merge. A nullopt result means that
-// the kind/payload cannot be safely merged and must retain entity-level
-// conflict handling. EntityMetadata is merged by its seven subfields; other nested values and collections are atomic fields.
-// Kind "hydraulic.network_root" merges network-root metadata images
-// (aowis::model::hydraulicRootImage): every scalar root field separately, the
-// option groups and map backdrop by their fields ("options_hydraulic.accuracy"),
-// multi_species as one field, and the project units by name, source profile
-// and per quantity ("presentation_units.units.<quantity>"); adding/removing
-// the whole unit set against a change on the other side is "presentation_units".
+// Schema-aware field merge for supported hydraulic distribution entities.
+// EntityMetadata is merged by its seven subfields; other nested values and
+// collections are atomic fields. Network-root metadata is not supported by
+// mergeModelFields and retains entity-level conflict handling.
 // field_choices maps an explicitly conflicting field name to whether the
 // right side wins. Unknown names are rejected by the commit caller.
 struct ModelFieldMerge

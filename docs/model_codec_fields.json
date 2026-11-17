@@ -1609,7 +1609,7 @@
       "expression"
     ]
   ],
-  "NetworkHydraulic": [
+  "NetworkHydraulicDistribution": [
     [
       "QString",
       "id"
@@ -1765,10 +1765,6 @@
     [
       "HydraulicMapBackdrop",
       "map_backdrop"
-    ],
-    [
-      "std::optional<NetworkPresentationUnits>",
-      "presentation_units"
     ]
   ],
   "NetworkMultiSpecies": [
@@ -1823,30 +1819,6 @@
     [
       "QList<MultiSpeciesNodeSource>",
       "sources"
-    ]
-  ],
-  "NetworkPresentationUnit": [
-    [
-      "QString",
-      "quantity"
-    ],
-    [
-      "QString",
-      "unit"
-    ]
-  ],
-  "NetworkPresentationUnits": [
-    [
-      "QString",
-      "name"
-    ],
-    [
-      "QString",
-      "derived_from_profile"
-    ],
-    [
-      "QList<NetworkPresentationUnit>",
-      "units"
     ]
   ],
   "PumpEnergyOptions": [

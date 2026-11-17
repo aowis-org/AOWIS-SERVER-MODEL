@@ -1,11 +1,9 @@
 #include <aowis/model/serialization/model_codec.h>
 #include <aowis/model/serialization/model_field_merge.h>
-#include <aowis/model/edit/hydraulic_root_edit.h>
 
 #include <QDataStream>
 #include <QIODevice>
 #include <QList>
-#include <QMap>
 #include <QSet>
 #include <QDate>
 #include <QStringList>
@@ -74,10 +72,6 @@ void writeStruct(QDataStream &stream, const HydraulicLinkValve &value);
 void readStruct(QDataStream &stream, HydraulicLinkValve &value);
 void writeStruct(QDataStream &stream, const HydraulicLinkVertex &value);
 void readStruct(QDataStream &stream, HydraulicLinkVertex &value);
-void writeStruct(QDataStream &stream, const NetworkPresentationUnit &value);
-void readStruct(QDataStream &stream, NetworkPresentationUnit &value);
-void writeStruct(QDataStream &stream, const NetworkPresentationUnits &value);
-void readStruct(QDataStream &stream, NetworkPresentationUnits &value);
 void writeStruct(QDataStream &stream, const HydraulicMapBackdrop &value);
 void readStruct(QDataStream &stream, HydraulicMapBackdrop &value);
 void writeStruct(QDataStream &stream, const HydraulicMapLabel &value);
@@ -148,8 +142,8 @@ void writeStruct(QDataStream &stream, const MultiSpeciesSpecies &value);
 void readStruct(QDataStream &stream, MultiSpeciesSpecies &value);
 void writeStruct(QDataStream &stream, const MultiSpeciesTerm &value);
 void readStruct(QDataStream &stream, MultiSpeciesTerm &value);
-void writeStruct(QDataStream &stream, const NetworkHydraulic &value);
-void readStruct(QDataStream &stream, NetworkHydraulic &value);
+void writeStruct(QDataStream &stream, const NetworkHydraulicDistribution &value);
+void readStruct(QDataStream &stream, NetworkHydraulicDistribution &value);
 void writeStruct(QDataStream &stream, const NetworkMultiSpecies &value);
 void readStruct(QDataStream &stream, NetworkMultiSpecies &value);
 void writeStruct(QDataStream &stream, const PumpEnergyOptions &value);
@@ -864,30 +858,6 @@ void readStruct(QDataStream &stream, HydraulicMapBackdrop &value)
     readValue(stream, value.offset_latitude_deg);
 }
 
-void writeStruct(QDataStream &stream, const NetworkPresentationUnit &value)
-{
-    writeValue(stream, value.quantity);
-    writeValue(stream, value.unit);
-}
-void readStruct(QDataStream &stream, NetworkPresentationUnit &value)
-{
-    readValue(stream, value.quantity);
-    readValue(stream, value.unit);
-}
-
-void writeStruct(QDataStream &stream, const NetworkPresentationUnits &value)
-{
-    writeValue(stream, value.name);
-    writeValue(stream, value.derived_from_profile);
-    writeValue(stream, value.units);
-}
-void readStruct(QDataStream &stream, NetworkPresentationUnits &value)
-{
-    readValue(stream, value.name);
-    readValue(stream, value.derived_from_profile);
-    readValue(stream, value.units);
-}
-
 void writeStruct(QDataStream &stream, const HydraulicMapLabel &value)
 {
     writeValue(stream, value.id);
@@ -1526,7 +1496,7 @@ void readStruct(QDataStream &stream, MultiSpeciesTerm &value)
     readValue(stream, value.expression);
 }
 
-void writeStruct(QDataStream &stream, const NetworkHydraulic &value)
+void writeStruct(QDataStream &stream, const NetworkHydraulicDistribution &value)
 {
     writeValue(stream, value.id);
     writeValue(stream, value.uuid);
@@ -1567,9 +1537,8 @@ void writeStruct(QDataStream &stream, const NetworkHydraulic &value)
     writeValue(stream, value.controls_rules);
     writeValue(stream, value.map_labels);
     writeValue(stream, value.map_backdrop);
-    writeValue(stream, value.presentation_units);
 }
-void readStruct(QDataStream &stream, NetworkHydraulic &value)
+void readStruct(QDataStream &stream, NetworkHydraulicDistribution &value)
 {
     readValue(stream, value.id);
     readValue(stream, value.uuid);
@@ -1610,7 +1579,6 @@ void readStruct(QDataStream &stream, NetworkHydraulic &value)
     readValue(stream, value.controls_rules);
     readValue(stream, value.map_labels);
     readValue(stream, value.map_backdrop);
-    readValue(stream, value.presentation_units);
 }
 
 void writeStruct(QDataStream &stream, const NetworkMultiSpecies &value)
@@ -2211,13 +2179,13 @@ std::optional<MultiSpeciesTerm> ModelCodec<MultiSpeciesTerm>::decode(const QByte
 {
     return decodeTyped<MultiSpeciesTerm>(bytes, QStringLiteral("MultiSpeciesTerm"), error);
 }
-QByteArray ModelCodec<NetworkHydraulic>::encode(const NetworkHydraulic &value)
+QByteArray ModelCodec<NetworkHydraulicDistribution>::encode(const NetworkHydraulicDistribution &value)
 {
-    return encodeTyped(value, QStringLiteral("NetworkHydraulic"));
+    return encodeTyped(value, QStringLiteral("NetworkHydraulicDistribution"));
 }
-std::optional<NetworkHydraulic> ModelCodec<NetworkHydraulic>::decode(const QByteArray &bytes, QString *error)
+std::optional<NetworkHydraulicDistribution> ModelCodec<NetworkHydraulicDistribution>::decode(const QByteArray &bytes, QString *error)
 {
-    return decodeTyped<NetworkHydraulic>(bytes, QStringLiteral("NetworkHydraulic"), error);
+    return decodeTyped<NetworkHydraulicDistribution>(bytes, QStringLiteral("NetworkHydraulicDistribution"), error);
 }
 QByteArray ModelCodec<NetworkMultiSpecies>::encode(const NetworkMultiSpecies &value)
 {
@@ -2997,216 +2965,6 @@ template<> std::optional<ModelFieldMerge> mergeFieldsForType<HydraulicMapLabel>(
     }
     return result;
 }
-// Network-root metadata merges field by field, so independent changes on two
-// branches combine instead of conflicting as one record:
-//  * scalar root fields (titles, durations, time steps, report statistic);
-//  * the option groups and the map backdrop by their own fields, named
-//    "<group>.<field>" (e.g. "options_hydraulic.accuracy");
-//  * multi_species as one field (its lists have no stable field identity);
-//  * project units by name, source profile and *per quantity*
-//    ("presentation_units.units.volumetric_flow_rate").
-// Collections never travel in a root image; membership merges separately.
-// tools/check_model_codec.py verifies that every root field, and every field
-// of each decomposed group, is listed in mergeNetworkRootFields().
-namespace
-{
-template<typename Group, typename Member>
-void chooseRootGroupField(const NetworkHydraulic &base, const NetworkHydraulic &left,
-    const NetworkHydraulic &right, NetworkHydraulic &merged,
-    Group NetworkHydraulic::*group, const char *group_name, Member Group::*member,
-    const char *name, QStringList &conflicts, const QMap<QString, bool> &field_choices)
-{
-    const QByteArray full_name = QByteArray(group_name) + '.' + name;
-    chooseMergeField(base.*group, left.*group, right.*group, merged.*group, member,
-        full_name.constData(), conflicts, field_choices);
-}
-
-std::optional<QString> presentationUnitFor(const QMap<QString, QString> &units, const QString &quantity)
-{
-    const QMap<QString, QString>::const_iterator found = units.constFind(quantity);
-    if (found == units.cend())
-        return std::nullopt;
-    return found.value();
-}
-
-QMap<QString, QString> presentationUnitMap(const std::optional<NetworkPresentationUnits> &units)
-{
-    QMap<QString, QString> result;
-    if (units)
-        for (const NetworkPresentationUnit &choice : units->units)
-            result.insert(choice.quantity, choice.unit);
-    return result;
-}
-
-// Three-way merge of the project units. Adding or removing the whole unit set
-// while the other branch changed it is one decision ("presentation_units");
-// otherwise name, source profile and every quantity merge independently. A
-// quantity removed on one branch and unchanged on the other is removed.
-void mergePresentationUnits(const NetworkHydraulic &base, const NetworkHydraulic &left,
-    const NetworkHydraulic &right, NetworkHydraulic &merged,
-    std::optional<NetworkPresentationUnits> NetworkHydraulic::*member,
-    QStringList &conflicts, const QMap<QString, bool> &field_choices)
-{
-    const std::optional<NetworkPresentationUnits> &ancestor = base.*member;
-    const std::optional<NetworkPresentationUnits> &ours = left.*member;
-    const std::optional<NetworkPresentationUnits> &theirs = right.*member;
-    const QByteArray ancestor_bytes = encodedMergeField(ancestor);
-    const QByteArray ours_bytes = encodedMergeField(ours);
-    const QByteArray theirs_bytes = encodedMergeField(theirs);
-    const QString whole = QStringLiteral("presentation_units");
-    if (ancestor_bytes.isEmpty() || ours_bytes.isEmpty() || theirs_bytes.isEmpty())
-    {
-        conflicts.append(whole);
-        return;
-    }
-    if (ours_bytes == theirs_bytes || theirs_bytes == ancestor_bytes)
-    {
-        merged.*member = ours;
-        return;
-    }
-    if (ours_bytes == ancestor_bytes)
-    {
-        merged.*member = theirs;
-        return;
-    }
-    if (!ours || !theirs)
-    {
-        const QMap<QString, bool>::const_iterator choice = field_choices.constFind(whole);
-        if (choice == field_choices.cend())
-            conflicts.append(whole);
-        else
-            merged.*member = choice.value() ? theirs : ours;
-        return;
-    }
-    const NetworkPresentationUnits none{};
-    const NetworkPresentationUnits &ancestor_units = ancestor ? *ancestor : none;
-    NetworkPresentationUnits result = *ours;
-    chooseMergeField(ancestor_units, *ours, *theirs, result, &NetworkPresentationUnits::name,
-        "presentation_units.name", conflicts, field_choices);
-    chooseMergeField(ancestor_units, *ours, *theirs, result, &NetworkPresentationUnits::derived_from_profile,
-        "presentation_units.derived_from_profile", conflicts, field_choices);
-    const QMap<QString, QString> ancestor_map = presentationUnitMap(ancestor);
-    const QMap<QString, QString> ours_map = presentationUnitMap(ours);
-    const QMap<QString, QString> theirs_map = presentationUnitMap(theirs);
-    // QMap iterates in QString (UTF-16 code unit) order: the canonical order.
-    QMap<QString, bool> quantities;
-    for (const QString &quantity : ancestor_map.keys()) quantities.insert(quantity, true);
-    for (const QString &quantity : ours_map.keys()) quantities.insert(quantity, true);
-    for (const QString &quantity : theirs_map.keys()) quantities.insert(quantity, true);
-    QList<NetworkPresentationUnit> units;
-    for (QMap<QString, bool>::const_iterator it = quantities.cbegin(); it != quantities.cend(); ++it)
-    {
-        const QString &quantity = it.key();
-        const std::optional<QString> ancestor_unit = presentationUnitFor(ancestor_map, quantity);
-        const std::optional<QString> ours_unit = presentationUnitFor(ours_map, quantity);
-        const std::optional<QString> theirs_unit = presentationUnitFor(theirs_map, quantity);
-        std::optional<QString> chosen;
-        if (ours_unit == theirs_unit || theirs_unit == ancestor_unit)
-            chosen = ours_unit;
-        else if (ours_unit == ancestor_unit)
-            chosen = theirs_unit;
-        else
-        {
-            const QString name = QStringLiteral("presentation_units.units.") + quantity;
-            const QMap<QString, bool>::const_iterator choice = field_choices.constFind(name);
-            if (choice == field_choices.cend())
-            {
-                conflicts.append(name);
-                continue;
-            }
-            chosen = choice.value() ? theirs_unit : ours_unit;
-        }
-        if (chosen)
-            units.append(NetworkPresentationUnit{quantity, *chosen});
-    }
-    result.units = units;
-    merged.*member = result;
-}
-
-std::optional<ModelFieldMerge> mergeNetworkRootFields(const QUuid &object_uuid,
-    const QByteArray &baseline_bytes, const QByteArray &left_bytes,
-    const QByteArray &right_bytes, const QMap<QString, bool> &field_choices)
-{
-    const std::optional<NetworkHydraulic> baseline = decodeHydraulicRootImage(baseline_bytes);
-    const std::optional<NetworkHydraulic> left = decodeHydraulicRootImage(left_bytes);
-    const std::optional<NetworkHydraulic> right = decodeHydraulicRootImage(right_bytes);
-    if (!baseline || !left || !right || baseline->uuid != object_uuid ||
-        left->uuid != object_uuid || right->uuid != object_uuid)
-        return std::nullopt;
-    NetworkHydraulic merged = *left;
-    ModelFieldMerge result;
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::id, "id", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::uuid, "uuid", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::title_line_1, "title_line_1", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::title_line_2, "title_line_2", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::title_line_3, "title_line_3", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::duration_s, "duration_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_hydraulic_s, "timestep_hydraulic_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_quality_s, "timestep_quality_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_pattern_s, "timestep_pattern_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::start_pattern_s, "start_pattern_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_report_s, "timestep_report_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::start_report_s, "start_report_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::timestep_rule_s, "timestep_rule_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::start_time_of_day_s, "start_time_of_day_s", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::report_statistic, "report_statistic", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::headloss_formula, "headloss_formula", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::demand_model, "demand_model", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::minimum_pressure_head_m, "minimum_pressure_head_m", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::required_pressure_head_m, "required_pressure_head_m", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::pressure_exponent, "pressure_exponent", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_trials, "maximum_trials", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::accuracy, "accuracy", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::unbalanced_action, "unbalanced_action", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::unbalanced_extra_trials, "unbalanced_extra_trials", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::check_frequency, "check_frequency", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_check, "maximum_check", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::damping_limit, "damping_limit", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_head_error_m, "maximum_head_error_m", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::maximum_flow_change_m3_per_h, "maximum_flow_change_m3_per_h", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::demand_multiplier, "demand_multiplier", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::default_demand_pattern_uuid, "default_demand_pattern_uuid", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::emitters_can_backflow, "emitters_can_backflow", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::specific_gravity, "specific_gravity", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_hydraulic, "options_hydraulic", &HydraulicSolverOptions::relative_viscosity, "relative_viscosity", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_pipe_bulk_reaction, "global_pipe_bulk_reaction", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_pipe_wall_reaction, "global_pipe_wall_reaction", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::global_tank_bulk_reaction, "global_tank_bulk_reaction", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::limiting_concentration_mg_per_l, "limiting_concentration_mg_per_l", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_reaction, "options_reaction", &WaterQualityReactionOptions::roughness_reaction_factor, "roughness_reaction_factor", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::currency_iso4217, "currency_iso4217", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::global_pump_efficiency_percent, "global_pump_efficiency_percent", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::global_energy_price_per_kw_h, "global_energy_price_per_kw_h", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::global_energy_price_pattern_uuid, "global_energy_price_pattern_uuid", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_energy, "options_energy", &PumpEnergyOptions::demand_charge_per_kw, "demand_charge_per_kw", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::page_size, "page_size", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::status, "status", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::summary, "summary", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::messages, "messages", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::energy, "energy", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::selection_nodes, "selection_nodes", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::selection_links, "selection_links", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::fields_node, "fields_node", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::fields_link, "fields_link", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::options_report, "options_report", &HydraulicSimulationReportOptions::backend_commands, "backend_commands", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &NetworkHydraulic::multi_species, "multi_species", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::enabled, "enabled", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::lower_left_wgs84, "lower_left_wgs84", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::upper_right_wgs84, "upper_right_wgs84", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::file, "file", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::offset_longitude_deg, "offset_longitude_deg", result.conflicting_fields, field_choices);
-    chooseRootGroupField(*baseline, *left, *right, merged, &NetworkHydraulic::map_backdrop, "map_backdrop", &HydraulicMapBackdrop::offset_latitude_deg, "offset_latitude_deg", result.conflicting_fields, field_choices);
-    mergePresentationUnits(*baseline, *left, *right, merged, &NetworkHydraulic::presentation_units, result.conflicting_fields, field_choices);
-    if (result.conflicting_fields.isEmpty())
-    {
-        result.content = hydraulicRootImage(merged);
-        if (result.content.isEmpty())
-            return std::nullopt;
-    }
-    return result;
-}
-} // namespace
-
 std::optional<ModelFieldMerge> mergeModelFields(const QUuid &object_uuid,
     const QString &kind, const QByteArray &base, const QByteArray &left,
     const QByteArray &right, const QMap<QString, bool> &field_choices)
@@ -3254,8 +3012,6 @@ std::optional<ModelFieldMerge> mergeModelFields(const QUuid &object_uuid,
         return mergeFieldsForType<HydraulicControlRule>(object_uuid, base, left, right, field_choices);
     if (kind == QStringLiteral("hydraulic.map_label"))
         return mergeFieldsForType<HydraulicMapLabel>(object_uuid, base, left, right, field_choices);
-    if (kind == QStringLiteral("hydraulic.network_root"))
-        return mergeNetworkRootFields(object_uuid, base, left, right, field_choices);
     return std::nullopt;
 }
 

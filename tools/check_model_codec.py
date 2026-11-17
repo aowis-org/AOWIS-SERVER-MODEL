@@ -5,8 +5,6 @@ Checks, against the checked-out AOWIS Model headers:
 - the field manifest (docs/model_codec_fields.json) lists exactly the
   persisted structs and fields;
 - the codec reads and writes every field in manifest order;
-- the network-root field merge (mergeNetworkRootFields) lists every root
-  field and every field of each nested group it decomposes;
 - with --value-rules: every numeric field (and every struct field that
   contains numbers) is checked by a value rule, so a new number can never be
   stored without a decided range;
@@ -70,7 +68,7 @@ def inspect(root):
         reached[type_name] = models[type_name]
         for field_type, _ in models[type_name]:
             visit(element_type(field_type))
-    visit('NetworkHydraulic')
+    visit('NetworkHydraulicDistribution')
     return dict(sorted(reached.items()))
 
 
@@ -118,32 +116,6 @@ def check_codec(expected, codec):
                       file=sys.stderr)
                 print('  Expected:', expected_names, file=sys.stderr)
                 print('  Found:', member_references, file=sys.stderr)
-                return False
-    return True
-
-
-def check_root_merge(expected, codec):
-    """Every non-collection NetworkHydraulic field, and every non-list field of
-    each struct whose members the root merge names (&Type::field), must be
-    merged explicitly, so a new root field can never be silently dropped."""
-    matches = re.findall(r'std::optional<ModelFieldMerge> mergeNetworkRootFields\(.*?\{(.*?)\n\}',
-                         codec, flags=re.S)
-    if len(matches) != 1:
-        print('Missing mergeNetworkRootFields() in the codec.', file=sys.stderr)
-        return False
-    body = matches[0]
-    named = set(re.findall(r'&(\w+)::(\w+)', body))
-    types = {type_name for type_name, _ in named} | {'NetworkHydraulic'}
-    for type_name in sorted(types):
-        if type_name not in expected:
-            continue
-        for field_type, name in expected[type_name]:
-            if field_type.startswith('QList<') and type_name == 'NetworkHydraulic':
-                continue  # collections merge through membership chunks
-            if field_type.startswith('QList<'):
-                continue
-            if (type_name, name) not in named:
-                print(f'Network-root merge does not merge {type_name}::{name}.', file=sys.stderr)
                 return False
     return True
 
@@ -235,10 +207,7 @@ def main():
                 print('   stored:', expected.get(key), file=sys.stderr)
                 print('   model: ', actual.get(key), file=sys.stderr)
         return 1
-    codec_text = pathlib.Path(arguments.codec).read_text(encoding='utf-8')
-    if not check_codec(expected, codec_text):
-        return 1
-    if not check_root_merge(expected, codec_text):
+    if not check_codec(expected, pathlib.Path(arguments.codec).read_text(encoding='utf-8')):
         return 1
     if arguments.value_rules:
         declared, _ = enums(root)

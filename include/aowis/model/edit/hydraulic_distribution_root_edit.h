@@ -1,7 +1,7 @@
-#ifndef AOWIS_MODEL_HYDRAULIC_ROOT_EDIT_H
-#define AOWIS_MODEL_HYDRAULIC_ROOT_EDIT_H
+#ifndef AOWIS_MODEL_HYDRAULIC_DISTRIBUTION_ROOT_EDIT_H
+#define AOWIS_MODEL_HYDRAULIC_DISTRIBUTION_ROOT_EDIT_H
 
-#include <aowis/model/hydraulic/network_hydraulic.h>
+#include <aowis/model/hydraulic/network_hydraulic_distribution.h>
 #include <aowis/model/serialization/model_codec.h>
 
 #include <optional>
@@ -12,9 +12,9 @@
 // travel as part of a root editing event. The canonical full-network codec is
 // used only for the metadata projection; no alternative serialization exists.
 namespace aowis::model {
-inline constexpr const char *hydraulicRootEditType = "NetworkHydraulicRoot";
+inline constexpr const char *hydraulicDistributionRootEditType = "NetworkHydraulicDistributionRoot";
 
-inline void clearHydraulicRootCollections(NetworkHydraulic &network)
+inline void clearHydraulicDistributionRootCollections(NetworkHydraulicDistribution &network)
 {
     network.pipe_materials.clear();
     network.patterns_time.clear();
@@ -36,26 +36,26 @@ inline void clearHydraulicRootCollections(NetworkHydraulic &network)
     network.map_labels.clear();
 }
 
-inline NetworkHydraulic hydraulicRootMetadata(const NetworkHydraulic &network)
+inline NetworkHydraulicDistribution hydraulicDistributionRootMetadata(const NetworkHydraulicDistribution &network)
 {
-    NetworkHydraulic metadata = network;
-    clearHydraulicRootCollections(metadata);
+    NetworkHydraulicDistribution metadata = network;
+    clearHydraulicDistributionRootCollections(metadata);
     return metadata;
 }
 
-inline QByteArray hydraulicRootImage(const NetworkHydraulic &network)
+inline QByteArray hydraulicDistributionRootImage(const NetworkHydraulicDistribution &network)
 {
-    return ModelCodec<NetworkHydraulic>::encode(hydraulicRootMetadata(network));
+    return ModelCodec<NetworkHydraulicDistribution>::encode(hydraulicDistributionRootMetadata(network));
 }
 
-inline std::optional<NetworkHydraulic> decodeHydraulicRootImage(
+inline std::optional<NetworkHydraulicDistribution> decodeHydraulicDistributionRootImage(
     const QByteArray &image, QString *error = nullptr)
 {
-    const std::optional<NetworkHydraulic> result =
-        ModelCodec<NetworkHydraulic>::decode(image, error);
+    const std::optional<NetworkHydraulicDistribution> result =
+        ModelCodec<NetworkHydraulicDistribution>::decode(image, error);
     if (!result.has_value() || result->uuid.isNull() ||
-        hydraulicRootImage(*result) != image ||
-        ModelCodec<NetworkHydraulic>::encode(*result) != image)
+        hydraulicDistributionRootImage(*result) != image ||
+        ModelCodec<NetworkHydraulicDistribution>::encode(*result) != image)
     {
         if (error) *error = QStringLiteral("Invalid or noncanonical network-root metadata image");
         return std::nullopt;
@@ -63,12 +63,12 @@ inline std::optional<NetworkHydraulic> decodeHydraulicRootImage(
     return result;
 }
 
-inline bool applyHydraulicRootMetadata(NetworkHydraulic &network,
-                                       const NetworkHydraulic &metadata)
+inline bool applyHydraulicDistributionRootMetadata(NetworkHydraulicDistribution &network,
+                                       const NetworkHydraulicDistribution &metadata)
 {
     if (metadata.uuid != network.uuid)
         return false;
-    NetworkHydraulic updated = metadata;
+    NetworkHydraulicDistribution updated = metadata;
     updated.pipe_materials = network.pipe_materials;
     updated.patterns_time = network.patterns_time;
     updated.curves_tank_volume = network.curves_tank_volume;
