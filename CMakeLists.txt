@@ -18,6 +18,7 @@ add_library(aowis-server-model STATIC
     src/model_codec.cpp
     src/model_validation.cpp
     src/model_value_validation.cpp
+    src/map_annotation_validation.cpp
 
     include/aowis/model/units/canonical_registry.h
     include/aowis/model/units/quantity.h
@@ -25,6 +26,7 @@ add_library(aowis-server-model STATIC
     include/aowis/model/units/conversion.h
     include/aowis/model/entity.h
     include/aowis/model/gis.h
+    include/aowis/model/map/map_annotation.h
     include/aowis/model/project.h
     include/aowis/model/revision.h
     include/aowis/model/uuid.h
@@ -153,6 +155,11 @@ if(BUILD_TESTING)
     target_compile_features(aowis-model-edit-history-test PRIVATE cxx_std_20)
     target_link_libraries(aowis-model-edit-history-test PRIVATE AOWIS::Model)
     add_test(NAME aowis-model-edit-history COMMAND aowis-model-edit-history-test)
+
+    add_executable(aowis-model-map-annotation-test tests/model_map_annotation_test.cpp)
+    target_compile_features(aowis-model-map-annotation-test PRIVATE cxx_std_20)
+    target_link_libraries(aowis-model-map-annotation-test PRIVATE AOWIS::Model)
+    add_test(NAME aowis-model-map-annotation COMMAND aowis-model-map-annotation-test)
 
     add_executable(aowis-model-canonical-codec-test tests/model_canonical_codec_test.cpp)
     target_compile_features(aowis-model-canonical-codec-test PRIVATE cxx_std_20)

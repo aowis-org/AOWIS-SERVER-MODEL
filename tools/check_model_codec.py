@@ -33,6 +33,7 @@ def strip_comments(data):
 def header_files(root):
     files = [root / 'entity.h', root / 'gis.h', root / 'measurement/water_meter.h']
     files.extend(sorted((root / 'hydraulic').glob('*.h')))
+    files.extend(sorted((root / 'map').glob('*.h')))
     return files
 
 
@@ -70,7 +71,8 @@ def inspect(root):
         reached[type_name] = models[type_name]
         for field_type, _ in models[type_name]:
             visit(element_type(field_type))
-    visit('NetworkHydraulicDistribution')
+    for persisted_root in ('NetworkHydraulicDistribution', 'MapAnnotation', 'MapAnnotationLayer'):
+        visit(persisted_root)
     return dict(sorted(reached.items()))
 
 

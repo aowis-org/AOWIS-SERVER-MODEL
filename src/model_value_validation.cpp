@@ -140,6 +140,18 @@ void check(Rules &rules, const QString &path, const CoordinateWGS84 &value)
     rules.finite(field(path, "altitude_m"), value.altitude_m);
 }
 
+void check(Rules &rules, const QString &path, const MapAnnotationAnchor &value)
+{
+    rules.finite(field(path, "offset_east_m"), value.offset_east_m);
+    rules.finite(field(path, "offset_north_m"), value.offset_north_m);
+}
+void check(Rules &rules, const QString &path, const MapAnnotation &value)
+{
+    check(rules, field(path, "position_wgs84"), value.position_wgs84);
+    if (value.anchor)
+        check(rules, field(path, "anchor"), *value.anchor);
+}
+
 void check(Rules &rules, const QString &path, const WaterQualityBulkReaction &value)
 {
     // Negative coefficients are decay; negative orders select

@@ -1,5 +1,6 @@
 #include <aowis/model/serialization/model_codec.h>
 #include <aowis/model/serialization/model_field_merge.h>
+#include <aowis/model/serialization/model_validation.h>
 #include <aowis/model/edit/hydraulic_distribution_root_edit.h>
 
 #include <QDataStream>
@@ -22,6 +23,14 @@ constexpr quint32 codec_magic = 0x414d4435; // AMD5
 constexpr quint32 codec_format = 1;
 constexpr quint32 maximum_list_length = 1000000;
 
+void writeStruct(QDataStream &stream, const MapAnnotation &value);
+void readStruct(QDataStream &stream, MapAnnotation &value);
+void writeStruct(QDataStream &stream, const MapAnnotationAnchor &value);
+void readStruct(QDataStream &stream, MapAnnotationAnchor &value);
+void writeStruct(QDataStream &stream, const MapAnnotationLayer &value);
+void readStruct(QDataStream &stream, MapAnnotationLayer &value);
+void writeStruct(QDataStream &stream, const MapAnnotationStyle &value);
+void readStruct(QDataStream &stream, MapAnnotationStyle &value);
 void writeStruct(QDataStream &stream, const CoordinateWGS84 &value);
 void readStruct(QDataStream &stream, CoordinateWGS84 &value);
 void writeStruct(QDataStream &stream, const EntityMetadata &value);
@@ -329,6 +338,61 @@ template<typename T> std::optional<T> decodeTyped(const QByteArray &bytes,
         return std::nullopt;
     }
     return value;
+}
+
+void writeStruct(QDataStream &stream, const MapAnnotation &value)
+{
+    writeValue(stream, value.uuid);
+    writeValue(stream, value.text);
+    writeValue(stream, value.position_wgs84);
+    writeValue(stream, value.anchor);
+    writeValue(stream, value.style);
+}
+void readStruct(QDataStream &stream, MapAnnotation &value)
+{
+    readValue(stream, value.uuid);
+    readValue(stream, value.text);
+    readValue(stream, value.position_wgs84);
+    readValue(stream, value.anchor);
+    readValue(stream, value.style);
+}
+void writeStruct(QDataStream &stream, const MapAnnotationAnchor &value)
+{
+    writeValue(stream, value.entity_uuid);
+    writeValue(stream, value.entity_type);
+    writeValue(stream, value.offset_east_m);
+    writeValue(stream, value.offset_north_m);
+}
+void readStruct(QDataStream &stream, MapAnnotationAnchor &value)
+{
+    readValue(stream, value.entity_uuid);
+    readValue(stream, value.entity_type);
+    readValue(stream, value.offset_east_m);
+    readValue(stream, value.offset_north_m);
+}
+void writeStruct(QDataStream &stream, const MapAnnotationLayer &value)
+{
+    writeValue(stream, value.uuid);
+    writeValue(stream, value.domain);
+    writeValue(stream, value.owner_network_uuid);
+}
+void readStruct(QDataStream &stream, MapAnnotationLayer &value)
+{
+    readValue(stream, value.uuid);
+    readValue(stream, value.domain);
+    readValue(stream, value.owner_network_uuid);
+}
+void writeStruct(QDataStream &stream, const MapAnnotationStyle &value)
+{
+    writeValue(stream, value.text_size);
+    writeValue(stream, value.show_background);
+    writeValue(stream, value.visible);
+}
+void readStruct(QDataStream &stream, MapAnnotationStyle &value)
+{
+    readValue(stream, value.text_size);
+    readValue(stream, value.show_background);
+    readValue(stream, value.visible);
 }
 
 void writeStruct(QDataStream &stream, const CoordinateWGS84 &value)
@@ -1723,6 +1787,54 @@ void readStruct(QDataStream &stream, WaterQualityWallReaction &value)
 
 } // namespace
 
+QByteArray ModelCodec<MapAnnotation>::encode(const MapAnnotation &value)
+{
+    if (!validateMapAnnotation(value).valid())
+        return {};
+    return encodeTyped(value, QStringLiteral("MapAnnotation"));
+}
+std::optional<MapAnnotation> ModelCodec<MapAnnotation>::decode(const QByteArray &bytes, QString *error)
+{
+    const std::optional<MapAnnotation> value = decodeTyped<MapAnnotation>(bytes, QStringLiteral("MapAnnotation"), error);
+    if (value && !validateMapAnnotation(*value).valid())
+    {
+        if (error) *error = validateMapAnnotation(*value).summary();
+        return std::nullopt;
+    }
+    return value;
+}
+QByteArray ModelCodec<MapAnnotationAnchor>::encode(const MapAnnotationAnchor &value)
+{
+    return encodeTyped(value, QStringLiteral("MapAnnotationAnchor"));
+}
+std::optional<MapAnnotationAnchor> ModelCodec<MapAnnotationAnchor>::decode(const QByteArray &bytes, QString *error)
+{
+    return decodeTyped<MapAnnotationAnchor>(bytes, QStringLiteral("MapAnnotationAnchor"), error);
+}
+QByteArray ModelCodec<MapAnnotationLayer>::encode(const MapAnnotationLayer &value)
+{
+    if (!validateMapAnnotationLayer(value).valid())
+        return {};
+    return encodeTyped(value, QStringLiteral("MapAnnotationLayer"));
+}
+std::optional<MapAnnotationLayer> ModelCodec<MapAnnotationLayer>::decode(const QByteArray &bytes, QString *error)
+{
+    const std::optional<MapAnnotationLayer> value = decodeTyped<MapAnnotationLayer>(bytes, QStringLiteral("MapAnnotationLayer"), error);
+    if (value && !validateMapAnnotationLayer(*value).valid())
+    {
+        if (error) *error = validateMapAnnotationLayer(*value).summary();
+        return std::nullopt;
+    }
+    return value;
+}
+QByteArray ModelCodec<MapAnnotationStyle>::encode(const MapAnnotationStyle &value)
+{
+    return encodeTyped(value, QStringLiteral("MapAnnotationStyle"));
+}
+std::optional<MapAnnotationStyle> ModelCodec<MapAnnotationStyle>::decode(const QByteArray &bytes, QString *error)
+{
+    return decodeTyped<MapAnnotationStyle>(bytes, QStringLiteral("MapAnnotationStyle"), error);
+}
 QByteArray ModelCodec<CoordinateWGS84>::encode(const CoordinateWGS84 &value)
 {
     return encodeTyped(value, QStringLiteral("CoordinateWGS84"));

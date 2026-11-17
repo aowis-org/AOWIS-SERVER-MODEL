@@ -39,7 +39,7 @@ def main():
         expect(result.returncode == 0, 'unchanged sources rejected: ' + result.stderr)
         generated = output.read_text(encoding='utf-8')
         count = len(re.findall(r'struct ModelEnumValues<', generated))
-        expect(count == 39, f'expected 39 persisted enums, got {count}')
+        expect(count == 41, f'expected 41 persisted enums, got {count}')
         expect('HydraulicLinkValveType::PCV' in generated, 'valve enumerators missing')
         expect('HydraulicNodeElevationInputType::TerrainElevationAndOffset' in generated,
                'aliased enum missing')
@@ -88,6 +88,18 @@ def main():
         result = run(source, rules=missing_function)
         expect(result.returncode == 1 and 'HydraulicNodeJunctionEmitter' in result.stderr,
                'missing rule function accepted')
+
+        # A separate top-level annotation structure is covered just like the
+        # legacy hydraulic-root reachable structs.
+        independent_model = scratch / 'annotation_model'
+        shutil.copytree(source / 'include/aowis/model', independent_model)
+        annotation_header = independent_model / 'map/map_annotation.h'
+        annotation_header.write_text(annotation_header.read_text(encoding='utf-8').replace(
+            '    QString text;\n', '    QString text;\n    double unregistered_size_m = 1.0;\n', 1),
+            encoding='utf-8')
+        result = run(source, model=independent_model)
+        expect(result.returncode == 1 and 'MapAnnotation' in result.stderr,
+               'independent annotation fields escaped codec coverage')
 
         # A persisted enum with conditional enumerators cannot be listed.
         model = scratch / 'model'

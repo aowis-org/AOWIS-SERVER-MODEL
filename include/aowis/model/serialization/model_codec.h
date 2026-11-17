@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QString>
 #include <aowis/model/hydraulic/network_hydraulic_distribution.h>
+#include <aowis/model/map/map_annotation.h>
 
 namespace aowis::model
 {
@@ -12,6 +13,26 @@ namespace aowis::model
 // All fields are explicitly listed in src/model_codec.cpp; a new Model field
 // requires an intentional codec update, never silent omission.
 template<typename T> struct ModelCodec;
+template<> struct ModelCodec<MapAnnotation> final
+{
+    static QByteArray encode(const MapAnnotation &value);
+    static std::optional<MapAnnotation> decode(const QByteArray &bytes, QString *error = nullptr);
+};
+template<> struct ModelCodec<MapAnnotationAnchor> final
+{
+    static QByteArray encode(const MapAnnotationAnchor &value);
+    static std::optional<MapAnnotationAnchor> decode(const QByteArray &bytes, QString *error = nullptr);
+};
+template<> struct ModelCodec<MapAnnotationLayer> final
+{
+    static QByteArray encode(const MapAnnotationLayer &value);
+    static std::optional<MapAnnotationLayer> decode(const QByteArray &bytes, QString *error = nullptr);
+};
+template<> struct ModelCodec<MapAnnotationStyle> final
+{
+    static QByteArray encode(const MapAnnotationStyle &value);
+    static std::optional<MapAnnotationStyle> decode(const QByteArray &bytes, QString *error = nullptr);
+};
 template<> struct ModelCodec<CoordinateWGS84> final
 {
     static QByteArray encode(const CoordinateWGS84 &value);

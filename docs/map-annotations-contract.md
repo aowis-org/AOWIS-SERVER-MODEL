@@ -1,8 +1,11 @@
 # Map annotations — canonical MODEL contract (A1)
 
-**Status:** approved architecture for implementation, **not implemented yet**.
-This document is the input contract for A2/A3 in the map-annotation roadmap.
-It does not change today's `NetworkHydraulicDistribution::map_labels` or codecs.
+**Status:** A1 architecture approved. A2 (part 1 of 2) has added the
+independent MODEL types, codecs, strict value validation, schema manifest,
+and regression tests. Field-aware merge and geographic attachment helpers
+remain for A2 part 2. DVMDB integration is not implemented yet.
+The legacy `NetworkHydraulicDistribution::map_labels` and its codec remain
+until A3, so existing MODEL consumers are not broken in the middle of A2.
 The corresponding native-storage design is in DVMDB's
 `docs/map-annotation-persistence-design.md`.
 
@@ -31,7 +34,7 @@ yet; names here are the intended canonical names.
 | Type | Canonical field | Meaning / constraints |
 |---|---|---|
 | `MapAnnotation` | `uuid: QUuid` | Non-null, immutable object identity; UUIDv7 on new creation |
-| | `text: QString` | Plain Unicode text; not HTML/Markdown; non-blank after trimming; bounded by canonical codec/validation |
+| | `text: QString` | Plain Unicode text; not HTML/Markdown; non-blank after trimming; at most 4096 UTF-16 code units |
 | | `position_wgs84: CoordinateWGS84` | Geographic world position when free-standing; last explicit position while anchored; valid finite longitude/latitude, optional finite GPS altitude |
 | | `anchor: optional<MapAnnotationAnchor>` | Absent = free-standing; present = follow an in-scope spatial entity |
 | | `style: MapAnnotationStyle` | Small, versioned, portable presentation settings (see below) |

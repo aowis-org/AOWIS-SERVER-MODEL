@@ -1363,6 +1363,74 @@
       "relative_viscosity"
     ]
   ],
+  "MapAnnotation": [
+    [
+      "QUuid",
+      "uuid"
+    ],
+    [
+      "QString",
+      "text"
+    ],
+    [
+      "CoordinateWGS84",
+      "position_wgs84"
+    ],
+    [
+      "std::optional<MapAnnotationAnchor>",
+      "anchor"
+    ],
+    [
+      "MapAnnotationStyle",
+      "style"
+    ]
+  ],
+  "MapAnnotationAnchor": [
+    [
+      "QUuid",
+      "entity_uuid"
+    ],
+    [
+      "QString",
+      "entity_type"
+    ],
+    [
+      "double",
+      "offset_east_m"
+    ],
+    [
+      "double",
+      "offset_north_m"
+    ]
+  ],
+  "MapAnnotationLayer": [
+    [
+      "QUuid",
+      "uuid"
+    ],
+    [
+      "MapAnnotationDomain",
+      "domain"
+    ],
+    [
+      "std::optional<QUuid>",
+      "owner_network_uuid"
+    ]
+  ],
+  "MapAnnotationStyle": [
+    [
+      "MapAnnotationTextSize",
+      "text_size"
+    ],
+    [
+      "bool",
+      "show_background"
+    ],
+    [
+      "bool",
+      "visible"
+    ]
+  ],
   "MultiSpeciesConstant": [
     [
       "QString",

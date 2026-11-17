@@ -2,6 +2,7 @@
 #define AOWIS_MODEL_SERIALIZATION_MODEL_VALIDATION_H
 
 #include <aowis/model/hydraulic/network_hydraulic_distribution.h>
+#include <aowis/model/map/map_annotation.h>
 
 #include <QString>
 #include <QUuid>
@@ -21,6 +22,11 @@ struct ModelValidationReport
     bool valid() const { return issues.isEmpty(); }
     QString summary() const;
 };
+
+// Strictly validate a single value before encoding or publishing a logical edit.
+// Target existence/network membership require DVMDB candidate-graph validation.
+ModelValidationReport validateMapAnnotation(const MapAnnotation &value);
+ModelValidationReport validateMapAnnotationLayer(const MapAnnotationLayer &value);
 
 // Derived, non-authoritative reverse-reference entries. One source is a
 // persisted model entity UUID, or the network UUID for root-level options/MSX.
