@@ -161,6 +161,11 @@ if(BUILD_TESTING)
     target_link_libraries(aowis-model-map-annotation-test PRIVATE AOWIS::Model)
     add_test(NAME aowis-model-map-annotation COMMAND aowis-model-map-annotation-test)
 
+    add_executable(aowis-model-map-annotation-merge-test tests/model_map_annotation_merge_test.cpp)
+    target_compile_features(aowis-model-map-annotation-merge-test PRIVATE cxx_std_20)
+    target_link_libraries(aowis-model-map-annotation-merge-test PRIVATE AOWIS::Model)
+    add_test(NAME aowis-model-map-annotation-merge COMMAND aowis-model-map-annotation-merge-test)
+
     add_executable(aowis-model-canonical-codec-test tests/model_canonical_codec_test.cpp)
     target_compile_features(aowis-model-canonical-codec-test PRIVATE cxx_std_20)
     target_link_libraries(aowis-model-canonical-codec-test PRIVATE AOWIS::Model)

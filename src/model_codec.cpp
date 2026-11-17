@@ -2507,6 +2507,76 @@ std::optional<ModelFieldMerge> mergeFieldsForType(const QUuid &object_uuid,
 // These field lists match docs/model_codec_fields.json and the ordered
 // writeStruct/readStruct declarations above. A configure-time checker ensures
 // that a codec or Model schema change cannot silently omit a merge field.
+// Domain-neutral annotation images use the same canonical field merge contract
+// as hydraulic entities. An anchor is atomic (target UUID/type + offsets),
+// while appearance properties can be edited by two branches independently.
+// UUIDs are immutable; an invalid or noncanonical image fails closed.
+template<> std::optional<ModelFieldMerge> mergeFieldsForType<MapAnnotation>(
+    const QUuid &object_uuid, const QByteArray &baseline_bytes,
+    const QByteArray &left_bytes, const QByteArray &right_bytes,
+    const QMap<QString, bool> &field_choices)
+{
+    const std::optional<MapAnnotation> baseline = ModelCodec<MapAnnotation>::decode(baseline_bytes);
+    const std::optional<MapAnnotation> left = ModelCodec<MapAnnotation>::decode(left_bytes);
+    const std::optional<MapAnnotation> right = ModelCodec<MapAnnotation>::decode(right_bytes);
+    if (!baseline || !left || !right || baseline->uuid != object_uuid ||
+        left->uuid != object_uuid || right->uuid != object_uuid ||
+        ModelCodec<MapAnnotation>::encode(*baseline) != baseline_bytes ||
+        ModelCodec<MapAnnotation>::encode(*left) != left_bytes ||
+        ModelCodec<MapAnnotation>::encode(*right) != right_bytes)
+        return std::nullopt;
+    MapAnnotation merged = *left;
+    ModelFieldMerge result;
+    chooseMergeField(*baseline, *left, *right, merged, &MapAnnotation::text,
+        "text", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &MapAnnotation::position_wgs84,
+        "position_wgs84", result.conflicting_fields, field_choices);
+    chooseMergeField(*baseline, *left, *right, merged, &MapAnnotation::anchor,
+        "anchor", result.conflicting_fields, field_choices);
+    chooseMergeField(baseline->style, left->style, right->style, merged.style,
+        &MapAnnotationStyle::text_size, "style.text_size", result.conflicting_fields, field_choices);
+    chooseMergeField(baseline->style, left->style, right->style, merged.style,
+        &MapAnnotationStyle::show_background, "style.show_background", result.conflicting_fields, field_choices);
+    chooseMergeField(baseline->style, left->style, right->style, merged.style,
+        &MapAnnotationStyle::visible, "style.visible", result.conflicting_fields, field_choices);
+    if (result.conflicting_fields.isEmpty())
+    {
+        result.content = ModelCodec<MapAnnotation>::encode(merged);
+        if (result.content.isEmpty())
+            return std::nullopt;
+    }
+    return result;
+}
+
+template<> std::optional<ModelFieldMerge> mergeFieldsForType<MapAnnotationLayer>(
+    const QUuid &object_uuid, const QByteArray &baseline_bytes,
+    const QByteArray &left_bytes, const QByteArray &right_bytes,
+    const QMap<QString, bool> &field_choices)
+{
+    const std::optional<MapAnnotationLayer> baseline = ModelCodec<MapAnnotationLayer>::decode(baseline_bytes);
+    const std::optional<MapAnnotationLayer> left = ModelCodec<MapAnnotationLayer>::decode(left_bytes);
+    const std::optional<MapAnnotationLayer> right = ModelCodec<MapAnnotationLayer>::decode(right_bytes);
+    if (!baseline || !left || !right || baseline->uuid != object_uuid ||
+        left->uuid != object_uuid || right->uuid != object_uuid ||
+        baseline->domain != left->domain || baseline->domain != right->domain ||
+        ModelCodec<MapAnnotationLayer>::encode(*baseline) != baseline_bytes ||
+        ModelCodec<MapAnnotationLayer>::encode(*left) != left_bytes ||
+        ModelCodec<MapAnnotationLayer>::encode(*right) != right_bytes)
+        return std::nullopt;
+    MapAnnotationLayer merged = *left;
+    ModelFieldMerge result;
+    chooseMergeField(*baseline, *left, *right, merged,
+        &MapAnnotationLayer::owner_network_uuid, "owner_network_uuid",
+        result.conflicting_fields, field_choices);
+    if (result.conflicting_fields.isEmpty())
+    {
+        result.content = ModelCodec<MapAnnotationLayer>::encode(merged);
+        if (result.content.isEmpty())
+            return std::nullopt;
+    }
+    return result;
+}
+
 template<> std::optional<ModelFieldMerge> mergeFieldsForType<HydraulicPipeMaterial>(
     const QUuid &object_uuid, const QByteArray &baseline_bytes,
     const QByteArray &left_bytes, const QByteArray &right_bytes,
@@ -3330,6 +3400,10 @@ std::optional<ModelFieldMerge> mergeModelFields(const QUuid &object_uuid,
         base.size() > field_merge_limit || left.size() > field_merge_limit ||
         right.size() > field_merge_limit)
         return std::nullopt;
+    if (kind == QStringLiteral("map.annotation"))
+        return mergeFieldsForType<MapAnnotation>(object_uuid, base, left, right, field_choices);
+    if (kind == QStringLiteral("map.annotation_layer"))
+        return mergeFieldsForType<MapAnnotationLayer>(object_uuid, base, left, right, field_choices);
     if (kind == QStringLiteral("hydraulic.pipe_material"))
         return mergeFieldsForType<HydraulicPipeMaterial>(object_uuid, base, left, right, field_choices);
     if (kind == QStringLiteral("hydraulic.pattern_time"))

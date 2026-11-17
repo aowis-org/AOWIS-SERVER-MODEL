@@ -47,12 +47,18 @@ include/aowis/model/
 
 The public headers under `include/aowis/model` form the consumable model API.
 
-## Map annotations (planned)
+## Map annotations (MODEL available; DVMDB integration pending)
 
 The [map annotation MODEL contract](docs/map-annotations-contract.md) defines
-a future domain-neutral, revisioned annotation layer for Distribution and
-Drainage. This is an **architecture specification only** (A1); the current
-MODEL still contains legacy `HydraulicMapLabel` until A2/A3.
+revisioned domain-neutral annotation layers for Distribution and Drainage.
+MODEL implements `MapAnnotation`/`MapAnnotationLayer`, canonical codecs,
+validation and field-aware merge for `map.annotation` and
+`map.annotation_layer` records. Geographic transformations and annotation
+placement/attachment operations deliberately do **not** live in MODEL: their
+implementation belongs to shared AOWIS geospatial services (see the
+contract's geodesy integration gate).
+The historical hydraulic `HydraulicMapLabel` remains until A3; the
+independent DVMDB record graph is implemented in phase B.
 
 ## Offline-first editing transactions
 

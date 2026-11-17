@@ -1,9 +1,12 @@
 # Map annotations — canonical MODEL contract (A1)
 
-**Status:** A1 architecture approved. A2 (part 1 of 2) has added the
-independent MODEL types, codecs, strict value validation, schema manifest,
-and regression tests. Field-aware merge and geographic attachment helpers
-remain for A2 part 2. DVMDB integration is not implemented yet.
+**Status:** A2 MODEL data and merge implementation complete (native Qt/C++
+verification required after this boundary correction). Independent annotation
+types, canonical codecs, strict validation, schema manifest and field-aware
+merges are implemented. Geodesic calculations and annotation placement actions
+are intentionally **outside MODEL**; a common geospatial service is required
+before DVMDB integration.
+DVMDB persistence integration remains phase B.
 The legacy `NetworkHydraulicDistribution::map_labels` and its codec remain
 until A3, so existing MODEL consumers are not broken in the middle of A2.
 The corresponding native-storage design is in DVMDB's
@@ -18,7 +21,8 @@ Annotations are editable in the relevant domain's Map Editor, rendered
 read-only in its Map Monitor and selected through the existing Inspector.
 
 MODEL owns the typed, domain-neutral annotation values, canonical encoding,
-validation, field-aware merge and logical edit images. DVMDB owns which project
+validation, field-aware merge and logical edit images. It does not implement
+WGS84 geodesics, coordinate transformations, or annotation placement commands. DVMDB owns which project
 and revision contains the layer, the record graph, working-copy journal,
 revision history, authoritative membership and durability. GUI/Render own map
 placement, screen rendering, hit testing, selection and transient previews.
@@ -28,8 +32,7 @@ or a separate annotation Commit.
 ## Proposed types and fields
 
 The A2 implementation adds types under `include/aowis/model/map/`, not under
-`hydraulic/`. This is a *field and semantic specification*, not compilable C++
-yet; names here are the intended canonical names.
+`hydraulic/`. The following types are implemented in MODEL; names here are canonical.
 
 | Type | Canonical field | Meaning / constraints |
 |---|---|---|
@@ -106,8 +109,15 @@ rendering approximate or inconsistent attachments.
   its signed east/north metre offsets. For attached annotations,
   `position_wgs84` is a **last explicit/free position**, not a second
   authoritative computed position. It must never be continuously rewritten
-  merely because the target moves. A deterministic shared geographic helper
-  must define offset evaluation for GUI preview and server-side detach.
+  merely because the target moves. Position resolution uses an AOWIS-wide
+  geospatial service: a WGS84 geodesic direct operation for an initial
+  east/north metre offset and the corresponding inverse operation when
+  attaching or dragging. It is not a UTM projection or a DEM/hydraulic
+  elevation calculation. Use a robust maintained implementation (GeographicLib
+  already exists in the GUI toolchain); do not embed a second Vincenty
+  implementation in MODEL or introduce a dependency from DVMDB on the GUI or
+  renderer. Both GUI/Render and server-side atomic edits must call the same
+  independently buildable geographic core.
 - Dragging an attached annotation updates its offsets in **one** logical edit;
   dragging a free annotation updates `position_wgs84` in one logical edit.
   Attaching computes the offset that preserves its displayed position;
@@ -140,12 +150,15 @@ membership, outgoing reference index, uniqueness and correct deletion cleanup
 in the complete candidate snapshot. A native record's UUID and type cannot
 change in an update. Failed edits leave candidate, journal and HEAD unchanged.
 
-Canonical merge handles independent annotation field changes separately:
+Canonical `mergeModelFields` for kind `map.annotation` handles independent
+annotation field changes separately:
 `text`, `position_wgs84`, `anchor` (as one semantic unit), and each `style`
 field. The annotation's UUID and layer domain/identity are immutable. Different
 edits to the same field conflict; deletion vs modification conflicts;
 independent inserts may combine deterministically. Concurrent conflicting
 layer membership/ownership operations must not silently choose a winner.
+`map.annotation_layer` merges `owner_network_uuid` only; UUID and domain
+are immutable. Changing domain fails closed even if field choices are given.
 After a merge, re-run complete cross-layer referential and ownership validation.
 If a target moved on one branch while its anchored annotation text changed on
 another, both changes can combine: its position is derived from the merged
@@ -157,7 +170,9 @@ An annotation create/update/delete is an ordinary canonical `ModelEditTransactio
 entity image (`MapAnnotation`). Layer metadata creation or re-parenting uses an
 explicit typed root image (`MapAnnotationLayerRoot`) plus server-owned
 membership intents, in the **same** fenced Save operation where necessary.
-The MODEL transaction frame does not encode DVMDB chunk bytes. The existing
+The shared annotation-edit service must treat placement/anchoring as an
+all-or-nothing candidate edit; geometry operations never commit on their own; the caller publishes a before/after image through
+`ModelEditTransactionCodec`. The MODEL transaction frame does not encode DVMDB chunk bytes. The existing
 before/after SHA-256, retry-ID and Undo/Redo rules apply; a drag is one event,
 not one event per intermediate mouse movement. A mixed operation (e.g. delete
 junction + detach attached notes) must be indivisible at event and native
@@ -171,8 +186,13 @@ assumptions have been generalized or safely extended for annotation records.
 
 ## Clean break and implementation gates
 
-- A2: add these MODEL types, canonical codecs, validators, geographic helper,
-  merge/transaction tests; exactly one authoritative annotation implementation.
+- A2: add MODEL types, canonical codecs, validators and merge/transaction
+  tests; do not add geographic mathematics to MODEL.
+- A2 geospatial integration gate (before B3): use the existing GeographicLib
+  and RenderGeo groundwork to establish an independently reusable AOWIS geo
+  foundation for GUI/Render and DVMDB. Move annotation placement/anchor
+  transformation and its geodesic tests to the appropriate shared service.
+  The native MODEL build must not link a renderer to perform geo calculations.
 - A3: delete `HydraulicMapLabel`, `NetworkHydraulicDistribution::map_labels`,
   old reference/codec/merge/field-manifest/history support and their obsolete
   tests. Hydraulic map backdrops and generated labels are **not** annotations
@@ -185,4 +205,21 @@ assumptions have been generalized or safely extended for annotation records.
 
 No migration reader or compatibility shim for unpublished `HydraulicMapLabel`
 records is required. Reject obsolete formats explicitly; developers must
-recreate incompatible test repositories. **A1 changes documentation only.**
+recreate incompatible test repositories. **A1 changed documentation only; A2 changes MODEL code and tests.**
+
+## Geographic separation correction (after A2)
+
+The initial A2 prototype incorrectly placed a new Vincenty direct/inverse
+implementation and annotation placement mutators into MODEL. These were
+removed before DVMDB integration. GeographicLib and `AOWIS::RenderGeo` already
+exist in the GUI architecture, but coupling server persistence to a renderer
+would be equally incorrect. Shared geodesy should be a small, independently
+buildable core available to every AOWIS component (desktop, mobile, WASM,
+DVMDB, Map) without bgfx, Qt Widgets, or map-view dependencies. The existing
+MODEL `CoordinateWGS84` struct remains the persisted data contract, not the
+source of coordinate mathematics.
+
+Until the shared geodesy service is integrated, attaching/detaching annotations
+is a **planned capability, not implemented MODEL functionality**. The
+canonical annotation codec, validation, field merge, and edit frames are
+already implemented and covered by MODEL tests.
