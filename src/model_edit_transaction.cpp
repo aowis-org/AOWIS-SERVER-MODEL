@@ -1,4 +1,5 @@
 #include <aowis/model/edit/model_edit_transaction.h>
+#include <aowis/model/map/map_annotation.h>
 
 #include <QCryptographicHash>
 #include <QStringDecoder>
@@ -193,7 +194,7 @@ QByteArray ModelEditTransactionCodec::encode(const ModelEditTransaction &transac
             failure(error, QStringLiteral("Entity edits must be valid, changed and have unique non-null UUIDs"));
             return {};
         }
-        const bool annotationEdit = edit.entityType == QStringLiteral("map.annotation");
+        const bool annotationEdit = edit.entityType == QLatin1StringView(mapAnnotationEditType);
         if (annotationEdit != edit.ownerLayerId.has_value() ||
             (edit.ownerLayerId && edit.ownerLayerId->isNull())) {
             failure(error, QStringLiteral("Annotation edits require a non-null owning layer UUID; other edits must not carry one"));
@@ -266,7 +267,7 @@ std::optional<ModelEditTransaction> ModelEditTransactionCodec::decode(const QByt
                 !asciiIdentifier(edit.entityType) || !readImage(reader, edit.before) ||
                 !readImage(reader, edit.after) || (!edit.before && !edit.after) ||
                 (edit.before && edit.after && *edit.before == *edit.after)) goto invalid;
-            if (edit.entityType == QStringLiteral("map.annotation")) {
+            if (edit.entityType == QLatin1StringView(mapAnnotationEditType)) {
                 QByteArray layer;
                 if (!reader.readBytes(16, layer)) goto invalid;
                 edit.ownerLayerId = QUuid::fromRfc4122(layer);

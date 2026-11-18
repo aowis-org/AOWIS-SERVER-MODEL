@@ -1785,11 +1785,24 @@ std::optional<MapAnnotation> ModelCodec<MapAnnotation>::decode(const QByteArray 
 }
 QByteArray ModelCodec<MapAnnotationAnchor>::encode(const MapAnnotationAnchor &value)
 {
+    if (!validateMapAnnotationAnchor(value).valid())
+        return {};
     return encodeTyped(value, QStringLiteral("MapAnnotationAnchor"));
 }
 std::optional<MapAnnotationAnchor> ModelCodec<MapAnnotationAnchor>::decode(const QByteArray &bytes, QString *error)
 {
-    return decodeTyped<MapAnnotationAnchor>(bytes, QStringLiteral("MapAnnotationAnchor"), error);
+    const std::optional<MapAnnotationAnchor> value =
+        decodeTyped<MapAnnotationAnchor>(bytes, QStringLiteral("MapAnnotationAnchor"), error);
+    if (value)
+    {
+        const ModelValidationReport report = validateMapAnnotationAnchor(*value);
+        if (!report.valid())
+        {
+            if (error) *error = report.summary();
+            return std::nullopt;
+        }
+    }
+    return value;
 }
 QByteArray ModelCodec<MapAnnotationLayer>::encode(const MapAnnotationLayer &value)
 {
@@ -1809,11 +1822,24 @@ std::optional<MapAnnotationLayer> ModelCodec<MapAnnotationLayer>::decode(const Q
 }
 QByteArray ModelCodec<MapAnnotationStyle>::encode(const MapAnnotationStyle &value)
 {
+    if (!validateMapAnnotationStyle(value).valid())
+        return {};
     return encodeTyped(value, QStringLiteral("MapAnnotationStyle"));
 }
 std::optional<MapAnnotationStyle> ModelCodec<MapAnnotationStyle>::decode(const QByteArray &bytes, QString *error)
 {
-    return decodeTyped<MapAnnotationStyle>(bytes, QStringLiteral("MapAnnotationStyle"), error);
+    const std::optional<MapAnnotationStyle> value =
+        decodeTyped<MapAnnotationStyle>(bytes, QStringLiteral("MapAnnotationStyle"), error);
+    if (value)
+    {
+        const ModelValidationReport report = validateMapAnnotationStyle(*value);
+        if (!report.valid())
+        {
+            if (error) *error = report.summary();
+            return std::nullopt;
+        }
+    }
+    return value;
 }
 QByteArray ModelCodec<CoordinateWGS84>::encode(const CoordinateWGS84 &value)
 {

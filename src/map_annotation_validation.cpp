@@ -1,5 +1,7 @@
 #include <aowis/model/serialization/model_validation.h>
 
+#include <QLatin1StringView>
+
 #include <cmath>
 
 namespace aowis::model
@@ -19,15 +21,71 @@ bool finitePosition(const CoordinateWGS84 &value)
            (!value.altitude_m || std::isfinite(*value.altitude_m));
 }
 
-bool supportedAnchorType(const QString &name)
+struct AnchorTargetType
 {
-    // Anchor support is intentionally narrower than the MODEL entity registry.
-    // Line geometry has no unambiguous point-position anchor.
-    return name == QStringLiteral("HydraulicNodeJunction") ||
-           name == QStringLiteral("HydraulicNodeReservoir") ||
-           name == QStringLiteral("HydraulicNodeTank") ||
-           name == QStringLiteral("HydraulicDemandPoint");
+    const char *canonical_entity_type;
+    MapAnnotationDomain domain;
+};
+
+// The single MODEL catalogue of entities with an unambiguous WGS84 point
+// position. DVMDB uses the same registry before resolving an attachment.
+constexpr AnchorTargetType anchorTargetTypes[] = {
+    {"HydraulicNodeJunction", MapAnnotationDomain::Distribution},
+    {"HydraulicNodeReservoir", MapAnnotationDomain::Distribution},
+    {"HydraulicNodeTank", MapAnnotationDomain::Distribution},
+    {"HydraulicDemandPoint", MapAnnotationDomain::Distribution}
+};
+
+void validateAnchor(const MapAnnotationAnchor &value, const QString &prefix,
+                    ModelValidationReport &report)
+{
+    if (value.entity_uuid.isNull())
+        issue(report, prefix + QStringLiteral(".entity_uuid"), QStringLiteral("must not be null"));
+    if (!mapAnnotationAnchorTargetDomain(value.entity_type))
+        issue(report, prefix + QStringLiteral(".entity_type"),
+              QStringLiteral("unsupported point-position entity type"));
+    if (!std::isfinite(value.offset_east_m) || !std::isfinite(value.offset_north_m))
+        issue(report, prefix + QStringLiteral(".offset"), QStringLiteral("offsets must be finite"));
 }
+
+void validateStyle(const MapAnnotationStyle &value, const QString &prefix,
+                   ModelValidationReport &report)
+{
+    switch (value.text_size)
+    {
+    case MapAnnotationTextSize::Small:
+    case MapAnnotationTextSize::Normal:
+    case MapAnnotationTextSize::Large:
+        break;
+    default:
+        issue(report, prefix + QStringLiteral(".text_size"), QStringLiteral("unknown text size"));
+        break;
+    }
+}
+} // namespace
+
+std::optional<MapAnnotationDomain> mapAnnotationAnchorTargetDomain(const QString &entityType)
+{
+    for (const AnchorTargetType &target : anchorTargetTypes)
+    {
+        if (entityType == QLatin1StringView(target.canonical_entity_type))
+            return target.domain;
+    }
+    return std::nullopt;
+}
+
+ModelValidationReport validateMapAnnotationAnchor(const MapAnnotationAnchor &value)
+{
+    ModelValidationReport report;
+    validateAnchor(value, QStringLiteral("annotation_anchor"), report);
+    return report;
+}
+
+ModelValidationReport validateMapAnnotationStyle(const MapAnnotationStyle &value)
+{
+    ModelValidationReport report;
+    validateStyle(value, QStringLiteral("annotation_style"), report);
+    return report;
 }
 
 ModelValidationReport validateMapAnnotation(const MapAnnotation &value)
@@ -42,25 +100,8 @@ ModelValidationReport validateMapAnnotation(const MapAnnotation &value)
     if (!finitePosition(value.position_wgs84))
         issue(report, QStringLiteral("annotation.position_wgs84"), QStringLiteral("invalid WGS84 position"));
     if (value.anchor)
-    {
-        if (value.anchor->entity_uuid.isNull())
-            issue(report, QStringLiteral("annotation.anchor.entity_uuid"), QStringLiteral("must not be null"));
-        if (!supportedAnchorType(value.anchor->entity_type))
-            issue(report, QStringLiteral("annotation.anchor.entity_type"), QStringLiteral("unsupported point-position entity type"));
-        if (!std::isfinite(value.anchor->offset_east_m) ||
-            !std::isfinite(value.anchor->offset_north_m))
-            issue(report, QStringLiteral("annotation.anchor.offset"), QStringLiteral("offsets must be finite"));
-    }
-    switch (value.style.text_size)
-    {
-    case MapAnnotationTextSize::Small:
-    case MapAnnotationTextSize::Normal:
-    case MapAnnotationTextSize::Large:
-        break;
-    default:
-        issue(report, QStringLiteral("annotation.style.text_size"), QStringLiteral("unknown text size"));
-        break;
-    }
+        validateAnchor(*value.anchor, QStringLiteral("annotation.anchor"), report);
+    validateStyle(value.style, QStringLiteral("annotation.style"), report);
     return report;
 }
 

@@ -44,6 +44,36 @@ void createEntity(ModelEditTransaction &action, const QUuid &identity,
     action.edits.append(ModelEntityEdit{identity, typeName, std::nullopt, bytes});
 }
 
+MapAnnotation annotation(const QUuid &identity, const QString &text)
+{
+    MapAnnotation result;
+    result.uuid = identity;
+    result.text = text;
+    result.position_wgs84.longitude_deg = 13.4;
+    result.position_wgs84.latitude_deg = 52.5;
+    return result;
+}
+
+QByteArray annotationImage(const MapAnnotation &value)
+{
+    const QByteArray bytes = aowis::model::ModelCodec<MapAnnotation>::encode(value);
+    require(!bytes.isEmpty(), "canonical annotation image required for history");
+    return bytes;
+}
+
+void verifyAnnotationOwners(const ModelEditTransaction &transaction, const QUuid &layerId)
+{
+    qsizetype annotationEdits = 0;
+    for (const ModelEntityEdit &edit : transaction.edits)
+    {
+        if (edit.entityType != QString::fromLatin1(aowis::model::mapAnnotationEditType))
+            continue;
+        ++annotationEdits;
+        require(edit.ownerLayerId == layerId, "annotation layer provenance must survive history");
+    }
+    require(annotationEdits == 3, "all three annotation changes must retain provenance");
+}
+
 ModelHistoryImageMap startingState(const QUuid &networkId, const QByteArray &rootImage,
                                    const QUuid &junctionId, const QByteArray &junctionImage,
                                    const QUuid &pipeId, const QByteArray &pipeImage)
@@ -52,13 +82,13 @@ ModelHistoryImageMap startingState(const QUuid &networkId, const QByteArray &roo
     state.insert(networkId, {QString::fromLatin1(aowis::model::hydraulicDistributionRootEditType), rootImage});
     state.insert(junctionId, {QStringLiteral("HydraulicNodeJunction"), junctionImage});
     state.insert(pipeId, {QStringLiteral("HydraulicLinkPipe"), pipeImage});
-    // An untouched entity must survive every transition unchanged.
-    MapAnnotation annotation;
-    annotation.uuid = uuid(700);
-    annotation.text = QStringLiteral("Unrelated distribution annotation");
-    const QByteArray annotationBytes = aowis::model::ModelCodec<MapAnnotation>::encode(annotation);
-    require(!annotationBytes.isEmpty(), "standalone annotation has canonical bytes");
-    state.insert(annotation.uuid, {QStringLiteral("MapAnnotation"), annotationBytes});
+    // An untouched annotation and two edited annotations must share the
+    // canonical transaction kind. The owner is retained in the journal,
+    // not inferred from these endpoint images.
+    const QString type = QString::fromLatin1(aowis::model::mapAnnotationEditType);
+    state.insert(uuid(700), {type, annotationImage(annotation(uuid(700), QStringLiteral("Untouched")))});
+    state.insert(uuid(701), {type, annotationImage(annotation(uuid(701), QStringLiteral("Before")))});
+    state.insert(uuid(702), {type, annotationImage(annotation(uuid(702), QStringLiteral("Removed")))});
     return state;
 }
 } // namespace
@@ -130,13 +160,25 @@ int main()
         QStringLiteral("HydraulicNodeJunction"), oldJunction, newJunction});
     action.edits.append(ModelEntityEdit{removedPipe.uuid,
         QStringLiteral("HydraulicLinkPipe"), oldPipe, std::nullopt});
-    require(action.edits.size() == 20, "one logical transaction groups 20 typed edits");
+    // Three annotations in the SAME transaction as the hydraulic edits:
+    // update, delete and create. All carry layer provenance in AOWE v2.
+    const QUuid layerId = uuid(800);
+    const QString annotationType = QString::fromLatin1(aowis::model::mapAnnotationEditType);
+    action.edits.append(ModelEntityEdit{uuid(701), annotationType,
+        annotationImage(annotation(uuid(701), QStringLiteral("Before"))),
+        annotationImage(annotation(uuid(701), QStringLiteral("After"))), layerId});
+    action.edits.append(ModelEntityEdit{uuid(702), annotationType,
+        annotationImage(annotation(uuid(702), QStringLiteral("Removed"))), std::nullopt, layerId});
+    action.edits.append(ModelEntityEdit{uuid(703), annotationType,
+        std::nullopt, annotationImage(annotation(uuid(703), QStringLiteral("Created"))), layerId});
+    require(action.edits.size() == 23, "one logical transaction groups hydraulic and annotation edits");
 
     QString error;
     const QByteArray originalBytes = ModelEditTransactionCodec::encode(action, &error);
     require(!originalBytes.isEmpty() && error.isEmpty(), "canonical mixed transaction encoding");
     const std::optional<ModelEditTransaction> decoded = ModelEditTransactionCodec::decode(originalBytes, &error);
     require(decoded.has_value() && error.isEmpty(), "canonical mixed transaction decoding");
+    verifyAnnotationOwners(*decoded, layerId);
 
     ModelHistoryImageMap state = startingState(rootBefore.uuid, beforeRoot,
                                                importedJunction, oldJunction,
@@ -145,13 +187,16 @@ int main()
     require(ModelEditHistory::apply(*decoded, state, &error) && error.isEmpty(),
             "mixed forward action should atomically apply");
     const ModelHistoryImageMap after = state;
-    require(after.size() == before.size() + 17 - 1,
-            "create and delete counts must match the resulting state");
+    require(after.size() == before.size() + 17 - 1 + 1 - 1,
+            "hydraulic and annotation create/delete counts must match");
     require(after.value(rootBefore.uuid).bytes == afterRoot &&
             after.value(importedJunction).bytes == newJunction &&
             !after.contains(removedPipe.uuid) &&
-            after.value(uuid(700)).bytes == before.value(uuid(700)).bytes,
-            "canonical mixed action changed only requested images");
+            after.value(uuid(700)).bytes == before.value(uuid(700)).bytes &&
+            after.value(uuid(701)).bytes == annotationImage(annotation(uuid(701), QStringLiteral("After"))) &&
+            !after.contains(uuid(702)) &&
+            after.value(uuid(703)).bytes == annotationImage(annotation(uuid(703), QStringLiteral("Created"))),
+            "mixed action changes exactly the requested hydraulic and annotation images");
 
     const std::optional<ModelEditTransaction> inverse =
         ModelEditHistory::inverse(*decoded, uuid(501), &error);
@@ -159,11 +204,13 @@ int main()
             inverse->transactionId != decoded->transactionId && error.isEmpty(),
             "undo is a new well-formed durable event");
     const QByteArray inverseBytes = ModelEditTransactionCodec::encode(*inverse, &error);
-    require(!inverseBytes.isEmpty() &&
-            ModelEditTransactionCodec::decode(inverseBytes).has_value(),
-            "inverse is transportable in the unchanged AOWE codec");
-    require(ModelEditHistory::apply(*inverse, state, &error) && state == before,
-            "all 17 creates, root metadata, update and delete undo byte-exactly");
+    const std::optional<ModelEditTransaction> recoveredInverse =
+        ModelEditTransactionCodec::decode(inverseBytes, &error);
+    require(!inverseBytes.isEmpty() && recoveredInverse && error.isEmpty(),
+            "inverse is transportable in AOWE format 2");
+    verifyAnnotationOwners(*recoveredInverse, layerId);
+    require(ModelEditHistory::apply(*recoveredInverse, state, &error) && state == before,
+            "hydraulic and annotation edits undo byte-exactly");
 
     const std::optional<ModelEditTransaction> redo =
         ModelEditHistory::redo(*decoded, uuid(502), &error);
@@ -171,8 +218,14 @@ int main()
             redo->transactionId != decoded->transactionId && redo->transactionId != inverse->transactionId &&
             ModelEditTransactionCodec::encode(*redo) != originalBytes,
             "redo uses fresh identity, not a replay of the original operation ID");
-    require(ModelEditHistory::apply(*redo, state, &error) && state == after,
-            "redo restores exact byte-for-byte post-action state");
+    const QByteArray redoBytes = ModelEditTransactionCodec::encode(*redo, &error);
+    const std::optional<ModelEditTransaction> recoveredRedo =
+        ModelEditTransactionCodec::decode(redoBytes, &error);
+    require(!redoBytes.isEmpty() && recoveredRedo && error.isEmpty(),
+            "redo is transportable in AOWE format 2");
+    verifyAnnotationOwners(*recoveredRedo, layerId);
+    require(ModelEditHistory::apply(*recoveredRedo, state, &error) && state == after,
+            "redo restores exact byte-for-byte hydraulic and annotation state");
 
     // A failed attempt to redo twice must not change any part of the state.
     const ModelHistoryImageMap stable = state;
@@ -193,6 +246,17 @@ int main()
     stale.remove(removedPipe.uuid);
     require(!ModelEditHistory::apply(*decoded, stale, &error),
             "deleting an already absent entity is refused");
+    stale = before;
+    stale.insert(uuid(701), {QStringLiteral("MapAnnotation"),
+                             annotationImage(annotation(uuid(701), QStringLiteral("Before")))});
+    const ModelHistoryImageMap wrongKind = stale;
+    require(!ModelEditHistory::apply(*decoded, stale, &error) && stale == wrongKind,
+            "wrong annotation type must reject the entire mixed action atomically");
+    stale = before;
+    stale.insert(uuid(701), {annotationType, QByteArray("stale annotation")});
+    const ModelHistoryImageMap staleAnnotation = stale;
+    require(!ModelEditHistory::apply(*decoded, stale, &error) && stale == staleAnnotation,
+            "stale annotation before-image must reject all hydraulic edits atomically");
 
     require(!ModelEditHistory::inverse(*decoded, decoded->transactionId, &error).has_value(),
             "inverse cannot reuse the original action UUID");

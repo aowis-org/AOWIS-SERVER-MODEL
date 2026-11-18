@@ -4,7 +4,7 @@ A logical editor action is one **atomic**, **reversible** transaction containing
 one or more typed entity replacements. An editing transaction is **not** a
 revision-control Commit. A model is materialized by applying its edits in order.
 
-## Canonical transaction envelope (`AOWE`, version 1)
+## Canonical transaction envelope (`AOWE`, version 2)
 
 The MODEL library owns this wire format. All integers are unsigned big-endian;
 UUIDs are 16 RFC 4122 bytes. The transaction UUID is a UUIDv7; entity UUIDs
@@ -14,7 +14,7 @@ with a 16-bit byte count. Every transaction is encoded deterministically:
 
 ```
 "AOWE"             4 bytes
-version            u8 (1)
+version            u8 (2)
 payload length     u32 (<= 8 MiB)
 payload:
   transaction UUID 16 bytes (UUIDv7, stable retry key)
@@ -26,13 +26,19 @@ payload:
     entity type     u16 length + UTF-8 (max 128 bytes; ASCII identifier)
     before image    u32 length + bytes, or 0xffffffff for absent
     after image     u32 length + bytes, or 0xffffffff for absent
+    ownerLayerId    16 UUID bytes ONLY if entity type is `map.annotation`
 SHA-256(payload)   32 bytes
 ```
 
 Images are the **canonical typed MODEL entity encoding**, not JSON, field
 strings, or DVMDB envelopes. Each present image contains 1..1 MiB of data.
 Absent `before` creates an entity; absent `after` deletes it. Both cannot be
-absent, and identical before/after bytes are not an edit. Strict parsing rejects
+absent, and identical before/after bytes are not an edit. Every
+`map.annotation` edit requires a non-null immutable `ownerLayerId`, including
+creates and deletes; edits of all other types must omit it. It is the stable
+MODEL layer UUID, not a DVMDB chunk identifier. These 16 owner bytes are
+included in the canonical digest and recovered by inverse/redo events, so
+create/delete history does not infer ownership from revision endpoints. Strict parsing rejects
 truncation, trailing bytes, invalid UTF-8, invalid version, unsupported sizes,
 unsorted/duplicate UUIDs, no-op edits, and digest mismatches.
 
@@ -66,6 +72,22 @@ edits. Editing controls must use `HydraulicData::setNetworkRootMetadata` (or a
 specialized setter such as `setSimulationHeadlossFormula`); direct mutation of
 the in-memory root without capturing an event is not an accepted private edit.
 
+### Annotation layer-root edits (DVMDB B1 contract)
+
+The special entity type `MapAnnotationLayerRoot` carries an ordinary
+`ModelCodec<MapAnnotationLayer>` metadata image: its edit UUID is the layer
+UUID, and it MUST NOT contain annotation membership/chunk IDs. A root edit
+may create, update or delete a layer, provided the *same atomic candidate*
+validates final ownership, uniqueness and member closure. The domain and UUID
+are immutable on updates; DVMDB materializes native membership separately,
+using server-owned validated membership intents. Creation starts with empty
+membership, then the same Save may append members; deletion must remove all
+members in that same Save, never leave orphan records. A layer's authoritative
+membership is solely the native DVMDB membership chunks of its revision root.
+The MODEL edit codec stores images and owner-layer provenance, not a second
+member list. These storage-side behaviors are specified for B1, not yet
+implemented by MODEL or DVMDB.
+
 ### HIST-01: Canonical inverse and redo events
 
 The production library exposes `aowis/model/edit/model_edit_history.h`:
@@ -84,9 +106,9 @@ The production library exposes `aowis/model/edit/model_edit_history.h`:
   before-image is rejected. This helper is useful for deterministic MODEL
   regression tests and future history navigation planning.
 
-Both generated events are encoded with the **existing** canonical `AOWE`
-version-1 frame and retain all source entity identities, including imported
-UUIDv4/UUIDv5 model keys. Only new transaction IDs require UUIDv7.
+Both generated events use the canonical `AOWE` **version-2** frame and retain
+all entity UUIDs, including imported UUIDv4/UUIDv5 keys, plus annotation
+`ownerLayerId` provenance exactly. Only new transaction IDs require UUIDv7.
 Transaction metadata references to the original action, cursor position and
 Commit checkpoints belong to the future DVMDB history journal; this API does
 not invent a history archive or enable GUI Undo/Redo by itself.
@@ -96,9 +118,9 @@ canonical image bytes. It does not decode every MODEL type, enforce hydraulic
 reference consistency, update DVMDB membership chunks, or provide a durable
 fenced Save. Callers must still pass generated events through the existing
 model-specific validation and the normal DVMDB Save pipeline. Model-level
-regressions cover all 17 hydraulic entity types, root metadata and mixed
-create/update/delete actions, along with exact inverse/redo and atomic
-failure behavior. Full GUI/DVMDB integration remains future HIST work.
+regressions cover all 17 hydraulic entity types, root metadata, mixed
+hydraulic/annotation create/update/delete actions, layer provenance,
+exact inverse/redo and atomic failure behavior. Full GUI/DVMDB integration remains future HIST work.
 
 ### Poor connectivity
 
@@ -126,8 +148,8 @@ failure behavior. Full GUI/DVMDB integration remains future HIST work.
   by this initial codec.
 
 No backward-compatibility readers are required for pre-release experimental
-formats. Version 1 here describes the **current** format and is deliberately
-rejected when mismatched; don't introduce legacy fallbacks.
+formats. Version 2 is the **only** accepted canonical transaction format.
+Version-1 frames are intentionally rejected; do not introduce a fallback.
 
 ## Ownership
 
@@ -135,12 +157,3 @@ rejected when mismatched; don't introduce legacy fallbacks.
 entity codec. DVMDB owns durable journals, revisions, fencing, generations and
 publication. GUI owns operation boundaries, live previews, queue and UI state.
 
-
-## Annotation ownership provenance (transaction format 2)
-
-Every `map.annotation` entity edit contains a non-null `ownerLayerId` (16 RFC4122
-bytes after its before/after images). Non-annotation edits carry no such bytes.
-This is an immutable MODEL layer UUID, authenticated by the frame digest and
-DVMDB's committed ordered-action chain. Replaying a transient create/delete
-sequence does not require guessing ownership from revision endpoints. The
-previous transaction envelope format 1 is intentionally rejected.

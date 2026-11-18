@@ -26,6 +26,8 @@ struct ModelValidationReport
 // Strictly validate a single value before encoding or publishing a logical edit.
 // Target existence/network membership require DVMDB candidate-graph validation.
 ModelValidationReport validateMapAnnotation(const MapAnnotation &value);
+ModelValidationReport validateMapAnnotationAnchor(const MapAnnotationAnchor &value);
+ModelValidationReport validateMapAnnotationStyle(const MapAnnotationStyle &value);
 ModelValidationReport validateMapAnnotationLayer(const MapAnnotationLayer &value);
 
 // Derived, non-authoritative reverse-reference entries. One source is a

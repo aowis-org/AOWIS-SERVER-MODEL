@@ -93,7 +93,11 @@ model records can be shared by immutable snapshots and branches.
 
 ## Anchoring, positioning and lifecycle
 
-**Initial supported attached targets:** point-position distribution assets
+**Initial supported attached targets:** MODEL exposes the canonical
+`mapAnnotationAnchorTargetDomain(entityType)` registry for point-position
+entity kinds. DVMDB uses it to verify the declared domain before independently
+resolving target UUID, same-network membership and WGS84 position. Currently
+this registry contains point-position distribution assets
 (`HydraulicNodeJunction`, `HydraulicNodeReservoir`, `HydraulicNodeTank`,
 `HydraulicDemandPoint`) within the layer's owning network. The target registry
 can grow to Drainage and other position-resolvable types without changing the
@@ -155,8 +159,10 @@ field. The annotation's UUID and layer domain/identity are immutable. Different
 edits to the same field conflict; deletion vs modification conflicts;
 independent inserts may combine deterministically. Concurrent conflicting
 layer membership/ownership operations must not silently choose a winner.
-`map.annotation_layer` merges `owner_network_uuid` only; UUID and domain
-are immutable. Changing domain fails closed even if field choices are given.
+`map.annotation_layer` is the MODEL field-merge kind; it merges
+`owner_network_uuid` only. It is distinct from the logical edit type
+`MapAnnotationLayerRoot` (whose images contain `MapAnnotationLayer` metadata).
+UUID and domain are immutable. Changing domain fails closed even if field choices are given.
 After a merge, re-run complete cross-layer referential and ownership validation.
 If a target moved on one branch while its anchored annotation text changed on
 another, both changes can combine: its position is derived from the merged
@@ -176,9 +182,22 @@ validate the claimed layer against the current draft and existing member
 ownership before publishing any edit. This does not encode native chunk IDs.
 
 An annotation create/update/delete is an ordinary canonical `ModelEditTransaction`
-entity image (`MapAnnotation`). Layer metadata creation or re-parenting uses an
-explicit typed root image (`MapAnnotationLayerRoot`) plus server-owned
-membership intents, in the **same** fenced Save operation where necessary.
+entity image (`MapAnnotation`, edit type `map.annotation`). Layer metadata
+creation, update or deletion uses the special edit type `MapAnnotationLayerRoot`
+with a `ModelCodec<MapAnnotationLayer>` metadata image and the layer UUID as
+its entity ID (not a separate C++ `MapAnnotationLayerRoot` structure).
+The only authoritative membership list is the DVMDB-owned native membership
+chunks referenced by that layer's native revision root; MODEL metadata and
+root edit images **never** contain member UUIDs or chunk identifiers.
+The native root is atomically materialized by DVMDB from the canonical
+metadata edit plus validated membership intents. Root creation begins with
+empty membership; root deletion must remove its remaining members in the
+same fenced Save, whether expressed as validated removals or a network-delete
+cascade. Updates preserve all native members, and no operation may leave an
+annotation orphaned or multiply owned in the final candidate. The layer's
+UUID and domain cannot change in an update. Cross-domain moves are never
+implicit. A distribution layer requires its network root in the same project
+snapshot; the pre-network drainage layer is unique per project.
 The shared annotation-edit service must treat placement/anchoring as an
 all-or-nothing candidate edit; geometry operations never commit on their own; the caller publishes a before/after image through
 `ModelEditTransactionCodec`. The MODEL transaction frame does not encode DVMDB chunk bytes. The existing

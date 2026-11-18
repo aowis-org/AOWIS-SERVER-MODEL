@@ -3,6 +3,8 @@
 #include <aowis/model/serialization/model_validation.h>
 
 #include <QByteArray>
+#include <QDataStream>
+#include <QIODevice>
 #include <QUuid>
 #include <QString>
 #include <cmath>
@@ -131,10 +133,83 @@ int main()
         !ModelCodec<MapAnnotationLayer>::encode(layer).isEmpty())
         return EXIT_FAILURE;
 
-    // Both nested public codecs have deterministic standalone round trips.
-    if (!ModelCodec<MapAnnotationAnchor>::decode(ModelCodec<MapAnnotationAnchor>::encode(anchor)))
+    // Both nested public codecs enforce the SAME semantic constraints as an
+    // embedded anchor/style. An invalid value cannot escape via a standalone
+    // codec, and valid bytes still have deterministic round trips.
+    anchor = MapAnnotationAnchor{};
+    anchor.entity_uuid = QUuid::createUuid();
+    anchor.entity_type = QStringLiteral("HydraulicNodeTank");
+    anchor.offset_east_m = 12.5;
+    anchor.offset_north_m = -8.0;
+    const QByteArray anchorBytes = ModelCodec<MapAnnotationAnchor>::encode(anchor);
+    if (anchorBytes.isEmpty() ||
+        !ModelCodec<MapAnnotationAnchor>::decode(anchorBytes) ||
+        ModelCodec<MapAnnotationAnchor>::encode(*ModelCodec<MapAnnotationAnchor>::decode(anchorBytes)) != anchorBytes)
         return EXIT_FAILURE;
-    if (!ModelCodec<MapAnnotationStyle>::decode(ModelCodec<MapAnnotationStyle>::encode(validAnnotation().style)))
+    if (aowis::model::mapAnnotationAnchorTargetDomain(anchor.entity_type) !=
+            MapAnnotationDomain::Distribution ||
+        aowis::model::mapAnnotationAnchorTargetDomain(QStringLiteral("HydraulicNodeJunction")) !=
+            MapAnnotationDomain::Distribution ||
+        aowis::model::mapAnnotationAnchorTargetDomain(QStringLiteral("HydraulicNodeReservoir")) !=
+            MapAnnotationDomain::Distribution ||
+        aowis::model::mapAnnotationAnchorTargetDomain(QStringLiteral("HydraulicDemandPoint")) !=
+            MapAnnotationDomain::Distribution ||
+        aowis::model::mapAnnotationAnchorTargetDomain(QStringLiteral("HydraulicLinkPipe")) ||
+        aowis::model::mapAnnotationAnchorTargetDomain(QStringLiteral("DrainageNode")))
+        return EXIT_FAILURE;
+    anchor.entity_uuid = QUuid{};
+    if (aowis::model::validateMapAnnotationAnchor(anchor).valid() ||
+        !ModelCodec<MapAnnotationAnchor>::encode(anchor).isEmpty())
+        return EXIT_FAILURE;
+    anchor.entity_uuid = QUuid::createUuid();
+    anchor.entity_type = QStringLiteral("HydraulicLinkPipe");
+    if (aowis::model::validateMapAnnotationAnchor(anchor).valid() ||
+        !ModelCodec<MapAnnotationAnchor>::encode(anchor).isEmpty())
+        return EXIT_FAILURE;
+    anchor.entity_type = QStringLiteral("HydraulicNodeTank");
+    anchor.offset_north_m = std::numeric_limits<double>::infinity();
+    if (aowis::model::validateMapAnnotationAnchor(anchor).valid() ||
+        !ModelCodec<MapAnnotationAnchor>::encode(anchor).isEmpty())
+        return EXIT_FAILURE;
+    anchor.offset_north_m = 0.0;
+    anchor.offset_east_m = std::numeric_limits<double>::quiet_NaN();
+    if (aowis::model::validateMapAnnotationAnchor(anchor).valid() ||
+        !ModelCodec<MapAnnotationAnchor>::encode(anchor).isEmpty())
+        return EXIT_FAILURE;
+
+    MapAnnotationStyle style = validAnnotation().style;
+    const QByteArray styleBytes = ModelCodec<MapAnnotationStyle>::encode(style);
+    if (styleBytes.isEmpty() || !ModelCodec<MapAnnotationStyle>::decode(styleBytes) ||
+        ModelCodec<MapAnnotationStyle>::encode(*ModelCodec<MapAnnotationStyle>::decode(styleBytes)) != styleBytes)
+        return EXIT_FAILURE;
+    style.text_size = static_cast<MapAnnotationTextSize>(900);
+    if (aowis::model::validateMapAnnotationStyle(style).valid() ||
+        !ModelCodec<MapAnnotationStyle>::encode(style).isEmpty())
+        return EXIT_FAILURE;
+
+    // A syntactically valid, correctly typed envelope with an unsupported
+    // string key must be refused by semantic decode (not just by encode).
+    // Both strings have the same UTF-16 encoded length.
+    QByteArray validType;
+    QByteArray invalidType;
+    {
+        QDataStream writer(&validType, QIODevice::WriteOnly);
+        writer.setVersion(QDataStream::Qt_6_0);
+        writer << QStringLiteral("HydraulicNodeTank");
+    }
+    {
+        QDataStream writer(&invalidType, QIODevice::WriteOnly);
+        writer.setVersion(QDataStream::Qt_6_0);
+        writer << QStringLiteral("HydraulicLinkPipe");
+    }
+    QByteArray invalidAnchorBytes = anchorBytes;
+    if (validType.size() != invalidType.size() ||
+        !invalidAnchorBytes.contains(validType))
+        return EXIT_FAILURE;
+    invalidAnchorBytes.replace(validType, invalidType);
+    QString validationError;
+    if (ModelCodec<MapAnnotationAnchor>::decode(invalidAnchorBytes, &validationError) ||
+        !validationError.contains(QStringLiteral("unsupported")))
         return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }

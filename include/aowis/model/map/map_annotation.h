@@ -57,4 +57,17 @@ struct MapAnnotationLayer
     std::optional<QUuid> owner_network_uuid;
 };
 
+// Canonical edit keys. The layer-root event carries a ModelCodec<MapAnnotationLayer>
+// image; membership is DVMDB-owned, never embedded in that image.
+namespace aowis::model
+{
+inline constexpr const char *mapAnnotationEditType = "map.annotation";
+inline constexpr const char *mapAnnotationLayerRootEditType = "MapAnnotationLayerRoot";
+
+// Returns the owning engineering domain for a point-position anchor type.
+// An absent result means no stable geographic point resolver is registered.
+// DVMDB must additionally verify target existence and same-network ownership.
+std::optional<MapAnnotationDomain> mapAnnotationAnchorTargetDomain(const QString &entityType);
+} // namespace aowis::model
+
 #endif // AOWIS_MODEL_MAP_MAP_ANNOTATION_H
