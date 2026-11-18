@@ -134,3 +134,13 @@ rejected when mismatched; don't introduce legacy fallbacks.
 `AOWIS-SERVER-MODEL` owns this transaction representation and the canonical
 entity codec. DVMDB owns durable journals, revisions, fencing, generations and
 publication. GUI owns operation boundaries, live previews, queue and UI state.
+
+
+## Annotation ownership provenance (transaction format 2)
+
+Every `map.annotation` entity edit contains a non-null `ownerLayerId` (16 RFC4122
+bytes after its before/after images). Non-annotation edits carry no such bytes.
+This is an immutable MODEL layer UUID, authenticated by the frame digest and
+DVMDB's committed ordered-action chain. Replaying a transient create/delete
+sequence does not require guessing ownership from revision endpoints. The
+previous transaction envelope format 1 is intentionally rejected.

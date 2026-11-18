@@ -16,8 +16,13 @@ struct ModelEntityEdit final
 {
     QUuid entityId;      // Model key: any non-null UUID (imported entities are UUIDv5).
     QString entityType;
+    // Immutable owner of a map.annotation edit. Authenticated in the encoded
+    // transaction, including for create+delete sequences absent at both
+    // revision endpoints. Must be absent for all non-annotation entity types.
+    // This is a MODEL layer UUID, never a DVMDB native chunk ID.
     std::optional<QByteArray> before;
     std::optional<QByteArray> after;
+    std::optional<QUuid> ownerLayerId;
 };
 
 struct ModelEditTransaction final

@@ -71,7 +71,7 @@ int main()
     require(!ModelEditTransactionCodec::decode(frame.left(frame.size() - 1)).has_value(), "truncated digest rejected");
     require(!ModelEditTransactionCodec::decode(frame + 'x').has_value(), "trailing bytes rejected");
     corrupted = frame;
-    corrupted[4] = static_cast<char>(2);
+    corrupted[4] = static_cast<char>(3);
     require(!ModelEditTransactionCodec::decode(corrupted).has_value(), "unknown format rejected");
     corrupted = frame;
     corrupted[35] = static_cast<char>(0xff); // operation UTF-8, then rehash: semantic validation remains mandatory.
@@ -127,6 +127,44 @@ int main()
     null_entity.replace(first_entity, 16, QByteArray(16, '\0'));
     seal(null_entity);
     require(!ModelEditTransactionCodec::decode(null_entity).has_value(), "null entity UUID rejected on decode");
+
+    // An annotation's layer provenance survives even when the entity is
+    // created and deleted before a revision is committed.
+    ModelEditTransaction annotationEdit;
+    annotationEdit.transactionId = id("000000000030");
+    annotationEdit.operation = QStringLiteral("map.annotation.create");
+    annotationEdit.edits = {
+        ModelEntityEdit{id("000000000031"), QStringLiteral("map.annotation"),
+                        std::nullopt, QByteArray("annotation", 10), id("000000000032")}
+    };
+    const QByteArray annotationFrame = ModelEditTransactionCodec::encode(annotationEdit, &error);
+    require(!annotationFrame.isEmpty() && error.isEmpty(), "encode annotation ownership");
+    const std::optional<ModelEditTransaction> recoveredAnnotation =
+        ModelEditTransactionCodec::decode(annotationFrame, &error);
+    require(recoveredAnnotation && recoveredAnnotation->edits.size() == 1 &&
+            recoveredAnnotation->edits.first().ownerLayerId == id("000000000032") &&
+            ModelEditTransactionCodec::encode(*recoveredAnnotation) == annotationFrame,
+            "annotation owner must round trip byte exactly");
+    annotationEdit.edits.first().ownerLayerId.reset();
+    require(ModelEditTransactionCodec::encode(annotationEdit).isEmpty(),
+            "annotation edit without owner must fail closed");
+    annotationEdit.edits.first().ownerLayerId = QUuid{};
+    require(ModelEditTransactionCodec::encode(annotationEdit).isEmpty(),
+            "null owner must be rejected");
+    annotationEdit.edits.first().ownerLayerId = id("000000000032");
+    annotationEdit.edits.first().entityType = QStringLiteral("HydraulicNodeJunction");
+    require(ModelEditTransactionCodec::encode(annotationEdit).isEmpty(),
+            "non-annotation edits cannot smuggle a layer owner");
+    annotationEdit.edits.first().entityType = QStringLiteral("map.annotation");
+    QByteArray zeroOwner = annotationFrame;
+    zeroOwner.replace(zeroOwner.size() - 32 - 16, 16, QByteArray(16, '\0'));
+    seal(zeroOwner);
+    require(!ModelEditTransactionCodec::decode(zeroOwner).has_value(),
+            "re-signed annotation with null owner must be rejected");
+    QByteArray legacy = annotationFrame;
+    legacy[4] = static_cast<char>(1);
+    require(!ModelEditTransactionCodec::decode(legacy).has_value(),
+            "old ownership-free transaction format must fail closed");
 
     NetworkHydraulicDistribution root;
     root.uuid = id("000000000019");

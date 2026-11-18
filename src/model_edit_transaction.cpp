@@ -12,7 +12,7 @@
 namespace aowis::model {
 namespace {
 constexpr char magic[] = {'A', 'O', 'W', 'E'};
-constexpr quint8 version = 1;
+constexpr quint8 version = 2;
 constexpr quint32 maxPayloadBytes = 8u * 1024u * 1024u;
 constexpr quint32 maxEntityBytes = 1024u * 1024u;
 constexpr quint16 maxEdits = 4096;
@@ -193,10 +193,19 @@ QByteArray ModelEditTransactionCodec::encode(const ModelEditTransaction &transac
             failure(error, QStringLiteral("Entity edits must be valid, changed and have unique non-null UUIDs"));
             return {};
         }
+        const bool annotationEdit = edit.entityType == QStringLiteral("map.annotation");
+        if (annotationEdit != edit.ownerLayerId.has_value() ||
+            (edit.ownerLayerId && edit.ownerLayerId->isNull())) {
+            failure(error, QStringLiteral("Annotation edits require a non-null owning layer UUID; other edits must not carry one"));
+            return {};
+        }
         lastId = id;
         payload.append(id);
         if (!appendUtf8(payload, edit.entityType, maxTypeBytes, error) ||
             !appendImage(payload, edit.before, error) || !appendImage(payload, edit.after, error)) return {};
+        // Only annotations carry owner provenance: 16 extra bytes per
+        // annotation edit, no overhead for hydraulic/other entity edits.
+        if (annotationEdit) payload.append(edit.ownerLayerId->toRfc4122());
         if (payload.size() > maxPayloadBytes) {
             failure(error, QStringLiteral("Transaction exceeds 8 MiB"));
             return {};
@@ -257,6 +266,12 @@ std::optional<ModelEditTransaction> ModelEditTransactionCodec::decode(const QByt
                 !asciiIdentifier(edit.entityType) || !readImage(reader, edit.before) ||
                 !readImage(reader, edit.after) || (!edit.before && !edit.after) ||
                 (edit.before && edit.after && *edit.before == *edit.after)) goto invalid;
+            if (edit.entityType == QStringLiteral("map.annotation")) {
+                QByteArray layer;
+                if (!reader.readBytes(16, layer)) goto invalid;
+                edit.ownerLayerId = QUuid::fromRfc4122(layer);
+                if (edit.ownerLayerId->isNull()) goto invalid;
+            }
             transaction.edits.append(std::move(edit));
         }
     }

@@ -60,8 +60,8 @@ int main()
     transaction.transactionId = createUuidV7();
     transaction.operation = QStringLiteral("map.annotation.update");
     transaction.edits.append(aowis::model::ModelEntityEdit{
-        after.uuid, QStringLiteral("MapAnnotation"),
-        ModelCodec<MapAnnotation>::encode(before), ModelCodec<MapAnnotation>::encode(after)});
+        after.uuid, QStringLiteral("map.annotation"),
+        ModelCodec<MapAnnotation>::encode(before), ModelCodec<MapAnnotation>::encode(after), createUuidV7()});
     const QByteArray transactionBytes = aowis::model::ModelEditTransactionCodec::encode(transaction);
     const std::optional<aowis::model::ModelEditTransaction> decoded =
         aowis::model::ModelEditTransactionCodec::decode(transactionBytes);

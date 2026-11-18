@@ -164,6 +164,17 @@ target snapshot.
 
 ## Logical edits and history
 
+The canonical transaction envelope for annotation actions includes an
+**immutable `ownerLayerId` on each `map.annotation` entity edit**. This UUID is
+part of the authenticated and action-order-chained bytes, not a request-only
+parameter or a human-readable operation/description. A create-and-delete pair
+thus retains provable ownership even if the member exists at neither
+immutable revision endpoint. Every non-annotation edit must omit ownerLayerId;
+missing/null owners are rejected. The edit transaction frame version is **2**;
+old pre-production version-1 frames are intentionally unsupported. DVMDB must
+validate the claimed layer against the current draft and existing member
+ownership before publishing any edit. This does not encode native chunk IDs.
+
 An annotation create/update/delete is an ordinary canonical `ModelEditTransaction`
 entity image (`MapAnnotation`). Layer metadata creation or re-parenting uses an
 explicit typed root image (`MapAnnotationLayerRoot`) plus server-owned
