@@ -104,7 +104,8 @@ int main()
     require(chosenValue && chosenValue->style.text_size == MapAnnotationTextSize::Large,
         "explicit field choice resolves conflict");
 
-    // Attachment target and offsets form one atomic semantic merge field.
+    // Attachment target, offsets and the explicit position form one atomic
+    // semantic merge field ("placement").
     left = baseline;
     right = baseline;
     left.anchor = anchor;
@@ -118,8 +119,64 @@ int main()
     right.anchor->offset_north_m += 2.0;
     left.anchor->offset_east_m += 3.0;
     const std::optional<ModelFieldMerge> anchorConflict = mergeAnnotation(baseline, left, right);
-    require(anchorConflict && anchorConflict->conflicting_fields == QStringList{QStringLiteral("anchor")},
+    require(anchorConflict && anchorConflict->content.isEmpty() &&
+        anchorConflict->conflicting_fields == QStringList{QStringLiteral("placement")},
         "conflicting anchors are not merged component-by-component");
+    const std::optional<ModelFieldMerge> anchorChosen = mergeAnnotation(baseline, left, right,
+        {{QStringLiteral("placement"), true}});
+    const std::optional<MapAnnotation> anchorChosenValue = anchorChosen ?
+        ModelCodec<MapAnnotation>::decode(anchorChosen->content) : std::nullopt;
+    require(anchorChosenValue && anchorChosenValue->anchor &&
+        anchorChosenValue->anchor->offset_north_m == right.anchor->offset_north_m &&
+        anchorChosenValue->anchor->offset_east_m == right.anchor->offset_east_m,
+        "a placement choice takes the whole anchor of the chosen side");
+
+    // A10: anchor and position are ONE placement. Attaching keeps the last
+    // explicit position, so a concurrent free drag must not be combined.
+    left = baseline;
+    right = baseline;
+    left.anchor = anchor;
+    right.position_wgs84.longitude_deg += 0.01;
+    right.text = QStringLiteral("Dragged and edited");
+    const std::optional<ModelFieldMerge> attachDrag = mergeAnnotation(baseline, left, right);
+    require(attachDrag && attachDrag->content.isEmpty() &&
+        attachDrag->conflicting_fields == QStringList{QStringLiteral("placement")},
+        "attach versus free drag conflicts as one placement field");
+    const std::optional<ModelFieldMerge> keepDrag = mergeAnnotation(baseline, left, right,
+        {{QStringLiteral("placement"), true}});
+    const std::optional<MapAnnotation> keepDragValue = keepDrag ?
+        ModelCodec<MapAnnotation>::decode(keepDrag->content) : std::nullopt;
+    require(keepDragValue && !keepDragValue->anchor &&
+        keepDragValue->position_wgs84.longitude_deg == right.position_wgs84.longitude_deg &&
+        keepDragValue->text == right.text,
+        "choosing the dragged placement drops the attach but keeps the text edit");
+    const std::optional<ModelFieldMerge> keepAttach = mergeAnnotation(baseline, left, right,
+        {{QStringLiteral("placement"), false}});
+    const std::optional<MapAnnotation> keepAttachValue = keepAttach ?
+        ModelCodec<MapAnnotation>::decode(keepAttach->content) : std::nullopt;
+    require(keepAttachValue && keepAttachValue->anchor &&
+        keepAttachValue->position_wgs84.longitude_deg == baseline.position_wgs84.longitude_deg &&
+        keepAttachValue->text == right.text,
+        "choosing the attach keeps its explicit position, never the other drag");
+
+    // Two different drags conflict as placement; one drag merges with text.
+    left = baseline;
+    right = baseline;
+    left.position_wgs84.latitude_deg += 0.01;
+    right.position_wgs84.latitude_deg -= 0.01;
+    const std::optional<ModelFieldMerge> dragDrag = mergeAnnotation(baseline, left, right);
+    require(dragDrag && dragDrag->conflicting_fields == QStringList{QStringLiteral("placement")},
+        "two different drags conflict as placement");
+    right = baseline;
+    right.text = QStringLiteral("Only text");
+    const std::optional<ModelFieldMerge> dragText = mergeAnnotation(baseline, left, right);
+    const std::optional<MapAnnotation> dragTextValue = dragText ?
+        ModelCodec<MapAnnotation>::decode(dragText->content) : std::nullopt;
+    require(dragTextValue && dragTextValue->position_wgs84.latitude_deg == left.position_wgs84.latitude_deg &&
+        dragTextValue->text == right.text, "a one-sided drag merges with a text edit");
+    right = left;
+    const std::optional<ModelFieldMerge> sameDrag = mergeAnnotation(baseline, left, right);
+    require(sameDrag && sameDrag->conflicting_fields.isEmpty(), "identical placements do not conflict");
 
     // UUID/domain identity must be immutable for every branch.
     left = baseline;

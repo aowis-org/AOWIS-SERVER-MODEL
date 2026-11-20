@@ -3,13 +3,16 @@
 #include <aowis/model/serialization/model_validation.h>
 
 #include <QByteArray>
+#include <QChar>
 #include <QDataStream>
 #include <QIODevice>
+#include <QList>
 #include <QUuid>
 #include <QString>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <optional>
 
 namespace
 {
@@ -64,6 +67,45 @@ int main()
     annotation = validAnnotation();
     annotation.text = QString(4097, QLatin1Char('x'));
     if (!refuses(annotation)) return EXIT_FAILURE;
+
+    // A8: plain text only. Each case is refused on its own.
+    const QString lead = QStringLiteral("Note ");
+    const QList<QString> refusedTexts{
+        lead + QChar(0xD800),                              // unpaired high surrogate
+        lead + QChar(0xDC00) + QStringLiteral("x"),        // unpaired low surrogate
+        lead + QChar(0x0000),                              // NUL
+        lead + QChar(0x001B) + QStringLiteral("[31m"),     // ESC sequence
+        lead + QChar(0x000D),                              // carriage return
+        lead + QChar(0x007F),                              // DEL
+        lead + QChar(0x0085),                              // C1 next line
+        lead + QChar(0x202E) + QStringLiteral("txt.exe"),  // right-to-left override
+        lead + QChar(0x2066) + QStringLiteral("x"),        // left-to-right isolate
+        QString(QChar(0x200B)),                            // only a zero-width space
+        QString(QChar(0x200B)) + QStringLiteral(" \n\t") + QChar(0x2060), // only invisible
+        QString(QChar(0x3000)),                            // only ideographic space
+    };
+    for (const QString &text : refusedTexts)
+    {
+        annotation = validAnnotation();
+        annotation.text = text;
+        if (!refuses(annotation)) return EXIT_FAILURE;
+    }
+    const QList<QString> acceptedTexts{
+        QStringLiteral("Line one\nLine two\twith tab"),
+        QString(QChar(0x200B)) + QStringLiteral("a"),
+        QString::fromUtf8("Valve \xF0\x9F\x94\xA7 OK"),          // surrogate pair (emoji)
+        QString::fromUtf8("\xD7\xA9\xD7\x9C\xD7\x95\xD7\x9D") + QChar(0x200F), // Hebrew + RLM mark
+        QString(4096, QLatin1Char('y')),
+    };
+    for (const QString &text : acceptedTexts)
+    {
+        annotation = validAnnotation();
+        annotation.text = text;
+        if (!passes(annotation)) return EXIT_FAILURE;
+        const QByteArray bytes = ModelCodec<MapAnnotation>::encode(annotation);
+        const std::optional<MapAnnotation> back = ModelCodec<MapAnnotation>::decode(bytes);
+        if (bytes.isEmpty() || !back || back->text != text) return EXIT_FAILURE;
+    }
     annotation = validAnnotation();
     annotation.uuid = QUuid{};
     if (!refuses(annotation)) return EXIT_FAILURE;

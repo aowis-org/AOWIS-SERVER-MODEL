@@ -1,6 +1,8 @@
 #include <aowis/model/serialization/model_validation.h>
 
+#include <QChar>
 #include <QLatin1StringView>
+#include <QList>
 
 #include <cmath>
 
@@ -48,6 +50,48 @@ void validateAnchor(const MapAnnotationAnchor &value, const QString &prefix,
         issue(report, prefix + QStringLiteral(".offset"), QStringLiteral("offsets must be finite"));
 }
 
+// Annotation text is plain text (A8): well-formed UTF-16, no control
+// characters except line feed and tab, no bidirectional embedding, override or
+// isolate controls, and at least one visible character. Unpaired surrogates
+// would become U+FFFD in JSON, so a client before-image built from the JSON
+// text could never match the stored annotation again; bidi controls can make
+// a shared note display differently from what it says.
+void validateText(const QString &text, const QString &path, ModelValidationReport &report)
+{
+    if (text.size() > 4096)
+        issue(report, path, QStringLiteral("must not exceed 4096 UTF-16 code units"));
+    if (!text.isValidUtf16())
+    {
+        issue(report, path, QStringLiteral("must be well-formed UTF-16 without unpaired surrogates"));
+        return;
+    }
+    bool control = false;
+    bool bidi = false;
+    bool visible = false;
+    const QList<uint> codePoints = text.toUcs4();
+    for (const uint codePoint : codePoints)
+    {
+        if ((codePoint < 0x20U && codePoint != 0x09U && codePoint != 0x0AU) ||
+            (codePoint >= 0x7FU && codePoint <= 0x9FU))
+            control = true;
+        if ((codePoint >= 0x202AU && codePoint <= 0x202EU) ||
+            (codePoint >= 0x2066U && codePoint <= 0x2069U))
+            bidi = true;
+        const QChar::Category category = QChar::category(static_cast<char32_t>(codePoint));
+        if (!QChar::isSpace(static_cast<char32_t>(codePoint)) &&
+            category != QChar::Other_Control && category != QChar::Other_Format &&
+            category != QChar::Separator_Space && category != QChar::Separator_Line &&
+            category != QChar::Separator_Paragraph)
+            visible = true;
+    }
+    if (control)
+        issue(report, path, QStringLiteral("must not contain control characters other than line feed and tab"));
+    if (bidi)
+        issue(report, path, QStringLiteral("must not contain bidirectional embedding, override or isolate controls"));
+    if (!visible)
+        issue(report, path, QStringLiteral("must not be blank"));
+}
+
 void validateStyle(const MapAnnotationStyle &value, const QString &prefix,
                    ModelValidationReport &report)
 {
@@ -93,10 +137,7 @@ ModelValidationReport validateMapAnnotation(const MapAnnotation &value)
     ModelValidationReport report;
     if (value.uuid.isNull())
         issue(report, QStringLiteral("annotation.uuid"), QStringLiteral("must not be null"));
-    if (value.text.trimmed().isEmpty())
-        issue(report, QStringLiteral("annotation.text"), QStringLiteral("must not be blank"));
-    if (value.text.size() > 4096)
-        issue(report, QStringLiteral("annotation.text"), QStringLiteral("must not exceed 4096 UTF-16 code units"));
+    validateText(value.text, QStringLiteral("annotation.text"), report);
     if (!finitePosition(value.position_wgs84))
         issue(report, QStringLiteral("annotation.position_wgs84"), QStringLiteral("invalid WGS84 position"));
     if (value.anchor)

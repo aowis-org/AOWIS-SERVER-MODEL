@@ -2506,8 +2506,9 @@ std::optional<ModelFieldMerge> mergeFieldsForType(const QUuid &object_uuid,
 // writeStruct/readStruct declarations above. A configure-time checker ensures
 // that a codec or Model schema change cannot silently omit a merge field.
 // Domain-neutral annotation images use the same canonical field merge contract
-// as hydraulic entities. An anchor is atomic (target UUID/type + offsets),
-// while appearance properties can be edited by two branches independently.
+// as hydraulic entities. Placement (anchor target/type/offsets together with
+// the last explicit position) is atomic and reported as "placement", while
+// text and appearance properties can be edited by two branches independently.
 // UUIDs are immutable; an invalid or noncanonical image fails closed.
 template<> std::optional<ModelFieldMerge> mergeFieldsForType<MapAnnotation>(
     const QUuid &object_uuid, const QByteArray &baseline_bytes,
@@ -2527,10 +2528,45 @@ template<> std::optional<ModelFieldMerge> mergeFieldsForType<MapAnnotation>(
     ModelFieldMerge result;
     chooseMergeField(*baseline, *left, *right, merged, &MapAnnotation::text,
         "text", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &MapAnnotation::position_wgs84,
-        "position_wgs84", result.conflicting_fields, field_choices);
-    chooseMergeField(*baseline, *left, *right, merged, &MapAnnotation::anchor,
-        "anchor", result.conflicting_fields, field_choices);
+    // `anchor` and `position_wgs84` form ONE merge field, "placement".
+    // Attaching keeps the last explicit position and derives the offsets from
+    // it, so a concurrent free drag must never be combined with an attach,
+    // detach or re-target (and two drags or two anchors simply conflict).
+    // Both encodings are self-delimiting, so their concatenation is exact.
+    const QByteArray baselinePlacement =
+        encodedMergeField(baseline->position_wgs84) + encodedMergeField(baseline->anchor);
+    const QByteArray leftPlacement =
+        encodedMergeField(left->position_wgs84) + encodedMergeField(left->anchor);
+    const QByteArray rightPlacement =
+        encodedMergeField(right->position_wgs84) + encodedMergeField(right->anchor);
+    const QString placement = QStringLiteral("placement");
+    const bool rightWinsPlacement = [&]() {
+        if (leftPlacement == rightPlacement || rightPlacement == baselinePlacement)
+            return false;
+        if (leftPlacement == baselinePlacement)
+            return true;
+        const QMap<QString, bool>::const_iterator choice = field_choices.constFind(placement);
+        if (choice == field_choices.cend())
+        {
+            result.conflicting_fields.append(placement);
+            return false;
+        }
+        return choice.value();
+    }();
+    if (encodedMergeField(baseline->position_wgs84).isEmpty() ||
+        encodedMergeField(left->position_wgs84).isEmpty() ||
+        encodedMergeField(right->position_wgs84).isEmpty() ||
+        encodedMergeField(baseline->anchor).isEmpty() || encodedMergeField(left->anchor).isEmpty() ||
+        encodedMergeField(right->anchor).isEmpty())
+    {
+        if (!result.conflicting_fields.contains(placement))
+            result.conflicting_fields.append(placement);
+    }
+    else if (rightWinsPlacement)
+    {
+        merged.position_wgs84 = right->position_wgs84;
+        merged.anchor = right->anchor;
+    }
     chooseMergeField(baseline->style, left->style, right->style, merged.style,
         &MapAnnotationStyle::text_size, "style.text_size", result.conflicting_fields, field_choices);
     chooseMergeField(baseline->style, left->style, right->style, merged.style,

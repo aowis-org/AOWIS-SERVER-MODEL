@@ -35,7 +35,7 @@ The A2 implementation adds types under `include/aowis/model/map/`, not under
 | Type | Canonical field | Meaning / constraints |
 |---|---|---|
 | `MapAnnotation` | `uuid: QUuid` | Non-null, immutable object identity; UUIDv7 on new creation |
-| | `text: QString` | Plain Unicode text; not HTML/Markdown; non-blank after trimming; at most 4096 UTF-16 code units |
+| | `text: QString` | Plain Unicode text; not HTML/Markdown; well-formed UTF-16 (no unpaired surrogates); no control characters except line feed and tab (clients normalize CR/CRLF to LF); no bidirectional embedding/override/isolate controls (U+202A–U+202E, U+2066–U+2069); at least one visible character (whitespace and format characters such as U+200B do not count); at most 4096 UTF-16 code units |
 | | `position_wgs84: CoordinateWGS84` | Geographic world position when free-standing; last explicit position while anchored; valid finite longitude/latitude, optional finite GPS altitude |
 | | `anchor: optional<MapAnnotationAnchor>` | Absent = free-standing; present = follow an in-scope spatial entity |
 | | `style: MapAnnotationStyle` | Small, versioned, portable presentation settings (see below) |
@@ -146,7 +146,8 @@ through the same fenced MODEL/DVMDB journal as all other network edits.
 
 MODEL must validate (before publishing any in-memory mutation or DVMDB write):
 non-null identity, supported domain/type/enum, finite coordinates and offsets,
-valid geographic ranges, non-blank bounded text, and canonical serialization.
+valid geographic ranges, non-blank bounded plain text (see the `text` row
+above), and canonical serialization.
 DVMDB must additionally check layer ownership, target kind, same-network
 membership, outgoing reference index, uniqueness and correct deletion cleanup
 in the complete candidate snapshot. A native record's UUID and type cannot
@@ -154,8 +155,13 @@ change in an update. Failed edits leave candidate, journal and HEAD unchanged.
 
 Canonical `mergeModelFields` for kind `map.annotation` handles independent
 annotation field changes separately:
-`text`, `position_wgs84`, `anchor` (as one semantic unit), and each `style`
-field. The annotation's UUID and layer domain/identity are immutable. Different
+`text`, `placement` and each `style` field. `placement` is `anchor` together
+with `position_wgs84`, merged and reported as ONE field: attaching keeps the
+last explicit position and derives the offsets from it, so a free drag on one
+branch never combines with an attach, detach or re-target on the other. One
+changed placement combines with text/style edits of the other branch (attach
++ text edit merge); two different placements conflict as `placement`, and a
+field choice `placement` selects one side's whole placement. The annotation's UUID and layer domain/identity are immutable. Different
 edits to the same field conflict; deletion vs modification conflicts;
 independent inserts may combine deterministically. Concurrent conflicting
 layer membership/ownership operations must not silently choose a winner.
